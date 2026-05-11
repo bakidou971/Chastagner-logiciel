@@ -247,6 +247,7 @@ textarea.fi{resize:vertical;}
 ================================================================ */
 var SK='chastagner_gmao_v7';
 var PAGE='dashboard',MODE='',EID=null,TMP_PIECES=[],DV_P=[],DV_MO=[];
+var STOCK_PAGE_NUM=1;
 var PS=50,CP=1,LS='';
 var PLAN_WEEK_OFFSET=0;
 var ANALYTICS_PERIOD='month';
@@ -1309,12 +1310,12 @@ function rStock(f){
       '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Délai moy. réappro.</div>'+
         '<div class="kp-v">'+sk.avgDelai+' j.</div>'+
         '<div class="kp-s">'+sk.nbCmds+' commande(s) enreg.</div></div>'+
-      '<div class="kp" style="border-left-color:var(--greentxt)"><div class="kp-l">Interv. bloquées</div>'+
-        '<div class="kp-v" style="color:'+(sk.interBloquees>0?'var(--red)':'var(--greentxt)')+'">'+sk.interBloquees+'</div>'+
-        '<div class="kp-s">'+sk.tauxDispo+'% dispo pièces</div></div>'+
+      '<div class="kp" style="border-left-color:var(--greentxt)"><div class="kp-l">Taux dispo. pièces</div>'+
+        '<div class="kp-v" style="color:'+(sk.tauxDispo>=80?'var(--greentxt)':sk.tauxDispo>=60?'var(--amber)':'var(--red)')+'">'+sk.tauxDispo+'%</div>'+
+        '<div class="kp-s">'+(sk.interBloquees>0?sk.interBloquees+' interv. bloquée(s)':'toutes pièces disponibles')+'</div></div>'+
     '</div>'+
     /* Row 2: 3 charts side by side */
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">'+
       /* Chart 1: Donut état stock */
       '<div class="card" style="padding:14px;min-height:140px;box-sizing:border-box">'+
         '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">État du stock</div>'+
@@ -1327,16 +1328,9 @@ function rStock(f){
           '</div>'+
         '</div>'+
       '</div>'+
-      /* Chart 2: Bar top 5 */
-      '<div class="card" style="padding:14px;min-height:140px;box-sizing:border-box;overflow:hidden">'+
-        '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Top pièces utilisées</div>'+
-        '<div style="display:flex;align-items:flex-start;gap:8px;overflow:hidden">'+
-          barSVG+
-          (sk.top5.length?'<div style="font-size:9px;line-height:1.6;color:var(--txt2);overflow:hidden">'+
-            sk.top5.map(function(p,i){return'<div>'+(i+1)+'. '+escH(p.nom.length>14?p.nom.substring(0,14)+'…':p.nom)+'</div>';}).join('')+
-          '</div>':'')+
-        '</div>'+
-      '</div>'+
+      /* Top5 chart removed — moved to Analytique KPIs */
+      ''+
+
       /* Chart 3: Gauge dispo + sparkline */
       '<div class="card" style="padding:14px;min-height:140px;box-sizing:border-box;overflow:hidden">'+
         '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux disponibilité pièces</div>'+
@@ -1363,6 +1357,186 @@ function rStock(f){
       '<td>'+bdg(c,e)+'</td>'+
       '<td style="white-space:nowrap"><button class="bs" style="font-size:10px;padding:3px 6px;margin-right:3px" onclick="editStock('+s.id+')">Modifier</button><button class="bs" style="font-size:10px;padding:3px 6px;background:var(--greenbg);color:var(--greentxt);border-color:var(--greentxt)" onclick="cmdStock('+s.id+')">+ Cmd</button></td></tr>';
   }).join('');
+  
+  /* ── Page 2 — Tableau de bord analytique stock ─────────────────── */
+  var STOCK_TAB = (function(){
+    var sk = calcStockKPIs();
+    var st = D.stock || [];
+    if(!st.length) return '<div style="padding:40px;text-align:center;color:var(--txt3)">Aucune pièce en stock</div>';
+
+    /* ── Helpers SVG ─────────────────────────────────────────────── */
+    function svgRect(x,y,w,h,fill,rx){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+fill+'" rx="'+(rx||0)+'"/>';}
+    function svgText(x,y,txt,size,fill,anchor){return '<text x="'+x+'" y="'+y+'" font-size="'+(size||10)+'" fill="'+(fill||'var(--txt2)')+'" text-anchor="'+(anchor||'start')+'">'+txt+'</text>';}
+    function svgLine(x1,y1,x2,y2,stroke,sw){return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(stroke||'#E5E7EB')+'" stroke-width="'+(sw||1)+'"/>';}
+
+    /* ── 1. Répartition par catégorie (Donut) ──────────────────── */
+    var catMap = {};
+    st.forEach(function(s){ catMap[s.categorie]=(catMap[s.categorie]||0)+1; });
+    var cats = Object.keys(catMap).sort(function(a,b){return catMap[b]-catMap[a];});
+    var catColors = ['#2563EB','#16A34A','#D97706','#DC2626','#7C3AED','#0891B2','#DB2777','#65A30D'];
+    var catTotal = st.length || 1;
+    var deg2 = 0, catArcs = '', catLegend = '';
+    cats.forEach(function(cat,i){
+      var d = catMap[cat]/catTotal*360;
+      if(d>=360) d=359.99;
+      var s = deg2*Math.PI/180, e = (deg2+d)*Math.PI/180;
+      var x1=70+58*Math.cos(s-Math.PI/2), y1=70+58*Math.sin(s-Math.PI/2);
+      var x2=70+58*Math.cos(e-Math.PI/2), y2=70+58*Math.sin(e-Math.PI/2);
+      var lg = d>180?1:0;
+      catArcs += '<path d="M70,70 L'+x1+','+y1+' A58,58 0 '+lg+',1 '+x2+','+y2+' Z" fill="'+catColors[i%catColors.length]+'"><title>'+escH(cat)+': '+catMap[cat]+'</title></path>';
+      catLegend += '<div style="display:flex;align-items:center;gap:5px;font-size:10px;margin-bottom:3px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+catColors[i%catColors.length]+';flex-shrink:0"></span><span style="color:var(--txt)">'+escH(cat)+'</span><span style="color:var(--txt2);margin-left:auto">'+catMap[cat]+'</span></div>';
+      deg2 += d;
+    });
+    var donutCat = '<svg viewBox="0 0 140 140" width="120" height="120" style="display:block;flex-shrink:0">'+catArcs+
+      '<circle cx="70" cy="70" r="36" fill="var(--bg)"/>'+
+      svgText('70','74',st.length+'',14,'var(--txt)','middle')+
+      svgText('70','86','réfs',9,'var(--txt2)','middle')+
+      '</svg>';
+
+    /* ── 2. Barres horizontales: Top 10 valeur stock (prix×qté) ── */
+    var byVal = st.map(function(s){return{nom:s.ref,val:s.qte*s.prix,des:s.designation};});
+    byVal.sort(function(a,b){return b.val-a.val;});
+    var top8 = byVal.slice(0,8);
+    var maxVal = top8[0]?top8[0].val:1;
+    var barW2=220, barH2=14, barPad=22;
+    var barRows = top8.map(function(b,i){
+      var w = Math.max(4,Math.round(b.val/maxVal*(barW2-70)));
+      var y = i*barPad;
+      var label = b.nom.length>10?b.nom.substring(0,10)+'…':b.nom;
+      var col = b.val>maxVal*0.6?'#2563EB':b.val>maxVal*0.3?'#7C3AED':'#0891B2';
+      return svgRect(0,y+2,w,barH2,col,3)+
+        svgText(w+4,y+barH2-1,Math.round(b.val)+'€',9,'var(--txt2)')+
+        svgText(-2,y+barH2-1,label,9,'var(--txt)','end');
+    }).join('');
+    var barsValSVG = '<svg viewBox="-60 0 '+(barW2+20)+' '+(top8.length*barPad+4)+'" width="100%" height="'+(top8.length*barPad+4)+'" style="display:block">'+barRows+'</svg>';
+
+    /* ── 3. Courbe: évolution stock dans le temps (qté vs seuil) ─ */
+    // Simulate a curve: for each ref show qté vs qte_min ratio
+    var sorted = st.slice().sort(function(a,b){return a.ref.localeCompare(b.ref);}).slice(0,10);
+    var cW=260,cH=80,cPad=10;
+    var cStep = sorted.length>1?(cW-cPad*2)/(sorted.length-1):cW-cPad*2;
+    var maxQte = Math.max.apply(null,sorted.map(function(s){return Math.max(s.qte,s.qte_min,1);}));
+    function cY(v){return cPad + Math.round((1-v/maxQte)*(cH-cPad*2));}
+    var ptQte = sorted.map(function(s,i){return (cPad+i*cStep)+','+(cY(s.qte));}).join(' ');
+    var ptMin = sorted.map(function(s,i){return (cPad+i*cStep)+','+(cY(s.qte_min));}).join(' ');
+    // Area fill under qté line
+    var areaPath = 'M'+cPad+','+(cH-cPad)+' L'+ptQte.replace(/,(\d+)/g,function(_,y){return ','+y;})+' L'+(cPad+(sorted.length-1)*cStep)+','+(cH-cPad)+' Z';
+    var curveSVG = '<svg viewBox="0 0 '+cW+' '+cH+'" width="100%" height="'+cH+'" style="display:block">'+
+      '<defs><linearGradient id="gStock" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563EB" stop-opacity="0.3"/><stop offset="100%" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>'+
+      svgLine(cPad,cH-cPad,cW-cPad,cH-cPad,'var(--bdr)')+
+      '<path d="M'+ptQte.split(' ').map(function(p,i){return (i?'L':'')+p;}).join('')+' L'+(cPad+(sorted.length-1)*cStep)+','+(cH-cPad)+' L'+cPad+','+(cH-cPad)+' Z" fill="url(#gStock)"/>'+
+      '<polyline points="'+ptQte+'" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
+      '<polyline points="'+ptMin+'" fill="none" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="4,3"/>'+
+      sorted.map(function(s,i){
+        var x=cPad+i*cStep, y=cY(s.qte);
+        var col=s.qte<=0?'#DC2626':s.qte<=s.qte_min?'#D97706':'#2563EB';
+        return'<circle cx="'+x+'" cy="'+y+'" r="3" fill="'+col+'"><title>'+escH(s.ref)+': qté='+s.qte+' / min='+s.qte_min+'</title></circle>';
+      }).join('')+
+      svgText(cPad,cH-1,'Qté stock',8,'#2563EB')+
+      svgText(cPad+60,cH-1,'— Seuil min.',8,'#DC2626')+
+      '</svg>';
+
+    /* ── 4. Jauge demi-cercle: taux disponibilité ──────────────── */
+    var gPct2 = sk.tauxDispo/100;
+    var gCol2 = gPct2>=0.8?'#16A34A':gPct2>=0.6?'#D97706':'#DC2626';
+    var gRad2=48, gCx2=65, gCy2=58;
+    var gAngle2 = 180*gPct2;
+    var gRad_full = gRad2;
+    var gAngleFull2 = 180 - gAngle2;
+    var gpx2 = gCx2+gRad2*Math.cos(gAngleFull2*Math.PI/180);
+    var gpy2 = gCy2-gRad2*Math.sin(gAngleFull2*Math.PI/180);
+    var gaugeSVG2 = '<svg viewBox="0 0 130 72" width="130" height="72" style="display:block;margin:0 auto">'+
+      '<path d="M '+(gCx2-gRad2)+','+gCy2+' A '+gRad2+','+gRad2+' 0 0,1 '+(gCx2+gRad2)+','+gCy2+'" fill="none" stroke="#E5E7EB" stroke-width="11" stroke-linecap="round"/>'+
+      '<path d="M '+(gCx2-gRad2)+','+gCy2+' A '+gRad2+','+gRad2+' 0 '+(gAngle2>90?1:0)+',1 '+gpx2+','+gpy2+'" fill="none" stroke="'+gCol2+'" stroke-width="11" stroke-linecap="round"/>'+
+      svgText(''+gCx2,''+( gCy2-4),sk.tauxDispo+'%',18,gCol2,'middle')+
+      svgText(''+gCx2,''+(gCy2+14),'disponibilité',9,'var(--txt2)','middle')+
+      '</svg>';
+
+    /* ── 5. Camembert: état (OK/Alerte/Rupture) ─────────────────── */
+    var nOk2  = st.filter(function(s){return s.qte>s.qte_min;}).length;
+    var nAlt2 = sk.alerte;
+    var nRup2 = sk.rupture;
+    var stateData = [{n:nOk2,c:'#16A34A',l:'OK'},{n:nAlt2,c:'#D97706',l:'Alerte'},{n:nRup2,c:'#DC2626',l:'Rupture'}].filter(function(d){return d.n>0;});
+    var deg3=0, pie3='';
+    var tot3=st.length||1;
+    stateData.forEach(function(sl){
+      var d=sl.n/tot3*360; if(d>=360) d=359.99;
+      var s=deg3*Math.PI/180,e=(deg3+d)*Math.PI/180;
+      var x1=50+44*Math.cos(s-Math.PI/2),y1=50+44*Math.sin(s-Math.PI/2);
+      var x2=50+44*Math.cos(e-Math.PI/2),y2=50+44*Math.sin(e-Math.PI/2);
+      pie3+='<path d="M50,50 L'+x1+','+y1+' A44,44 0 '+(d>180?1:0)+',1 '+x2+','+y2+' Z" fill="'+sl.c+'"><title>'+sl.l+': '+sl.n+'</title></path>';
+      deg3+=d;
+    });
+    var pieSVG = '<svg viewBox="0 0 100 100" width="90" height="90" style="display:block;flex-shrink:0">'+pie3+'</svg>';
+
+    /* ── Assemble page 2 ─────────────────────────────────────────── */
+    return (
+      /* Row A: Donut catégories + Barres valeur */
+      '<div style="display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-bottom:12px">'+
+        '<div class="card" style="padding:14px">'+
+          '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:10px">Répartition par catégorie</div>'+
+          '<div style="display:flex;gap:10px;align-items:center">'+
+            donutCat+
+            '<div style="flex:1;overflow:hidden">'+catLegend+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="card" style="padding:14px">'+
+          '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:10px">Top 8 — Valeur en stock (€)</div>'+
+          barsValSVG+
+        '</div>'+
+      '</div>'+
+      /* Row B: Courbe qté vs seuil */
+      '<div class="card" style="padding:14px;margin-bottom:12px">'+
+        '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Quantité en stock vs seuil minimum par référence</div>'+
+        curveSVG+
+      '</div>'+
+      /* Row C: Camembert état + Jauge dispo + KPI résumé */
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+
+        '<div class="card" style="padding:14px">'+
+          '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">État du stock</div>'+
+          '<div style="display:flex;align-items:center;gap:10px">'+
+            pieSVG+
+            '<div style="font-size:10px;line-height:1.9">'+
+              (nOk2?'<div><span style="color:#16A34A;font-weight:700">●</span> OK : '+nOk2+'</div>':'')+
+              (nAlt2?'<div><span style="color:#D97706;font-weight:700">●</span> Alerte : '+nAlt2+'</div>':'')+
+              (nRup2?'<div><span style="color:#DC2626;font-weight:700">●</span> Rupture : '+nRup2+'</div>':'')+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="card" style="padding:14px">'+
+          '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux de disponibilité</div>'+
+          gaugeSVG2+
+          '<div style="font-size:10px;color:var(--txt2);text-align:center;margin-top:4px">'+(sk.interBloquees>0?'⚠ '+sk.interBloquees+' interv. bloquée(s)':'✓ Toutes pièces disponibles')+'</div>'+
+        '</div>'+
+        '<div class="card" style="padding:14px">'+
+          '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:10px">Résumé pièces</div>'+
+          '<div style="font-size:12px;line-height:2">'+
+            '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Total références</span><b>'+st.length+'</b></div>'+
+            '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Valeur totale</span><b>'+eur(sk.valeur)+'</b></div>'+
+            '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Délai moy. réappro.</span><b>'+sk.avgDelai+' j.</b></div>'+
+            '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Commandes enreg.</span><b>'+sk.nbCmds+'</b></div>'+
+            '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Top pièce utilisée</span><b style="font-size:10px">'+(sk.top5[0]?escH(sk.top5[0].nom)+' ('+sk.top5[0].count+'×)':'—')+'</b></div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'
+    );
+  })();
+
+  var STOCK_PAGE = typeof STOCK_PAGE_NUM !== 'undefined' ? STOCK_PAGE_NUM : 1;
+
+  /* Tab nav */
+  var stockNav = '<div style="display:flex;gap:0;border-bottom:2px solid var(--bdr);margin-bottom:16px">'+
+    '<button onclick="STOCK_PAGE_NUM=1;draw(\'stock\',LS)" style="padding:8px 18px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:'+(STOCK_PAGE===1?'2px solid var(--blue);color:var(--blue)':'2px solid transparent;color:var(--txt2)')+'">Stock & KPIs</button>'+
+    '<button onclick="STOCK_PAGE_NUM=2;draw(\'stock\',LS)" style="padding:8px 18px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:'+(STOCK_PAGE===2?'2px solid var(--blue);color:var(--blue)':'2px solid transparent;color:var(--txt2)')+'">📊 Analytique</button>'+
+    '</div>';
+
+  if(STOCK_PAGE===2){
+    return '<div class="page">'+
+      '<div class="ph"><h2>Pièces détachées — Analytique</h2></div>'+
+      '<div class="pg-c">'+stockNav+STOCK_TAB+'</div>'+
+    '</div>';
+  }
+
   return kpiPanel+top5Panel+
   '<div class="card"><div class="ch"><span class="ct2">Pièces détachées — '+D.stock.length+' références</span></div>'+
   '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>'+
@@ -1566,14 +1740,10 @@ function mInter(id){
     '<div class="fg"><label class="fl">Technicien</label><select class="fi" id="ftech"><option value="">Non assigné</option>'+techO+'</select></div>'+
   '</div>'+
   '<div class="fg2">'+
-    '<div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;align-items:end">'+
-    '<div class="fg" style="margin:0"><label class="fl">Date de début</label><input class="fi" type="date" id="fdeb" value="'+(d.date_debut||today)+'" onchange="autoFin()"></div>'+
-    '<div class="fg" style="margin:0"><label class="fl">Heure début</label><input class="fi" type="time" id="fhdeb" value="'+(d.heure_debut||'08:00')+'"></div>'+
-    '</div>'+
-    '<div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;align-items:end">'+
-    '<div class="fg" style="margin:0"><label class="fl">Échéance (+10j ouv. auto)</label><input class="fi" type="date" id="dfin" value="'+(d.date_fin||dflt_fin)+'"></div>'+
-    '<div class="fg" style="margin:0"><label class="fl">Heure fin prév.</label><input class="fi" type="time" id="dhfin" value="'+(d.heure_fin||'17:00')+'"></div>'+
-    '</div>'+
+    '<div class="fg"><label class="fl">Date de début</label><input class="fi" type="date" id="fdeb" value="'+(d.date_debut||today)+'" onchange="autoFin()"></div>'+
+    '<div class="fg"><label class="fl">Heure de début</label><input class="fi" type="time" id="fhdeb" value="'+(d.heure_debut||'08:00')+'" style="max-width:160px"></div>'+
+    '<div class="fg"><label class="fl">Échéance (+10j ouv. auto)</label><input class="fi" type="date" id="dfin" value="'+(d.date_fin||dflt_fin)+'"></div>'+
+    '<div class="fg"><label class="fl">Heure de fin prévue</label><input class="fi" type="time" id="dhfin" value="'+(d.heure_fin||'17:00')+'" style="max-width:160px"></div>'+
   '</div>'+
   '<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat">'+opts(SI,d.statut)+'</select></div>'+
   '<div class="fg"><label class="fl">Description / diagnostic</label><textarea class="fi" id="fdesc" rows="3">'+(d.description||'')+'</textarea></div>'+
