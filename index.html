@@ -318,9 +318,9 @@ function load(){
     /* First reset all materiels to empty */
     D.materiels.forEach(function(m){m.statut='';});
     /* Then sync from active interventions */
-    D.interventions.forEach(function(i){syncMatStatut(i);});
+    D.interventions.forEach(function(i){syncMatStatut();});
     /* Then sync from historique (Terminé/Annulé → Finis) */
-    if(D.historique)(D.historique).forEach(function(i){syncMatStatut(i);});
+    if(D.historique)(D.historique).forEach(function(i){syncMatStatut();});
   }
   /* migrate Annulé/Terminé to historique */
   if(D.interventions){
@@ -331,19 +331,26 @@ function load(){
   draw(PAGE,'');
 }
 function save(){D.users=USERS;try{localStorage.setItem(SK,JSON.stringify(D));}catch(e){}}
-function syncMatStatut(inter){
-  /* Map intervention statut → materiel statut */
-  var map={
-    'En cours':'En cours',
-    'En attente':"En attentes d'acceptation",
-    'Devis fait':'Devis fait',
-    'Terminé':'Finis',
-    'Annulé':'Finis'
+function syncMatStatut(){
+  /* Option A: statut = intervention ACTIVE uniquement.
+     Terminé/Annulé/Archivé → matériel revient à vide (disponible).
+     On repart de zéro et on ne marque que les interventions actives. */
+  var mapActif={
+    'En cours':    'En cours',
+    'En attente':  "En attente d'acceptation",
+    'Devis fait':  'Devis fait'
+    /* Terminé et Annulé ne donnent PAS de statut → matériel libre */
   };
-  var ms=map[inter.statut]||'';
-  if(!inter.serie)return;
-  var mat=D.materiels.find(function(m){return m.serie===inter.serie;});
-  if(mat&&ms)mat.statut=ms;
+  /* 1. Reset tous les statuts */
+  D.materiels.forEach(function(m){ m.statut=''; });
+  /* 2. Appliquer uniquement les interventions actives (pas l'historique) */
+  (D.interventions||[]).forEach(function(i){
+    if(!i.serie)return;
+    var ms=mapActif[i.statut];
+    if(!ms)return;  /* Terminé/Annulé → on ne touche pas */
+    var mat=D.materiels.find(function(m){return m.serie===i.serie;});
+    if(mat)mat.statut=ms;
+  });
 }
 
 /* ================================================================
@@ -804,7 +811,7 @@ function cloreInter(id){
   var reason=closeBlockReason(i);
   if(reason){alert('Impossible de clore : '+reason);return;}
   i.statut='Terminé';i.date_cloture=todayStr();i.heure_cloture=new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0');
-  syncMatStatut(i);
+  syncMatStatut();
   D.historique.unshift(i);D.interventions.splice(idx,1);save();draw(PAGE,LS);
 }
 
@@ -847,7 +854,7 @@ function rHist(f){
       '<td>'+bstat(i.statut)+'</td>'+
       '<td>'+(i.devis?bdvs(i.devis.statut)+' '+vgpTag:'—')+'</td>'+
       '<td style="font-weight:700;color:'+(ca?'var(--greentxt)':'var(--txt3)')+'">'+(ca?eur(ca):'—')+'</td>'+
-      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="viewHist('+i.id+')">Voir</button></td></tr>';
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="viewHist('+i.id+')">Voir</button>'+'<button style="font-size:10px;padding:3px 6px;margin-left:4px;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:6px;cursor:pointer" onclick="delHist(\'+i.id+\')">&#10005; Supprimer</button></td></tr>';
   }).join('');
   return'<div class="kg" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+
     '<div class="kp" style="border-left-color:var(--green)"><div class="kp-l">Terminées</div><div class="kp-v">'+nbTermine+'</div><div class="kp-s">'+nbAnnule+' annulée(s)</div></div>'+
@@ -879,7 +886,7 @@ function applyHistFilters(){
       '<td>'+bstat(i.statut)+'</td>'+
       '<td>'+(i.devis?bdvs(i.devis.statut)+' '+vgpTag:'—')+'</td>'+
       '<td style="font-weight:700;color:'+(ca?'var(--greentxt)':'var(--txt3)')+'">'+(ca?eur(ca):'—')+'</td>'+
-      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="viewHist('+i.id+')">Voir</button></td></tr>';
+      '<td style="white-space:nowrap"><button class="bs" style="font-size:10px;padding:3px 6px;margin-right:4px" onclick="viewHist('+i.id+')">Voir</button><button style="font-size:10px;padding:3px 6px;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:6px;cursor:pointer" onclick="delHist('+i.id+')">✕ Supprimer</button></td></tr>';
   }).join('');
   var tbody=document.querySelector('#ct .tbl tbody');if(tbody)tbody.innerHTML=rows;
 }
@@ -1212,7 +1219,7 @@ function rStock(f){
     var d=sl.n/total*360;
     if(d>0){arcs+=donutArc(60,60,55,deg-90,deg-90+d,sl.c);deg+=d;}
   });
-  var donutSVG='<svg viewBox="0 0 120 120" width="120" height="120" style="display:block">'+arcs+
+  var donutSVG='<svg viewBox="0 0 120 120" width="90" height="90" style="display:block;flex-shrink:0">'+arcs+
     '<circle cx="60" cy="60" r="35" fill="var(--bg)"/>'+
     '<text x="60" y="56" text-anchor="middle" font-size="16" font-weight="bold" fill="var(--txt)">'+total+'</text>'+
     '<text x="60" y="70" text-anchor="middle" font-size="9" fill="var(--txt2)">réfs</text>'+
@@ -1222,8 +1229,8 @@ function rStock(f){
   var barSVG='';
   if(sk.top5.length){
     var maxC=sk.top5[0].count||1;
-    var bW=140, bH=90, bPad=14, barH=12;
-    barSVG='<svg viewBox="0 0 '+bW+' '+bH+'" width="'+bW+'" height="'+bH+'" style="display:block">';
+    var bW=120, bH=80, bPad=13, barH=10;
+    barSVG='<svg viewBox="0 0 '+bW+' '+bH+'" width="100%" height="'+bH+'" style="display:block;max-width:'+bW+'px">';
     sk.top5.forEach(function(p,i){
       var y=i*bPad+4;
       var w=Math.max(4,Math.round(p.count/maxC*(bW-60)));
@@ -1248,7 +1255,7 @@ function rStock(f){
   var gpx=gCx+gRad*Math.cos(gAngleFull*Math.PI/180);
   var gpy=gCy-gRad*Math.sin(gAngleFull*Math.PI/180);
   var gArcFill='M '+(gCx-gRad)+','+gCy+' A '+gRad+','+gRad+' 0 '+(gAngle>90?1:0)+',1 '+gpx+','+gpy;
-  var gaugeSVG='<svg viewBox="0 0 130 75" width="130" height="75" style="display:block">'+
+  var gaugeSVG='<svg viewBox="0 0 130 75" width="100%" height="65" style="display:block;max-width:140px">'+
     '<path d="'+gPath+'" fill="none" stroke="#E5E7EB" stroke-width="12" stroke-linecap="round"/>'+
     '<path d="'+gArcFill+'" fill="none" stroke="'+gFill+'" stroke-width="12" stroke-linecap="round"/>'+
     '<text x="'+gCx+'" y="'+(gCy-4)+'" text-anchor="middle" font-size="18" font-weight="bold" fill="'+gFill+'">'+sk.tauxDispo+'%</text>'+
@@ -1277,7 +1284,7 @@ function rStock(f){
     var y=spH-spPad-Math.round((v/sparkMax)*(spH-spPad*2));
     return x+','+y;
   }).join(' ');
-  var sparkSVG='<svg viewBox="0 0 '+spW+' '+spH+'" width="'+spW+'" height="'+spH+'" style="display:block">'+
+  var sparkSVG='<svg viewBox="0 0 '+spW+' '+spH+'" width="100%" height="'+spH+'" style="display:block;max-width:'+spW+'px">'+
     '<polyline points="'+spPts+'" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
     sparkVals.map(function(v,i){
       var x=spPad+i*spStep;
@@ -1309,11 +1316,11 @@ function rStock(f){
     /* Row 2: 3 charts side by side */
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">'+
       /* Chart 1: Donut état stock */
-      '<div class="card" style="padding:14px">'+
-        '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:10px">État du stock</div>'+
-        '<div style="display:flex;align-items:center;gap:14px">'+
+      '<div class="card" style="padding:14px;min-height:140px;box-sizing:border-box">'+
+        '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">État du stock</div>'+
+        '<div style="display:flex;align-items:center;gap:10px;overflow:hidden">'+
           donutSVG+
-          '<div style="font-size:11px;line-height:1.8">'+
+          '<div style="font-size:10px;line-height:1.7;min-width:80px">'+
             '<div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#16A34A;margin-right:5px"></span>OK : '+nOk+'</div>'+
             '<div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#D97706;margin-right:5px"></span>Alerte : '+nAlt+'</div>'+
             '<div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#DC2626;margin-right:5px"></span>Rupture : '+nRup+'</div>'+
@@ -1321,17 +1328,17 @@ function rStock(f){
         '</div>'+
       '</div>'+
       /* Chart 2: Bar top 5 */
-      '<div class="card" style="padding:14px">'+
-        '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:10px">Top pièces utilisées</div>'+
-        '<div style="display:flex;align-items:flex-start;gap:10px">'+
+      '<div class="card" style="padding:14px;min-height:140px;box-sizing:border-box;overflow:hidden">'+
+        '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Top pièces utilisées</div>'+
+        '<div style="display:flex;align-items:flex-start;gap:8px;overflow:hidden">'+
           barSVG+
-          (sk.top5.length?'<div style="font-size:10px;line-height:1.7;color:var(--txt2)">'+
+          (sk.top5.length?'<div style="font-size:9px;line-height:1.6;color:var(--txt2);overflow:hidden">'+
             sk.top5.map(function(p,i){return'<div>'+(i+1)+'. '+escH(p.nom.length>14?p.nom.substring(0,14)+'…':p.nom)+'</div>';}).join('')+
           '</div>':'')+
         '</div>'+
       '</div>'+
       /* Chart 3: Gauge dispo + sparkline */
-      '<div class="card" style="padding:14px">'+
+      '<div class="card" style="padding:14px;min-height:140px;box-sizing:border-box;overflow:hidden">'+
         '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux disponibilité pièces</div>'+
         gaugeSVG+
         '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-top:8px;margin-bottom:4px">Commandes / 6 mois</div>'+
@@ -1559,13 +1566,13 @@ function mInter(id){
     '<div class="fg"><label class="fl">Technicien</label><select class="fi" id="ftech"><option value="">Non assigné</option>'+techO+'</select></div>'+
   '</div>'+
   '<div class="fg2">'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-    '<div class="fg"><label class="fl">Date de début</label><input class="fi" type="date" id="fdeb" value="'+(d.date_debut||today)+'" onchange="autoFin()"></div>'+
-    '<div class="fg"><label class="fl">Heure de début</label><input class="fi" type="time" id="fhdeb" value="'+(d.heure_debut||'08:00')+'"></div>'+
+    '<div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;align-items:end">'+
+    '<div class="fg" style="margin:0"><label class="fl">Date de début</label><input class="fi" type="date" id="fdeb" value="'+(d.date_debut||today)+'" onchange="autoFin()"></div>'+
+    '<div class="fg" style="margin:0"><label class="fl">Heure début</label><input class="fi" type="time" id="fhdeb" value="'+(d.heure_debut||'08:00')+'"></div>'+
     '</div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-    '<div class="fg"><label class="fl">Échéance (+10j ouv. auto)</label><input class="fi" type="date" id="dfin" value="'+(d.date_fin||dflt_fin)+'"></div>'+
-    '<div class="fg"><label class="fl">Heure de fin prévue</label><input class="fi" type="time" id="dhfin" value="'+(d.heure_fin||'17:00')+'"></div>'+
+    '<div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;align-items:end">'+
+    '<div class="fg" style="margin:0"><label class="fl">Échéance (+10j ouv. auto)</label><input class="fi" type="date" id="dfin" value="'+(d.date_fin||dflt_fin)+'"></div>'+
+    '<div class="fg" style="margin:0"><label class="fl">Heure fin prév.</label><input class="fi" type="time" id="dhfin" value="'+(d.heure_fin||'17:00')+'"></div>'+
     '</div>'+
   '</div>'+
   '<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat">'+opts(SI,d.statut)+'</select></div>'+
@@ -1709,7 +1716,7 @@ function saveModal(){
   if(MODE==='inter'){
     var o={id:EID||(nextId('inter')),article:gv('fart-in'),serie:gv('fserie-in'),client:gv('fcli'),statut:gv('fstat'),technicien:gv('ftech'),date_debut:gv('fdeb'),heure_debut:gv('fhdeb'),date_fin:gv('dfin'),heure_fin:gv('dhfin'),description:gv('fdesc'),pieces:TMP_PIECES.slice(),devis:collectDevis()};
     if(EID){var i=D.interventions.findIndex(function(x){return x.id===EID;});if(i>=0)D.interventions[i]=o;}else D.interventions.unshift(o);
-    syncMatStatut(o);
+    syncMatStatut();
     /* → historique only if (Terminé or Annulé) AND devis Accepté or Refusé */
     var dvSettled=o.devis&&(o.devis.statut==='Accepté'||o.devis.statut==='Refusé');
     if((o.statut==='Terminé'||o.statut==='Annulé')&&dvSettled){
