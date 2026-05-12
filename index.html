@@ -21,7 +21,7 @@
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);font-size:13px;height:100vh;overflow:hidden;}
 .app{display:flex;height:100vh;}
-.sb{width:220px;min-width:220px;background:var(--bg1);border-right:1px solid var(--bdr);display:flex;flex-direction:column;display:flex;flex-direction:column;}
+.sb{width:220px;min-width:220px;background:var(--bg1);border-right:1px solid var(--bdr);display:flex;flex-direction:column;}
 .sb-brand{padding:14px 16px;border-bottom:1px solid var(--bdr);}
 .sb-name{font-size:13px;font-weight:800;}
 .sb-sub{font-size:10px;color:var(--txt2);margin-top:2px;text-transform:uppercase;letter-spacing:.4px;}
@@ -191,9 +191,30 @@ textarea.fi{resize:vertical;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+<div id="login-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:#f0efe9;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+  <div style="background:#fff;border:1px solid #e4e3db;border-radius:16px;padding:40px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.08)">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:32px;margin-bottom:10px">🔧</div>
+      <div style="font-size:18px;font-weight:800;color:#1a1a18">Chastagner Location SAV</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">GMAO Maintenance</div>
+    </div>
+    <div id="login-error" style="display:none;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:16px"></div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Email</label>
+      <input id="login-email" type="email" placeholder="votre@email.com" style="width:100%;padding:10px 14px;border:1px solid #e4e3db;border-radius:8px;font-size:14px;color:#1a1a18;box-sizing:border-box;outline:none">
+    </div>
+    <div style="margin-bottom:22px">
+      <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Mot de passe</label>
+      <input id="login-pass" type="password" placeholder="••••••••" style="width:100%;padding:10px 14px;border:1px solid #e4e3db;border-radius:8px;font-size:14px;color:#1a1a18;box-sizing:border-box;outline:none" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button id="login-btn" onclick="doLogin()" style="width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Se connecter</button>
+    <div id="login-loading" style="display:none;text-align:center;margin-top:12px;font-size:12px;color:#6b7280">Connexion en cours…</div>
+  </div>
+</div>
+
 <div class="app" style="display:flex">
   <div class="sb">
-    <div class="sb-brand" style="display:flex;align-items:center;justify-content:space-between">
+    <div class="sb-brand">
       <div class="sb-name">Chastagner Location SAV</div>
       <div class="sb-sub">GMAO Maintenance</div>
     </div>
@@ -230,7 +251,7 @@ textarea.fi{resize:vertical;}
       </div>
     </div>
     <div style="padding:10px 14px;border-top:1px solid var(--bdr);flex-shrink:0">
-      <button onclick="doLogout()" style="width:100%;padding:8px;background:var(--redbg);color:var(--redtxt);border:1px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">⏻ Se déconnecter</button>
+      <button onclick="doLogout()" style="width:100%;padding:8px 12px;background:var(--redbg);color:var(--redtxt);border:1px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><span>⏻</span>Se déconnecter</button>
     </div>
     <div class="ct" id="ct"></div>
   </div>
@@ -246,167 +267,88 @@ textarea.fi{resize:vertical;}
 </div>
 
 <script>
+
 /* ================================================================
-   SUPABASE CONFIG
+   SUPABASE
 ================================================================ */
-var SUPA_URL = 'https://gruruldzmkimknynnzpi.supabase.co';
-var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdydXJ1bGR6bWtpbWtueW5uenBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MDYzOTIsImV4cCI6MjA5NDE4MjM5Mn0.NqvGzO8CM0EETApn6-skwCQaqag7aq-faRSuFlF5cgg';
-var supa = supabase.createClient(SUPA_URL, SUPA_KEY);
-var CURRENT_SESSION = null;
+var SUPA_URL='https://gruruldzmkimknynnzpi.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdydXJ1bGR6bWtpbWtueW5uenBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MDYzOTIsImV4cCI6MjA5NDE4MjM5Mn0.NqvGzO8CM0EETApn6-skwCQaqag7aq-faRSuFlF5cgg';
+var supa=supabase.createClient(SUPA_URL,SUPA_KEY);
 
-/* ── Login screen ─────────────────────────────────────────────── */
-function showLogin(msg) {
-  // Save template before replacing body
-  var tmpl = document.getElementById('app-template');
-  var tmplHTML = tmpl ? tmpl.outerHTML : '';
-  document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,sans-serif">'+
-    '<div style="background:var(--bg1);border:1px solid var(--bdr);border-radius:16px;padding:40px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.08)">'+
-      '<div style="text-align:center;margin-bottom:28px">'+
-        '<div style="font-size:28px;margin-bottom:8px">🔧</div>'+
-        '<div style="font-size:18px;font-weight:800;color:var(--txt)">Chastagner Location SAV</div>'+
-        '<div style="font-size:12px;color:var(--txt2);margin-top:4px">GMAO Maintenance</div>'+
-      '</div>'+
-      (msg ? '<div style="background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:16px">'+msg+'</div>' : '')+
-      '<div style="margin-bottom:14px">'+
-        '<label style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Email</label>'+
-        '<input id="login-email" type="email" placeholder="votre@email.com" style="width:100%;padding:10px 14px;border:1px solid var(--bdr);border-radius:8px;font-size:14px;background:var(--bg);color:var(--txt);box-sizing:border-box">'+
-      '</div>'+
-      '<div style="margin-bottom:20px">'+
-        '<label style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Mot de passe</label>'+
-        '<input id="login-pass" type="password" placeholder="••••••••" style="width:100%;padding:10px 14px;border:1px solid var(--bdr);border-radius:8px;font-size:14px;background:var(--bg);color:var(--txt);box-sizing:border-box" onkeydown="if(event.key===\'Enter\')doLogin()">'+
-      '</div>'+
-      '<button onclick="doLogin()" style="width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Se connecter</button>'+
-      '<div id="login-spinner" style="display:none;text-align:center;margin-top:12px;font-size:12px;color:var(--txt2)">Connexion en cours…</div>'+
-    '</div>'+
-  '</div>' + tmplHTML;
+function showLoginOverlay(msg){
+  var ov=document.getElementById('login-overlay');
+  if(ov)ov.style.display='flex';
+  var err=document.getElementById('login-error');
+  if(err){err.style.display=msg?'block':'none';err.textContent=msg||'';}
+  var em=document.getElementById('login-email');if(em)em.value='';
+  var ps=document.getElementById('login-pass');if(ps)ps.value='';
 }
 
-async function doLogin() {
-  var email = document.getElementById('login-email').value.trim();
-  var pass  = document.getElementById('login-pass').value;
-  if(!email || !pass) { showLogin('Veuillez remplir tous les champs.'); return; }
-  var sp = document.getElementById('login-spinner');
-  if(sp) sp.style.display = 'block';
-  var btn = document.querySelector('button[onclick="doLogin()"]');
-  if(btn) btn.disabled = true;
-  var result = await supa.auth.signInWithPassword({ email: email, password: pass });
-  if(result.error) {
-    showLogin('Erreur : ' + result.error.message);
+function hideLoginOverlay(){
+  var ov=document.getElementById('login-overlay');
+  if(ov)ov.style.display='none';
+}
+
+async function doLogin(){
+  var email=(document.getElementById('login-email')||{}).value||'';
+  var pass=(document.getElementById('login-pass')||{}).value||'';
+  if(!email||!pass){showLoginOverlay('Veuillez remplir tous les champs.');return;}
+  var btn=document.getElementById('login-btn');
+  var ldg=document.getElementById('login-loading');
+  if(btn)btn.disabled=true;
+  if(ldg)ldg.style.display='block';
+  var result=await supa.auth.signInWithPassword({email:email,password:pass});
+  if(result.error){
+    if(btn)btn.disabled=false;
+    if(ldg)ldg.style.display='none';
+    showLoginOverlay('Erreur : '+result.error.message);
   } else {
-    CURRENT_SESSION = result.data.session;
-    await initApp();
+    await loadFromSupabase();
+    hideLoginOverlay();
+    draw(PAGE,'');
   }
 }
 
-async function doLogout() {
+async function doLogout(){
   await supa.auth.signOut();
-  CURRENT_SESSION = null;
-  D = {};
-  PAGE = 'dashboard';
-  showLogin();
+  draw('dashboard','');
+  showLoginOverlay();
 }
 
-/* ── Supabase CRUD helpers ────────────────────────────────────── */
-async function sbLoad(table) {
-  var r = await supa.from(table).select('*').order('id');
-  if(r.error) { console.error(table, r.error); return []; }
-  return r.data || [];
+async function sbLoad(table){
+  var r=await supa.from(table).select('*').order('id');
+  if(r.error){console.error(table,r.error);return[];}
+  return r.data||[];
 }
 
-async function sbInsert(table, obj) {
-  var clean = Object.assign({}, obj);
-  delete clean.id;
-  var r = await supa.from(table).insert(clean).select().single();
-  if(r.error) { console.error('insert', table, r.error); return null; }
+async function sbInsert(table,obj){
+  var c=Object.assign({},obj);delete c.id;delete c.created_at;delete c.updated_at;
+  var r=await supa.from(table).insert(c).select().single();
+  if(r.error){console.error('insert',table,r.error);return null;}
   return r.data;
 }
 
-async function sbUpdate(table, id, obj) {
-  var clean = Object.assign({}, obj);
-  delete clean.id; delete clean.created_at;
-  var r = await supa.from(table).update(clean).eq('id', id).select().single();
-  if(r.error) { console.error('update', table, r.error); return null; }
+async function sbUpdate(table,id,obj){
+  var c=Object.assign({},obj);delete c.id;delete c.created_at;delete c.updated_at;
+  var r=await supa.from(table).update(c).eq('id',id).select().single();
+  if(r.error){console.error('update',table,r.error);return null;}
   return r.data;
 }
 
-async function sbDelete(table, id) {
-  var r = await supa.from(table).delete().eq('id', id);
-  if(r.error) { console.error('delete', table, r.error); }
+async function sbDelete(table,id){
+  var r=await supa.from(table).delete().eq('id',id);
+  if(r.error){console.error('delete',table,r.error);}
 }
 
-async function sbUpsert(table, obj) {
-  var r = await supa.from(table).upsert(obj).select().single();
-  if(r.error) { console.error('upsert', table, r.error); return null; }
-  return r.data;
-}
-
-/* ── Load all data from Supabase ─────────────────────────────── */
-async function loadFromSupabase() {
-  var results = await Promise.all([
-    sbLoad('interventions'),
-    sbLoad('historique'),
-    sbLoad('materiels'),
-    sbLoad('clients'),
-    sbLoad('techniciens'),
-    sbLoad('stock')
+async function loadFromSupabase(){
+  var results=await Promise.all([
+    sbLoad('interventions'),sbLoad('historique'),sbLoad('materiels'),
+    sbLoad('clients'),sbLoad('techniciens'),sbLoad('stock')
   ]);
-  D.interventions  = results[0];
-  D.historique     = results[1];
-  D.materiels      = results[2];
-  D.clients        = results[3];
-  D.techniciens    = results[4];
-  D.stock          = results[5];
-  D.users          = USERS;
-}
-
-/* ── Save one record to Supabase ─────────────────────────────── */
-async function saveRecord(table, obj) {
-  if(obj.id && obj.id > 0) {
-    await sbUpdate(table, obj.id, obj);
-  } else {
-    var created = await sbInsert(table, obj);
-    if(created) obj.id = created.id;
-  }
-}
-
-/* ── Delete one record from Supabase ─────────────────────────── */
-async function deleteRecord(table, id) {
-  await sbDelete(table, id);
-}
-
-/* ── initApp: called after successful login ──────────────────── */
-async function initApp() {
-  // Restore full app from template
-  var tmpl = document.getElementById('app-template');
-  if(tmpl) {
-    document.body.innerHTML = tmpl.innerHTML;
-  } else {
-    // template already consumed — reload page
-    window.location.reload();
-    return;
-  }
-  // Show loading indicator
-  var ct = document.getElementById('ct');
-  if(ct) ct.innerHTML = '<div style="padding:40px;text-align:center;color:var(--txt2);font-size:14px">Chargement des données…</div>';
-
-  await loadFromSupabase();
+  D.interventions=results[0];D.historique=results[1];D.materiels=results[2];
+  D.clients=results[3];D.techniciens=results[4];D.stock=results[5];
   syncMatStatut();
-
-  // Migrate Terminé/Annulé interventions to historique
-  if(D.interventions) {
-    var mv = D.interventions.filter(function(i){ return i.statut==='Terminé'||i.statut==='Annulé'; });
-    if(mv.length) {
-      for(var k=0;k<mv.length;k++) {
-        var already = D.historique.find(function(h){ return h.id===mv[k].id; });
-        if(!already) { await sbInsert('historique', mv[k]); }
-        await sbDelete('interventions', mv[k].id);
-      }
-      D.interventions = D.interventions.filter(function(i){ return i.statut!=='Terminé'&&i.statut!=='Annulé'; });
-    }
-  }
-  draw(PAGE, '');
 }
-
 
 /* ================================================================
    CONSTANTS & STATE
@@ -472,34 +414,47 @@ var USERS=[];
    STORAGE
 ================================================================ */
 function load(){
-  /* Legacy localStorage load - kept for offline fallback */
-  try{var s=localStorage.getItem(SK);if(s)D=JSON.parse(s);}catch(e){}
-  if(!D.interventions)D.interventions=[];
+  loadCounters();
+  (function(){var vk='chastagner_v7_ver',cv='7.3';if(localStorage.getItem(vk)!==cv){var cnt=localStorage.getItem(SK+'_cnt');localStorage.clear();if(cnt)localStorage.setItem(SK+'_cnt',cnt);localStorage.setItem(vk,cv);}})();
+  try{var s=localStorage.getItem(SK);if(s)D=JSON.parse(s);else{D=buildDefaults();save();}}
+  catch(e){D=buildDefaults();}
   if(!D.historique)D.historique=[];
-  if(!D.materiels)D.materiels=[];
-  if(!D.clients)D.clients=[];
-  if(!D.techniciens)D.techniciens=[];
-  if(!D.stock)D.stock=[];
   if(!D.users)D.users=buildDefaults().users;
   USERS=D.users;
   CURRENT_USER=USERS[0];
+  /* Sync all materiel statuts from active interventions on load */
+  if(D.interventions&&D.materiels){
+    /* First reset all materiels to empty */
+    D.materiels.forEach(function(m){m.statut='';});
+    /* Then sync from active interventions */
+    D.interventions.forEach(function(i){syncMatStatut();});
+    /* Then sync from historique (Terminé/Annulé → Finis) */
+    if(D.historique)(D.historique).forEach(function(i){syncMatStatut();});
+  }
+  /* migrate Annulé/Terminé to historique */
+  if(D.interventions){
+    var mv=D.interventions.filter(function(i){return i.statut==='Terminé'||i.statut==='Annulé';});
+    if(mv.length){mv.forEach(function(i){if(!D.historique.find(function(h){return h.id===i.id;}))D.historique.push(i);});D.interventions=D.interventions.filter(function(i){return i.statut!=='Terminé'&&i.statut!=='Annulé';});}
+    save();
+  }
+  draw(PAGE,'');
 }
-function save(){
-  /* Async save to Supabase - fire and forget */
-  D.users=USERS;
-  try{localStorage.setItem(SK,JSON.stringify(D));}catch(e){}
-}
-async function saveAsync(table, obj) {
-  await saveRecord(table, obj);
+function save(){D.users=USERS;try{localStorage.setItem(SK,JSON.stringify(D));}catch(e){}}
+async function saveToSupa(table,obj){
+  if(obj.id&&obj.id>0){
+    var saved=await sbUpdate(table,obj.id,obj);
+    if(saved)obj.id=saved.id;
+  } else {
+    var saved=await sbInsert(table,obj);
+    if(saved)obj.id=saved.id;
+  }
 }
 function syncMatStatut(){
   var mapActif={'En cours':'En cours','En attente':"En attente d'acceptation",'Devis fait':'Devis fait'};
   D.materiels.forEach(function(m){m.statut='';});
   (D.interventions||[]).forEach(function(i){
-    if(!i.serie)return;
-    var ms=mapActif[i.statut];if(!ms)return;
-    var mat=D.materiels.find(function(m){return m.serie===i.serie;});
-    if(mat)mat.statut=ms;
+    if(!i.serie)return;var ms=mapActif[i.statut];if(!ms)return;
+    var mat=D.materiels.find(function(m){return m.serie===i.serie;});if(mat)mat.statut=ms;
   });
 }
 
@@ -520,26 +475,9 @@ function wdBetween(d1,d2){if(!d1||!d2)return 0;var a=new Date(d1),b=new Date(d2)
 function wdUntil(ds){if(!ds)return null;var now=new Date();now.setHours(0,0,0,0);var end=new Date(ds);end.setHours(0,0,0,0);if(end<=now)return 0;return wdBetween(now.toISOString().split('T')[0],ds);}
 function uniq(arr){var seen={},out=[];arr.forEach(function(x){if(x!=null&&!seen[x]){seen[x]=1;out.push(x);}});return out;}
 function calBetween(d1,d2){if(!d1||!d2)return 0;return Math.round((new Date(d2)-new Date(d1))/(1000*60*60*24));}
-function durText(i){
-  if(!i.date_debut)return '—';
-  var d2s=i.date_cloture||i.date_fin;if(!d2s)return '—';
-  var t1=i.heure_debut||'08:00',t2=i.date_cloture?(i.heure_cloture||i.heure_fin||'17:00'):(i.heure_fin||'17:00');
-  var d1dt=new Date(i.date_debut+'T'+t1),d2dt=new Date(d2s+'T'+t2);
-  var diff=d2dt-d1dt;if(diff<=0)return '0 h';
-  var totalH=Math.floor(diff/(1000*60*60)),jours=Math.floor(totalH/24),heures=totalH%24;
-  if(jours===0)return heures+'h';if(heures===0)return jours+' j.';return jours+' j. '+heures+'h';
-}
-function durMinutes(i){
-  if(!i.date_debut)return 0;
-  var d2s=i.date_cloture||i.date_fin;if(!d2s)return 0;
-  var t1=i.heure_debut||'08:00',t2=i.date_cloture?(i.heure_cloture||i.heure_fin||'17:00'):(i.heure_fin||'17:00');
-  return Math.max(0,Math.round((new Date(d2s+'T'+t2)-new Date(i.date_debut+'T'+t1))/(1000*60)));
-}
-function avgDurText(m){
-  if(!m)return '—';
-  var d=Math.floor(m/1440),h=Math.floor((m%1440)/60),mn=Math.round(m%60);
-  if(d>0&&h>0)return d+' j. '+h+'h';if(d>0)return d+' j.';if(h>0&&mn>0)return h+'h'+mn+'min';if(h>0)return h+'h';return mn+'min';
-}
+function durText(i){if(!i.date_debut)return '—';var d2s=i.date_cloture||i.date_fin;if(!d2s)return '—';var t1=i.heure_debut||'08:00',t2=i.date_cloture?(i.heure_cloture||'17:00'):(i.heure_fin||'17:00');var d1dt=new Date(i.date_debut+'T'+t1),d2dt=new Date(d2s+'T'+t2);var diff=d2dt-d1dt;if(diff<=0)return '0h';var totalH=Math.floor(diff/(1000*60*60)),j=Math.floor(totalH/24),h=totalH%24;if(j===0)return h+'h';if(h===0)return j+' j.';return j+' j. '+h+'h';}
+function durMinutes(i){if(!i.date_debut)return 0;var d2s=i.date_cloture||i.date_fin;if(!d2s)return 0;var t1=i.heure_debut||'08:00',t2=i.date_cloture?(i.heure_cloture||'17:00'):(i.heure_fin||'17:00');return Math.max(0,Math.round((new Date(d2s+'T'+t2)-new Date(i.date_debut+'T'+t1))/(1000*60)));}
+function avgDurText(m){if(!m)return '—';var d=Math.floor(m/1440),h=Math.floor((m%1440)/60),mn=Math.round(m%60);if(d>0&&h>0)return d+' j. '+h+'h';if(d>0)return d+' j.';if(h>0)return h+'h';return mn+'min';}
 function todayStr(){return new Date().toISOString().split('T')[0];}
 function hasPerm(){return true;}
 
@@ -637,10 +575,10 @@ function calcKPIs(period){
   /* MTTR */
   var done=histP.filter(function(i){return i.statut==='Terminé'&&i.date_debut&&i.date_fin;});
   /* MTTR: from date_debut to date_cloture (actual closure) */
-  var mttr=(function(){if(!done.length)return 0;return avgDurText(Math.round(done.reduce(function(a,i){return a+durMinutes(i);},0)/done.length));})();
+  var mttr=done.length?Math.round(done.reduce(function(a,i){return a+calBetween(i.date_debut,i.date_cloture||i.date_fin);},0)/done.length*10)/10:0;
   /* Avg intervention time in calendar days */
   /* avgTime: from date_debut to date_cloture (actual closure date) */
-  var avgTime=(function(){if(!done.length)return 0;return avgDurText(Math.round(done.reduce(function(a,i){return a+durMinutes(i);},0)/done.length));})();
+  var avgTime=done.length?Math.round(done.reduce(function(a,i){return a+calBetween(i.date_debut,i.date_cloture||i.date_fin);},0)/done.length):0;
   /* Overdue */
   var overdue=D.interventions.filter(function(i){var p=getPrio(i);return p.wd!==null&&p.wd<=0;}).length;
   /* Top machines (series) en panne in historique */
@@ -800,7 +738,7 @@ function rDash(){
   return'<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr))">'+
     '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Interventions actives</div><div class="kp-v">'+k.totalInter+'</div><div class="kp-s">'+k.totalHist+' archivées</div></div>'+
     '<div class="kp" style="border-left-color:var(--red);cursor:pointer" onclick="showOverdue()" title="Cliquer pour voir les interventions en retard"><div class="kp-l">En retard ↗</div><div class="kp-v">'+k.overdue+'</div><div class="kp-s">cliquer pour voir</div></div>'+
-    '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Temps moy. interv.</div><div class="kp-v">'+(k.avgTime||'—')+'</div><div class="kp-s">jours calendaires</div></div>'+
+    '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Temps moy. interv.</div><div class="kp-v">'+(k.avgTime||'—')+(k.avgTime?' j.':'')+'</div><div class="kp-s">jours calendaires</div></div>'+
     '<div class="kp" style="border-left-color:var(--green)"><div class="kp-l">CA archivé</div><div class="kp-v">'+eur(k.totalCA)+'</div><div class="kp-s">devis acceptés uniquement</div></div>'+
   '</div>'+
   '<div class="chart-grid-2">'+
@@ -902,12 +840,12 @@ function cloreInter(id){
   var i=D.interventions[idx];
   var reason=closeBlockReason(i);
   if(reason){alert('Impossible de clore : '+reason);return;}
-  i.statut='Terminé';i.date_cloture=todayStr();i.heure_cloture=new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0');
+  i.statut='Terminé';i.date_cloture=todayStr();
   syncMatStatut();
   D.historique.unshift(i);D.interventions.splice(idx,1);
   (async function(){
-    await sbInsert('historique', i);
-    await sbDelete('interventions', i.id);
+    await sbInsert('historique',i);
+    await sbDelete('interventions',i.id);
     save();draw(PAGE,LS);
   })();
 }
@@ -938,7 +876,7 @@ function rHist(f){
   var nbAnnule=filtered.filter(function(i){return i.statut==='Annulé';}).length;
   var rows=pg.slice.map(function(i){
     var ca=dvCA(i);
-    var dur=i.date_debut?durText(i):'—';
+    var dur=i.date_debut&&i.date_cloture?calBetween(i.date_debut,i.date_cloture)+' j. cal.':'';
     var vgpTag=i.devis&&i.devis.vgp?bdg('b-cyan','VGP'):'';
     return'<tr style="'+(i.statut==='Annulé'?'opacity:.7':'')+'">'+
       '<td style="font-size:10px;color:var(--txt2);font-family:monospace">INT-'+String(i.id).padStart(4,'0')+'</td>'+
@@ -973,7 +911,7 @@ function applyHistFilters(){
   });
   var pg=pag(filtered);
   var rows=filtered.slice((CP-1)*PS,CP*PS).map(function(i){
-    var ca=dvCA(i);var dur=i.date_debut?durText(i):'—';
+    var ca=dvCA(i);var dur=i.date_debut&&i.date_cloture?calBetween(i.date_debut,i.date_cloture)+' j. cal.':'';
     var vgpTag=i.devis&&i.devis.vgp?bdg('b-cyan','VGP'):'';
     return'<tr style="'+(i.statut==='Annulé'?'opacity:.7':'')+'">'+
       '<td style="font-size:10px;color:var(--txt2);font-family:monospace">INT-'+String(i.id).padStart(4,'0')+'</td>'+
@@ -1000,7 +938,7 @@ function viewHist(id){
     '<div><div class="fl">N° Série</div><div>'+escH(i.serie)+'</div></div>'+
     '<div><div class="fl">Client</div><div>'+escH(i.client)+'</div></div>'+
     '<div><div class="fl">Technicien</div><div>'+escH(i.technicien||'—')+'</div></div>'+
-    '<div><div class="fl">Durée</div><div>'+(i.date_debut?durText(i):'—')+'</div></div>'+
+    '<div><div class="fl">Durée</div><div>'+(i.date_debut&&i.date_cloture?calBetween(i.date_debut,i.date_cloture)+' j. calendaires':'—')+'</div></div>'+
     '<div><div class="fl">Clôture</div><div>'+fmtDate(i.date_cloture)+'</div></div>'+
   '</div>'+caNote+
   '<div class="fg" style="margin-bottom:12px"><div class="fl">Description</div><div style="font-size:12px;color:var(--txt2)">'+escH(i.description||'—')+'</div></div>';
@@ -1080,140 +1018,7 @@ function rPlanning(){
 
 /* ================================================================
    ANALYTICS KPIs
-================================================================ */+(function(){
-  var sk=calcStockKPIs();
-  if(!D.stock||!D.stock.length)return '';
-  var nOk=D.stock.filter(function(s){return s.qte>s.qte_min;}).length;
-  var nAlt=sk.alerte,nRup=sk.rupture,tot=D.stock.length||1;
-  var cr2=sk.rupture>0?'var(--red)':'var(--greentxt)';
-  /* Mini donut */
-  var deg=0,arcs='';
-  [{n:nOk,c:'#16A34A'},{n:nAlt,c:'#D97706'},{n:nRup,c:'#DC2626'}].forEach(function(sl){
-    if(!sl.n)return;var d=sl.n/tot*360;if(d>=360)d=359.99;
-    var s2=deg*Math.PI/180,e2=(deg+d)*Math.PI/180;
-    var x1=36+30*Math.cos(s2-Math.PI/2),y1=36+30*Math.sin(s2-Math.PI/2);
-    var x2=36+30*Math.cos(e2-Math.PI/2),y2=36+30*Math.sin(e2-Math.PI/2);
-    arcs+='<path d="M36,36 L'+x1+','+y1+' A30,30 0 '+(d>180?1:0)+',1 '+x2+','+y2+' Z" fill="'+sl.c+'"/>';
-    deg+=d;
-  });
-  var donutHtml='<svg viewBox="0 0 72 72" width="60" height="60" style="display:block;flex-shrink:0">'+arcs+'<circle cx="36" cy="36" r="18" fill="var(--bg)"/><text x="36" y="40" font-size="11" font-weight="bold" fill="var(--txt)" text-anchor="middle">'+tot+'</text></svg>';
-  /* Jauge */
-  var gP=sk.tauxDispo/100,gCol=gP>=0.8?'#16A34A':gP>=0.6?'#D97706':'#DC2626';
-  var gR=32,gCx=46,gCy=40,gAng=180*gP,gFull=180-gAng;
-  var gpx=gCx+gR*Math.cos(gFull*Math.PI/180),gpy=gCy-gR*Math.sin(gFull*Math.PI/180);
-  var gaugeHtml='<svg viewBox="0 0 92 50" width="88" height="50" style="display:block;margin:0 auto">'+
-    '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 0,1 '+(gCx+gR)+','+gCy+'" fill="none" stroke="#E5E7EB" stroke-width="8" stroke-linecap="round"/>'+
-    '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 '+(gAng>90?1:0)+',1 '+gpx+','+gpy+'" fill="none" stroke="'+gCol+'" stroke-width="8" stroke-linecap="round"/>'+
-    '<text x="'+gCx+'" y="'+(gCy-2)+'" font-size="13" font-weight="bold" fill="'+gCol+'" text-anchor="middle">'+sk.tauxDispo+'%</text>'+
-    '<text x="'+gCx+'" y="'+(gCy+12)+'" font-size="7" fill="var(--txt2)" text-anchor="middle">disponibilité</text></svg>';
-  /* Barres top pièces */
-  var barsHtml=sk.top5.length?sk.top5.map(function(p,i){var w=Math.max(6,Math.round(p.count/(sk.top5[0].count||1)*100));var cols=['#2563EB','#7C3AED','#0891B2','#16A34A','#D97706'];return'<div style="margin-bottom:5px"><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--txt2);margin-bottom:2px"><span>'+escH(p.nom.length>18?p.nom.substring(0,18)+'…':p.nom)+'</span><span style="font-weight:700;color:var(--blue)">'+p.count+'&#215;</span></div><div style="background:var(--bg2);border-radius:3px;height:6px"><div style="background:'+cols[i]+';height:6px;border-radius:3px;width:'+w+'%"></div></div></div>';}).join(''):'<div style="color:var(--txt3);font-size:11px">Aucune pièce utilisée.</div>';
-  return'<div class="card" style="margin-top:16px">'+
-    '<div class="ch"><span class="ct2">Pi&#232;ces D&#233;tach&#233;es &#8212; Analytique</span></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+
-      '<div><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">&#201;tat du stock</div><div style="display:flex;align-items:center;gap:8px">'+donutHtml+'<div style="font-size:10px;line-height:1.8"><div><span style="color:#16A34A;font-weight:700">&#9679;</span> OK : '+nOk+'</div>'+(nAlt?'<div><span style="color:#D97706;font-weight:700">&#9679;</span> Alerte : '+nAlt+'</div>':'')+(nRup?'<div><span style="color:#DC2626;font-weight:700">&#9679;</span> Rupture : '+nRup+'</div>':'')+'</div></div></div>'+
-      '<div><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux disponibilit&#233;</div>'+gaugeHtml+'<div style="font-size:10px;line-height:2;margin-top:6px"><div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Valeur stock</span><b>'+eur(sk.valeur)+'</b></div><div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">D&#233;lai r&#233;appro.</span><b>'+sk.avgDelai+' j.</b></div><div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Commandes</span><b>'+sk.nbCmds+'</b></div></div></div>'+
-      '<div><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Top pi&#232;ces utilis&#233;es</div>'+barsHtml+'</div>'+
-    '</div></div>';
-})()+(function(){
-  var sk=calcStockKPIs();
-  var st=D.stock||[];
-  if(!st.length)return '<div class="card" style="margin-top:16px"><div class="ch"><span class="ct2">KPIs Pièces Détachées</span></div><div style="padding:16px;color:var(--txt3);font-size:12px">Aucune pièce en stock.</div></div>';
-
-  /* ── Donut état stock ────────────────────────────────── */
-  var nOk=st.filter(function(s){return s.qte>s.qte_min;}).length;
-  var nAlt=sk.alerte,nRup=sk.rupture,tot=st.length||1;
-  var deg=0,arcs='';
-  [{n:nOk,c:'#16A34A'},{n:nAlt,c:'#D97706'},{n:nRup,c:'#DC2626'}].forEach(function(sl){
-    if(!sl.n)return;
-    var d=sl.n/tot*360;if(d>=360)d=359.99;
-    var s=deg*Math.PI/180,e=(deg+d)*Math.PI/180;
-    var x1=40+36*Math.cos(s-Math.PI/2),y1=40+36*Math.sin(s-Math.PI/2);
-    var x2=40+36*Math.cos(e-Math.PI/2),y2=40+36*Math.sin(e-Math.PI/2);
-    arcs+='<path d="M40,40 L'+x1+','+y1+' A36,36 0 '+(d>180?1:0)+',1 '+x2+','+y2+' Z" fill="'+sl.c+'"/>';
-    deg+=d;
-  });
-  var donutHtml='<svg viewBox="0 0 80 80" width="70" height="70" style="display:block;flex-shrink:0">'+arcs+
-    '<circle cx="40" cy="40" r="22" fill="var(--bg)"/>'+
-    '<text x="40" y="44" font-size="13" font-weight="bold" fill="var(--txt)" text-anchor="middle">'+tot+'</text>'+
-    '</svg>';
-
-  /* ── Jauge dispo ─────────────────────────────────────── */
-  var gPct=sk.tauxDispo/100;
-  var gCol=gPct>=0.8?'#16A34A':gPct>=0.6?'#D97706':'#DC2626';
-  var gR=34,gCx=50,gCy=44,gAng=180*gPct,gFull=180-gAng;
-  var gpx=gCx+gR*Math.cos(gFull*Math.PI/180),gpy=gCy-gR*Math.sin(gFull*Math.PI/180);
-  var gaugeHtml='<svg viewBox="0 0 100 55" width="90" height="50" style="display:block;margin:0 auto">'+
-    '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 0,1 '+(gCx+gR)+','+gCy+'" fill="none" stroke="#E5E7EB" stroke-width="9" stroke-linecap="round"/>'+
-    '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 '+(gAng>90?1:0)+',1 '+gpx+','+gpy+'" fill="none" stroke="'+gCol+'" stroke-width="9" stroke-linecap="round"/>'+
-    '<text x="'+gCx+'" y="'+(gCy-3)+'" font-size="14" font-weight="bold" fill="'+gCol+'" text-anchor="middle">'+sk.tauxDispo+'%</text>'+
-    '<text x="'+gCx+'" y="'+(gCy+11)+'" font-size="8" fill="var(--txt2)" text-anchor="middle">disponibilité</text>'+
-    '</svg>';
-
-  /* ── Barres top pièces ───────────────────────────────── */
-  var barsHtml='<div style="color:var(--txt3);font-size:11px;padding:8px 0">Aucune pièce utilisée.</div>';
-  if(sk.top5&&sk.top5.length){
-    var maxC=sk.top5[0].count||1;
-    barsHtml='<div>';
-    sk.top5.forEach(function(p,i){
-      var w=Math.max(6,Math.round(p.count/maxC*100));
-      var lbl=p.nom.length>16?p.nom.substring(0,16)+'…':p.nom;
-      var col=i===0?'#2563EB':i===1?'#7C3AED':'#0891B2';
-      barsHtml+='<div style="margin-bottom:6px">'+
-        '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--txt2);margin-bottom:2px">'+
-          '<span>'+escH(lbl)+'</span><span style="font-weight:700;color:'+col+'">'+p.count+'×</span>'+
-        '</div>'+
-        '<div style="background:var(--bg2);border-radius:3px;height:7px">'+
-          '<div style="background:'+col+';height:7px;border-radius:3px;width:'+w+'%"></div>'+
-        '</div></div>';
-    });
-    barsHtml+='</div>';
-  }
-
-  /* ── Sparkline commandes 6 mois ──────────────────────── */
-  var cmdM={};
-  st.forEach(function(s){if(s.derniere_commande){var m=s.derniere_commande.substring(0,7);cmdM[m]=(cmdM[m]||0)+(s.nb_commandes||1);}});
-  var ms6=[];for(var mi=5;mi>=0;mi--){var dd=new Date();dd.setMonth(dd.getMonth()-mi);ms6.push(dd.toISOString().substring(0,7));}
-  var spV=ms6.map(function(m){return cmdM[m]||0;});
-  var spMax=Math.max.apply(null,[0].concat(spV))||1;
-  var spW=160,spH=40,spP=6,spStep=(spW-spP*2)/(spV.length-1||1);
-  var spPts=spV.map(function(v,i){return (spP+i*spStep)+','+(spH-spP-Math.round(v/spMax*(spH-spP*2)));}).join(' ');
-  var sparkHtml='<svg viewBox="0 0 '+spW+' '+spH+'" width="100%" height="'+spH+'" style="display:block">'+
-    '<polyline points="'+spPts+'" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
-    spV.map(function(v,i){var x=spP+i*spStep,y=spH-spP-Math.round(v/spMax*(spH-spP*2));return'<circle cx="'+x+'" cy="'+y+'" r="2.5" fill="'+(v>0?'#2563EB':'#E5E7EB')+'"/>';}).join('')+
-    '</svg>';
-
-  /* ── 4 KPIs ligne ────────────────────────────────────── */
-  var cr=sk.rupture>0?'var(--red)':'var(--greentxt)';
-  var kpiRow='<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">'+
-    '<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Taux rupture stock</div><div class="kp-v" style="color:'+cr+'">'+sk.tauxRupture+'%</div><div class="kp-s">'+sk.rupture+' rupture — '+sk.alerte+' alerte</div></div>'+
-    '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Valeur stock total</div><div class="kp-v">'+eur(sk.valeur)+'</div><div class="kp-s">'+st.length+' référence(s)</div></div>'+
-    '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Délai moy. réappro.</div><div class="kp-v">'+sk.avgDelai+' j.</div><div class="kp-s">'+sk.nbCmds+' commande(s)</div></div>'+
-    '<div class="kp" style="border-left-color:var(--greentxt)"><div class="kp-l">Dispo. pièces</div><div class="kp-v" style="color:'+gCol+'">'+sk.tauxDispo+'%</div><div class="kp-s">'+(sk.interBloquees>0?sk.interBloquees+' bloquée(s)':'Toutes dispo.')+' </div></div>'+
-  '</div>';
-
-  /* ── 3 graphiques ────────────────────────────────────── */
-  var charts='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+
-    '<div class="card" style="padding:14px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">État du stock</div>'+
-      '<div style="display:flex;align-items:center;gap:8px">'+donutHtml+
-        '<div style="font-size:10px;line-height:1.9">'+
-          '<div><span style="color:#16A34A;font-weight:700">●</span> OK : '+nOk+'</div>'+
-          (nAlt?'<div><span style="color:#D97706;font-weight:700">●</span> Alerte : '+nAlt+'</div>':'')+
-          (nRup?'<div><span style="color:#DC2626;font-weight:700">●</span> Rupture : '+nRup+'</div>':'')+
-        '</div>'+
-      '</div></div>'+
-    '<div class="card" style="padding:14px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux disponibilité</div>'+
-      gaugeHtml+
-      '<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin:6px 0 3px">Commandes / 6 mois</div>'+
-      sparkHtml+'</div>'+
-    '<div class="card" style="padding:14px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Top pièces utilisées</div>'+
-      barsHtml+'</div>'+
-  '</div>';
-
-  return '<div class="card" style="margin-top:16px">'+
-    '<div class="ch"><span class="ct2">Pièces Détachées — Analytique</span></div>'+
-    kpiRow+charts+'</div>';
-})()
+================================================================ */
 function rAnalytics(){
   var p=ANALYTICS_PERIOD;
   var k=calcKPIs(p);
@@ -1252,7 +1057,7 @@ function rAnalytics(){
   '<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr))">'+
     '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Interventions actives</div><div class="kp-v">'+k.totalInter+'</div></div>'+
     '<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">En retard</div><div class="kp-v">'+k.overdue+'</div><div class="kp-s">échéance dépassée</div></div>'+
-    '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Temps moy. interv.</div><div class="kp-v">'+(k.avgTime||'—')+'</div><div class="kp-s">jours calendaires</div></div>'+
+    '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Temps moy. interv.</div><div class="kp-v">'+(k.avgTime||'—')+(k.avgTime?' j.':'')+'</div><div class="kp-s">jours calendaires</div></div>'+
     '<div class="kp" style="border-left-color:var(--green)"><div class="kp-l">CA période</div><div class="kp-v">'+eur(k.totalCA)+'</div></div>'+
   '</div>'+
   '<div class="chart-grid-2">'+
@@ -1372,7 +1177,7 @@ function rCli(f){
 ================================================================ */
 function rTech(f){
   var filteredList=D.techniciens.filter(function(t){return!f||t.nom.toLowerCase().indexOf(f)>=0;});
-  var fonctions=uniq(D.techniciens.map(function(t){return t.fonction||t.specialite;}).filter(Boolean));
+  var fonctions=[...new Set(D.techniciens.map(function(t){return t.fonction||t.specialite;}).filter(Boolean))];
   var zones=uniq(D.techniciens.map(function(t){return t.zone;}).filter(Boolean));
   var filterBar='<div class="filter-bar">'+
     '<span class="filter-label">Filtres :</span>'+
@@ -1435,270 +1240,17 @@ function rStock(f){
       '<td>'+bdg(c,e)+'</td>'+
       '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editStock('+s.id+')">Modifier</button></td></tr>';
   }).join('');
-  var sk=calcStockKPIs();
-  var cr=sk.rupture>0?'var(--red)':'var(--greentxt)';
-  var ca=sk.alerte>0?'var(--amber)':'var(--greentxt)';
-  var STOCK_PAGE=typeof STOCK_PAGE_NUM!=='undefined'?STOCK_PAGE_NUM:1;
-
-  /* ── Tab nav ────────────────────────────────────────────── */
-  var tabNav='<div style="display:flex;gap:0;border-bottom:2px solid var(--bdr);margin-bottom:16px">'+
-    '<button onclick="STOCK_PAGE_NUM=1;draw(\'stock\',LS)" style="padding:8px 18px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:'+(STOCK_PAGE===1?'2px solid var(--blue);color:var(--blue)':'2px solid transparent;color:var(--txt2)')+'">Stock & KPIs</button>'+
-    '<button onclick="STOCK_PAGE_NUM=2;draw(\'stock\',LS)" style="padding:8px 18px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:'+(STOCK_PAGE===2?'2px solid var(--blue);color:var(--blue)':'2px solid transparent;color:var(--txt2)')+'">&#128202; Analytique</button>'+
-    '</div>';
-
-  /* ── Page 2: Analytique ─────────────────────────────────── */
-  if(STOCK_PAGE===2){
-    var nOk2=D.stock.filter(function(s){return s.qte>s.qte_min;}).length;
-    var tot2=D.stock.length||1;
-    /* Donut catégories */
-    var catMap={};D.stock.forEach(function(s){catMap[s.categorie]=(catMap[s.categorie]||0)+1;});
-    var cats=Object.keys(catMap).sort(function(a,b){return catMap[b]-catMap[a];});
-    var catColors=['#2563EB','#16A34A','#D97706','#DC2626','#7C3AED','#0891B2'];
-    var deg2=0,catArcs='',catLeg='';
-    cats.forEach(function(cat,i){
-      var d=catMap[cat]/tot2*360;if(d>=360)d=359.99;
-      var s2=deg2*Math.PI/180,e2=(deg2+d)*Math.PI/180;
-      var x1=60+52*Math.cos(s2-Math.PI/2),y1=60+52*Math.sin(s2-Math.PI/2);
-      var x2=60+52*Math.cos(e2-Math.PI/2),y2=60+52*Math.sin(e2-Math.PI/2);
-      catArcs+='<path d="M60,60 L'+x1+','+y1+' A52,52 0 '+(d>180?1:0)+',1 '+x2+','+y2+' Z" fill="'+catColors[i%6]+'"><title>'+escH(cat)+': '+catMap[cat]+'</title></path>';
-      catLeg+='<div style="display:flex;align-items:center;gap:5px;font-size:10px;margin-bottom:3px"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+catColors[i%6]+';flex-shrink:0"></span>'+escH(cat)+'<span style="color:var(--txt2);margin-left:auto">'+catMap[cat]+'</span></div>';
-      deg2+=d;
-    });
-    var donutCat='<svg viewBox="0 0 120 120" width="100" height="100" style="display:block;flex-shrink:0">'+catArcs+'<circle cx="60" cy="60" r="32" fill="var(--bg)"/><text x="60" y="64" font-size="13" font-weight="bold" fill="var(--txt)" text-anchor="middle">'+tot2+'</text></svg>';
-    /* Bar top 8 valeur */
-    var byVal=D.stock.map(function(s){return{nom:s.ref,val:s.qte*s.prix};}).sort(function(a,b){return b.val-a.val;}).slice(0,8);
-    var maxVal=byVal[0]?byVal[0].val:1;
-    var barsV=byVal.map(function(b,i){var w=Math.max(4,Math.round(b.val/maxVal*140));var col=i===0?'#2563EB':i===1?'#7C3AED':'#0891B2';return'<div style="margin-bottom:5px"><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--txt2);margin-bottom:2px"><span>'+escH(b.nom)+'</span><span style="font-weight:700">'+Math.round(b.val)+'&#8364;</span></div><div style="background:var(--bg2);border-radius:3px;height:7px"><div style="background:'+col+';height:7px;border-radius:3px;width:'+Math.round(b.val/maxVal*100)+'%"></div></div></div>';}).join('');
-    /* Courbe qté vs seuil */
-    var sorted2=D.stock.slice().sort(function(a,b){return a.ref.localeCompare(b.ref);}).slice(0,10);
-    var cW=260,cH=70,cP=8;var cStep=sorted2.length>1?(cW-cP*2)/(sorted2.length-1):1;
-    var mxQ=Math.max.apply(null,[1].concat(sorted2.map(function(s){return Math.max(s.qte,s.qte_min);})));
-    function cY2(v){return cP+Math.round((1-v/mxQ)*(cH-cP*2));}
-    var ptQ=sorted2.map(function(s,i){return (cP+i*cStep)+','+cY2(s.qte);}).join(' ');
-    var ptM=sorted2.map(function(s,i){return (cP+i*cStep)+','+cY2(s.qte_min);}).join(' ');
-    var curveSVG='<svg viewBox="0 0 '+cW+' '+cH+'" width="100%" height="'+cH+'" style="display:block">'+
-      '<polyline points="'+ptQ+'" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
-      '<polyline points="'+ptM+'" fill="none" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="4,3"/>'+
-      sorted2.map(function(s,i){var x=cP+i*cStep,y=cY2(s.qte);var col=s.qte<=0?'#DC2626':s.qte<=s.qte_min?'#D97706':'#2563EB';return'<circle cx="'+x+'" cy="'+y+'" r="3" fill="'+col+'"><title>'+escH(s.ref)+': '+s.qte+'/'+s.qte_min+'</title></circle>';}).join('')+
-      '<text x="4" y="'+(cH-2)+'" font-size="8" fill="#2563EB">Qté stock</text>'+
-      '<text x="55" y="'+(cH-2)+'" font-size="8" fill="#DC2626">--- Seuil min.</text>'+
-      '</svg>';
-    /* Jauge dispo */
-    var gP=sk.tauxDispo/100,gCol=gP>=0.8?'#16A34A':gP>=0.6?'#D97706':'#DC2626';
-    var gR=38,gCx=55,gCy=50,gAng=180*gP,gFull=180-gAng;
-    var gpx=gCx+gR*Math.cos(gFull*Math.PI/180),gpy=gCy-gR*Math.sin(gFull*Math.PI/180);
-    var gaugeSVG2='<svg viewBox="0 0 110 62" width="110" height="62" style="display:block;margin:0 auto">'+
-      '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 0,1 '+(gCx+gR)+','+gCy+'" fill="none" stroke="#E5E7EB" stroke-width="10" stroke-linecap="round"/>'+
-      '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 '+(gAng>90?1:0)+',1 '+gpx+','+gpy+'" fill="none" stroke="'+gCol+'" stroke-width="10" stroke-linecap="round"/>'+
-      '<text x="'+gCx+'" y="'+(gCy-2)+'" font-size="14" font-weight="bold" fill="'+gCol+'" text-anchor="middle">'+sk.tauxDispo+'%</text>'+
-      '<text x="'+gCx+'" y="'+(gCy+12)+'" font-size="8" fill="var(--txt2)" text-anchor="middle">disponibilité</text></svg>';
-    /* Résumé */
-    var resumeHtml='<div style="font-size:12px;line-height:2">'+
-      '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Total références</span><b>'+D.stock.length+'</b></div>'+
-      '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Valeur totale</span><b>'+eur(sk.valeur)+'</b></div>'+
-      '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Délai moy. réappro.</span><b>'+sk.avgDelai+' j.</b></div>'+
-      '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Commandes enreg.</span><b>'+sk.nbCmds+'</b></div>'+
-      '<div style="display:flex;justify-content:space-between"><span style="color:var(--txt2)">Top pièce</span><b style="font-size:10px">'+(sk.top5[0]?escH(sk.top5[0].nom)+' ('+sk.top5[0].count+'&times;)':'—')+'</b></div>'+
-    '</div>';
-
-    return'<div class="page"><div class="ph"><h2>Pièces détachées &#8212; Analytique</h2><button class="bs btn-prim" onclick="mStock(null)">+ Ajouter</button></div>'+
-      '<div class="pg-c">'+tabNav+
-      '<div style="display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-bottom:12px">'+
-        '<div class="card" style="padding:14px"><div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Répartition par catégorie</div><div style="display:flex;gap:8px;align-items:center">'+donutCat+'<div style="flex:1;overflow:hidden">'+catLeg+'</div></div></div>'+
-        '<div class="card" style="padding:14px"><div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Top 8 valeur en stock (€)</div>'+barsV+'</div>'+
-      '</div>'+
-      '<div class="card" style="padding:14px;margin-bottom:12px"><div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:6px">Quantité vs seuil minimum par référence</div>'+curveSVG+'</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
-        '<div class="card" style="padding:14px"><div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux de disponibilité pièces</div>'+gaugeSVG2+'<div style="font-size:10px;color:var(--txt2);text-align:center;margin-top:4px">'+(sk.interBloquees>0?'&#9888; '+sk.interBloquees+' interv. bloquée(s)':'&#10003; Toutes pièces disponibles')+'</div></div>'+
-        '<div class="card" style="padding:14px"><div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Résumé stock</div>'+resumeHtml+'</div>'+
-      '</div>'+
-      '</div></div>';
-  }
-
-  /* ── Page 1: KPIs + tableau ─────────────────────────────── */
-  return'<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:14px">'+
-    '<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Taux de rupture</div><div class="kp-v" style="color:'+cr+'">'+sk.tauxRupture+'%</div><div class="kp-s">'+sk.rupture+' rupture &#8212; '+sk.alerte+' alerte</div></div>'+
-    '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Valeur stock total</div><div class="kp-v">'+eur(sk.valeur)+'</div><div class="kp-s">'+D.stock.length+' référence(s)</div></div>'+
-    '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Délai moy. réappro.</div><div class="kp-v">'+sk.avgDelai+' j.</div><div class="kp-s">'+sk.nbCmds+' commande(s) enreg.</div></div>'+
-    '<div class="kp" style="border-left-color:var(--greentxt)"><div class="kp-l">Taux dispo. pièces</div><div class="kp-v" style="color:'+(sk.tauxDispo>=80?'var(--greentxt)':sk.tauxDispo>=60?'var(--amber)':'var(--red)')+'">'+sk.tauxDispo+'%</div><div class="kp-s">'+(sk.interBloquees>0?sk.interBloquees+' bloquée(s)':'toutes disponibles')+'</div></div>'+
-  '</div>'+
-  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">'+
-    /* Donut état stock */
-    (function(){
-      var nOk=D.stock.filter(function(s){return s.qte>s.qte_min;}).length;
-      var nAlt=sk.alerte,nRup=sk.rupture,tot=D.stock.length||1;
-      var deg=0,arcs='';
-      [{n:nOk,c:'#16A34A'},{n:nAlt,c:'#D97706'},{n:nRup,c:'#DC2626'}].forEach(function(sl){
-        if(!sl.n)return;var d=sl.n/tot*360;if(d>=360)d=359.99;
-        var s3=deg*Math.PI/180,e3=(deg+d)*Math.PI/180;
-        var x1=50+42*Math.cos(s3-Math.PI/2),y1=50+42*Math.sin(s3-Math.PI/2);
-        var x2=50+42*Math.cos(e3-Math.PI/2),y2=50+42*Math.sin(e3-Math.PI/2);
-        arcs+='<path d="M50,50 L'+x1+','+y1+' A42,42 0 '+(d>180?1:0)+',1 '+x2+','+y2+' Z" fill="'+sl.c+'"/>';
-        deg+=d;
-      });
-      return'<div class="card" style="padding:14px"><div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">État du stock</div>'+
-        '<div style="display:flex;align-items:center;gap:10px">'+
-          '<svg viewBox="0 0 100 100" width="80" height="80" style="display:block;flex-shrink:0">'+arcs+'<circle cx="50" cy="50" r="27" fill="var(--bg)"/><text x="50" y="54" font-size="12" font-weight="bold" fill="var(--txt)" text-anchor="middle">'+tot+'</text></svg>'+
-          '<div style="font-size:10px;line-height:1.9">'+
-            '<div><span style="color:#16A34A;font-weight:700">&#9679;</span> OK : '+nOk+'</div>'+
-            (nAlt?'<div><span style="color:#D97706;font-weight:700">&#9679;</span> Alerte : '+nAlt+'</div>':'')+
-            (nRup?'<div><span style="color:#DC2626;font-weight:700">&#9679;</span> Rupture : '+nRup+'</div>':'')+
-          '</div>'+
-        '</div>'+
-      '</div>';
-    })()+
-    /* Jauge dispo */
-    (function(){
-      var gPct=sk.tauxDispo/100,gCol=gPct>=0.8?'#16A34A':gPct>=0.6?'#D97706':'#DC2626';
-      var gR=40,gCx=60,gCy=52,gAng=180*gPct,gFull=180-gAng;
-      var gpx=gCx+gR*Math.cos(gFull*Math.PI/180),gpy=gCy-gR*Math.sin(gFull*Math.PI/180);
-      return'<div class="card" style="padding:14px">'+
-        '<div class="cc" style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux disponibilité pièces</div>'+
-        '<svg viewBox="0 0 120 70" width="120" height="70" style="display:block;margin:0 auto">'+
-          '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 0,1 '+(gCx+gR)+','+gCy+'" fill="none" stroke="#E5E7EB" stroke-width="11" stroke-linecap="round"/>'+
-          '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 '+(gAng>90?1:0)+',1 '+gpx+','+gpy+'" fill="none" stroke="'+gCol+'" stroke-width="11" stroke-linecap="round"/>'+
-          '<text x="'+gCx+'" y="'+(gCy-3)+'" font-size="16" font-weight="bold" fill="'+gCol+'" text-anchor="middle">'+sk.tauxDispo+'%</text>'+
-          '<text x="'+gCx+'" y="'+(gCy+13)+'" font-size="8" fill="var(--txt2)" text-anchor="middle">disponibilité pièces</text>'+
-        '</svg>'+
-        '<div style="font-size:10px;color:var(--txt2);text-align:center;margin-top:4px">'+(sk.interBloquees>0?'&#9888; '+sk.interBloquees+' interv. bloquée(s)':'&#10003; Toutes disponibles')+'</div>'+
-        '<div style="text-align:center;margin-top:8px"><button onclick="STOCK_PAGE_NUM=2;draw(\'stock\',LS)" style="font-size:11px;padding:4px 12px;background:var(--bluebg);color:var(--blue);border:1px solid var(--blue);border-radius:6px;cursor:pointer">Voir analytique &#8594;</button></div>'+
-      '</div>';
-    })()+
-  '</div>'+tabNav
-
-  openModal(id?'Modifier INT-'+String(id).padStart(4,'0'):'Nouvelle intervention',body,!!id);
-  makeAC('fart-in','fart-drop',articles,null);
-  makeAC('fserie-in','fserie-drop',series,function(s){var m=D.materiels.find(function(x){return x.serie===s;});if(m){var a=document.getElementById('fart-in');if(a)a.value=m.article;}});
-  makeAC('fpiece-in','fpiece-drop',stk,null);
-  document.getElementById('fpiece-in').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addPieceInput();}});
-}
-function editInter(id){mInter(id);}
-function autoFin(){var deb=document.getElementById('fdeb');var fin=document.getElementById('dfin');if(deb&&fin&&deb.value)fin.value=addWorkdays(deb.value,10);}
-
-/* ================================================================
-   OTHER MODALS
-================================================================ */
-function mMat(id){
-  MODE='mat';EID=id||null;var d=id?D.materiels.find(function(x){return x.id===id;}):{};
-  var cO=D.clients.map(function(c){return'<option'+(d.client===c.nom?' selected':'')+' value="'+escH(c.nom)+'">'+escH(c.nom)+'</option>';}).join('');
-  var tO=D.techniciens.map(function(t){return'<option'+(d.technicien===t.nom?' selected':'')+' value="'+escH(t.nom)+'">'+escH(t.nom)+'</option>';}).join('');
-  var idB=id?'<span class="id-bdg">MAT-'+String(id).padStart(4,'0')+'</span>':'';
-  openModal((id?'Modifier matériel':'Nouveau matériel')+idB,
-    '<div class="fg2"><div class="fg"><label class="fl">Article</label><input class="fi" id="fart" value="'+escH(d.article||'')+'"></div>'+
-    '<div class="fg"><label class="fl">N° de série</label><input class="fi" id="fserie" value="'+escH(d.serie||'')+'"></div></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Client</label><select class="fi" id="fcli">'+cO+'</select></div>'+
-    '<div class="fg"><label class="fl">Marque</label><select class="fi" id="fmarq">'+opts(MARQUES,d.marque)+'</select></div></div>'+
-    '<div class="fg"><label class="fl">Technicien</label><select class="fi" id="ftech"><option value="">Non assigné</option>'+tO+'</select></div>'+
-    '<div class="fg"><label class="fl">Localisation</label><select class="fi" id="floc">'+opts(ZONES,d.localisation)+'</select></div>',!!id);
-}
-function editMat(id){mMat(id);}
-
-function mCli(id){
-  MODE='cli';EID=id||null;var d=id?D.clients.find(function(x){return x.id===id;}):{};
-  openModal(id?'Modifier client':'Nouveau client',
-    '<div class="fg"><label class="fl">Nom</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Contact</label><input class="fi" id="fcontact" value="'+escH(d.contact||'')+'"></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Adresse</label><input class="fi" id="fadr" value="'+escH(d.adresse||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Notes</label><textarea class="fi" id="fnotes" rows="2">'+(d.notes||'')+'</textarea></div>',!!id);
-}
-function editCli(id){mCli(id);}
-
-function mTech(id){
-  MODE='tech';EID=id||null;var d=id?D.techniciens.find(function(x){return x.id===id;}):{};
-  var curFonc=d.fonction||d.specialite||'';
-  openModal(id?'Modifier technicien':'Nouveau technicien',
-    '<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>'+
-    '<div class="fg2">'+
-      '<div class="fg"><label class="fl">Fonction</label><select class="fi" id="ffonc">'+opts(FONCTIONS,curFonc)+'</select></div>'+
-      '<div class="fg"><label class="fl">Zone d\'intervention</label><select class="fi" id="fzone">'+opts(ZONES,d.zone)+'</select></div>'+
-    '</div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat"><option'+(d.statut==='Actif'?' selected':'')+' value="Actif">Actif</option><option'+(d.statut==='Inactif'?' selected':'')+' value="Inactif">Inactif</option></select></div>',!!id);
-}
-function editTech(id){mTech(id);}
-
-function mStock(id){
-  MODE='stock';EID=id||null;var d=id?D.stock.find(function(x){return x.id===id;}):{};
-  openModal(id?'Modifier pièce — '+escH(d.ref):'Nouvelle pièce',
-    '<div class="fg2"><div class="fg"><label class="fl">Référence</label><input class="fi" id="fref" value="'+escH(d.ref||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Catégorie</label><input class="fi" id="fcat" value="'+escH(d.categorie||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Désignation</label><input class="fi" id="fdes" value="'+escH(d.designation||'')+'"></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Quantité</label><input class="fi" type="number" id="fqte" value="'+(d.qte!=null?d.qte:0)+'" min="0" step="1"></div>'+
-    '<div class="fg"><label class="fl">Seuil min.</label><input class="fi" type="number" id="fmin" value="'+(d.qte_min!=null?d.qte_min:1)+'" min="0" step="1"></div></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Prix unitaire (€)</label><input class="fi" type="number" step="0.01" id="fprix" value="'+(d.prix||0)+'"></div>'+
-    '<div class="fg"><label class="fl">Fournisseur</label><input class="fi" id="ffour" value="'+escH(d.fournisseur||'')+'"></div></div>',!!id);
-}
-function editStock(id){mStock(Number(id));}
-function cmdStock(id){id=Number(id);var s=D.stock.find(function(x){return x.id===id;});if(!s)return;var qte=prompt('Quantité reçue pour '+s.ref+' ?','');if(!qte||isNaN(Number(qte))||Number(qte)<=0)return;s.qte=s.qte+Number(qte);s.derniere_commande=todayStr();s.nb_commandes=(s.nb_commandes||0)+1;(async function(){await sbUpdate('stock',s.id,s);save();draw(PAGE,LS);})();}
-
-/* USERS */
-function newUser(){editUser(null);}
-function editUser(id){
-  var u=id?USERS.find(function(x){return x.id===id;}):{perms:[]};
-  var permCBs=ALL_PERMS.map(function(p){var chk=u.role==='admin'||(u.perms&&u.perms.indexOf(p)>=0);var lbl=p.replace('view_','Voir ').replace('edit_','Modifier ');return'<label class="perm-item"><input type="checkbox" value="'+p+'" '+(chk?'checked':'')+' class="perm-chk"> '+escH(lbl)+'</label>';}).join('');
-  var body='<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="u-nom" value="'+escH(u.nom||'')+'"></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Identifiant</label><input class="fi" id="u-user" value="'+escH(u.username||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email (connexion alternative)</label><input class="fi" id="u-email" type="email" value="'+escH(u.email||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Mot de passe</label><div style="position:relative"><input class="fi" type="password" id="u-pass" placeholder="'+(id?'Laisser vide = inchangé':'Définir un mot de passe')+'" value="" style="padding-right:36px"><button onclick="tvp(\'u-pass\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px">&#128065;</button></div></div>'+
-    '<div class="fg"><label class="fl">Rôle</label><select class="fi" id="u-role" onchange="toggleAdminPerms(this.value)"><option'+(u.role==='tech'?' selected':'')+' value="tech">Technicien</option><option'+(u.role==='admin'?' selected':'')+' value="admin">Administrateur</option></select></div>'+
-    '<div class="fg" id="perm-block" style="'+(u.role==='admin'?'opacity:.5;pointer-events:none':'')+'"><label class="fl">Droits d\'accès</label><div class="perm-grid">'+permCBs+'</div></div>';
-  MODE='user';EID=id||null;
-  openModal(id?'Modifier utilisateur':'Nouvel utilisateur',body,id&&u.id!==1);
-}
-function toggleAdminPerms(v){var b=document.getElementById('perm-block');if(b)b.style=v==='admin'?'opacity:.5;pointer-events:none':'';}
-function saveUser(){
-  var nom=gv('u-nom'),uname=gv('u-user'),pass=gv('u-pass'),role=gv('u-role'),email=gv('u-email');
-  var perms=[];document.querySelectorAll('.perm-chk:checked').forEach(function(el){perms.push(el.value);});
-  if(!nom||!uname){alert('Nom et identifiant requis.');return;}
-  if(EID){var u=USERS.find(function(x){return x.id===EID;});u.nom=nom;u.username=uname;u.role=role;u.perms=perms;u.email=email;if(pass)u.password=pass;}
-  else USERS.push({id:nextId('user'),nom:nom,username:uname,password:pass,role:role,perms:perms,email:email});
-  save();closeModal();draw('settings','');
+  return'<div class="kg" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+
+    '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Références</div><div class="kp-v">'+D.stock.length+'</div></div>'+
+    '<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Alertes</div><div class="kp-v">'+D.stock.filter(function(s){return s.qte<=s.qte_min;}).length+'</div></div>'+
+    '<div class="kp" style="border-left-color:var(--green)"><div class="kp-l">Valeur totale</div><div class="kp-v">'+eur(val)+'</div></div></div>'+
+    '<div class="card"><div class="ch"><span class="ct2">Pièces détachées</span><span class="cc">'+all.length+'</span></div>'+
+    '<div class="tw"><table class="tbl"><thead><tr><th>ID</th><th>Réf.</th><th>Désignation</th><th>Catégorie</th><th>Qté</th><th>Seuil</th><th>Prix</th><th>Fournisseur</th><th>État</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
 }
 
 /* ================================================================
-   SAVE MODAL
+   SETTINGS
 ================================================================ */
-function saveModal(){
-  if(MODE==='view'){closeModal();return;}
-  if(MODE==='user'){saveUser();return;}
-  if(MODE==='inter'){
-    var o={id:EID||(nextId('inter')),article:gv('fart-in'),serie:gv('fserie-in'),client:gv('fcli'),statut:gv('fstat'),technicien:gv('ftech'),date_debut:gv('fdeb'),heure_debut:gv('fhdeb'),date_fin:gv('dfin'),heure_fin:gv('dhfin'),description:gv('fdesc'),pieces:TMP_PIECES.slice(),devis:collectDevis()};
-    if(EID){var i=D.interventions.findIndex(function(x){return x.id===EID;});if(i>=0)D.interventions[i]=o;}else D.interventions.unshift(o);
-    syncMatStatut();
-    /* → historique only if (Terminé or Annulé) AND devis Accepté or Refusé */
-    var dvSettled=o.devis&&(o.devis.statut==='Accepté'||o.devis.statut==='Refusé');
-    if((o.statut==='Terminé'||o.statut==='Annulé')&&dvSettled){
-      o.date_cloture=o.date_cloture||todayStr();
-      if(!D.historique.find(function(h){return h.id===o.id;}))D.historique.unshift(o);
-      D.interventions=D.interventions.filter(function(x){return x.id!==o.id;});
-    }
-  }else if(MODE==='mat'){
-    var dmat=EID?D.materiels.find(function(x){return x.id===EID;}):{}; var o={id:EID||(nextId('mat')),article:gv('fart'),serie:gv('fserie'),client:gv('fcli'),marque:gv('fmarq'),technicien:gv('ftech'),statut:(dmat&&dmat.statut)||'',localisation:gv('floc')};
-    if(EID){var i=D.materiels.findIndex(function(x){return x.id===EID;});if(i>=0)D.materiels[i]=o;}else D.materiels.push(o);
-  }else if(MODE==='cli'){
-    var o={id:EID||(nextId('cli')),nom:gv('fnom'),contact:gv('fcontact'),tel:gv('ftel'),email:gv('femail'),adresse:gv('fadr'),notes:gv('fnotes')};
-    if(EID){var i=D.clients.findIndex(function(x){return x.id===EID;});if(i>=0)D.clients[i]=o;}else D.clients.push(o);
-  }else if(MODE==='tech'){
-    var o={id:EID||(nextId('tech')),nom:gv('fnom'),fonction:gv('ffonc'),zone:gv('fzone'),tel:gv('ftel'),email:gv('femail'),statut:gv('fstat')};
-    if(EID){var i=D.techniciens.findIndex(function(x){return x.id===EID;});if(i>=0)D.techniciens[i]=o;}else D.techniciens.push(o);
-  }else if(MODE==='stock'){
-    var o={id:EID||(nextId('stock')),ref:gv('fref'),designation:gv('fdes'),categorie:gv('fcat'),qte:gn('fqte'),qte_min:gn('fmin'),prix:gn('fprix'),fournisseur:gv('ffour'),delai_reappro:gn('fdelai'),derniere_commande:gv('fdcmd'),nb_commandes:(EID?((D.stock.find(function(x){return x.id===EID;})||{}).nb_commandes||0):0)};
-    if(EID){var i=D.stock.findIndex(function(x){return x.id===EID;});if(i>=0)D.stock[i]=o;}else D.stock.push(o);
-  }
-  /* Save to Supabase */
-  (async function(){
-    var table = {inter:'interventions',mat:'materiels',cli:'clients',tech:'techniciens',stock:'stock'}[MODE];
-    if(table && o) {
-      var saved = await saveRecord(table, o);
-      if(saved && saved.id) o.id = saved.id;
-    }
-    save();closeModal();draw(PAGE,LS);
-  })();
-}
-
 function rSettings(){
   var userRows=USERS.map(function(u){
     var isAdmin=u.role==='admin';
@@ -1745,11 +1297,15 @@ function delInter(id){
   if(!confirm('Supprimer définitivement cette intervention ?'))return;
   var inter=D.interventions.find(function(x){return x.id===id;});
   D.interventions=D.interventions.filter(function(x){return x.id!==id;});
+  /* Reset materiel statut if no other active intervention for this serie */
   if(inter&&inter.serie){
     var stillActive=D.interventions.find(function(x){return x.serie===inter.serie;});
-    if(!stillActive){var mat=D.materiels.find(function(m){return m.serie===inter.serie;});if(mat)mat.statut='';}
+    if(!stillActive){
+      var mat=D.materiels.find(function(m){return m.serie===inter.serie;});
+      if(mat)mat.statut='';
+    }
   }
-  (async function(){ await sbDelete('interventions', id); save();draw(PAGE,LS); })();
+  save();draw(PAGE,LS);
 }
 function showOverdue(){
   var ov=D.interventions.filter(function(i){var p=getPrio(i);return p.wd!==null&&p.wd<=0;});
@@ -1815,10 +1371,8 @@ function confirmDel(){if(document.getElementById('dc'))return;var div=document.c
 function doDel(){
   var tables={inter:'interventions',mat:'materiels',cli:'clients',tech:'techniciens',stock:'stock'};
   var tbl=tables[MODE];
-  if(tbl){
-    D[tbl]=D[tbl].filter(function(x){return x.id!==EID;});
-    (async function(){ await sbDelete(tbl,EID); save();closeModal();draw(PAGE,LS); })();
-  }
+  if(tbl){D[tbl]=D[tbl].filter(function(x){return x.id!==EID;});
+    (async function(){await sbDelete(tbl,EID);save();closeModal();draw(PAGE,LS);})();}
 }
 function switchTab(t){document.querySelectorAll('.mtab').forEach(function(el){el.classList.toggle('on',el.dataset.tab===t);});document.querySelectorAll('.tab-pane').forEach(function(el){el.classList.toggle('show',el.id==='tab-'+t);});}
 function openAdd(){var m={interventions:'inter',materiels:'mat',clients:'cli',techniciens:'tech',stock:'stock'};var t=m[PAGE];if(t==='inter')mInter();else if(t==='mat')mMat();else if(t==='cli')mCli();else if(t==='tech')mTech();else if(t==='stock')mStock();}
@@ -1979,7 +1533,8 @@ function mStock(id){
     '<div class="fg2"><div class="fg"><label class="fl">Prix unitaire (€)</label><input class="fi" type="number" step="0.01" id="fprix" value="'+(d.prix||0)+'"></div>'+
     '<div class="fg"><label class="fl">Fournisseur</label><input class="fi" id="ffour" value="'+escH(d.fournisseur||'')+'"></div></div>',!!id);
 }
-function editStock(id){mStock(id);}
+function editStock(id){mStock(Number(id));}
+function cmdStock(id){id=Number(id);var s=D.stock.find(function(x){return x.id===id;});if(!s)return;var q=prompt('Quantité reçue pour '+s.ref+' ?','');if(!q||isNaN(Number(q))||Number(q)<=0)return;s.qte=s.qte+Number(q);s.derniere_commande=todayStr();s.nb_commandes=(s.nb_commandes||0)+1;(async function(){await sbUpdate('stock',s.id,s);save();draw(PAGE,LS);})();}
 
 /* USERS */
 function newUser(){editUser(null);}
@@ -2014,7 +1569,7 @@ function saveModal(){
   if(MODE==='inter'){
     var o={id:EID||(nextId('inter')),article:gv('fart-in'),serie:gv('fserie-in'),client:gv('fcli'),statut:gv('fstat'),technicien:gv('ftech'),date_debut:gv('fdeb'),date_fin:gv('dfin'),description:gv('fdesc'),pieces:TMP_PIECES.slice(),devis:collectDevis()};
     if(EID){var i=D.interventions.findIndex(function(x){return x.id===EID;});if(i>=0)D.interventions[i]=o;}else D.interventions.unshift(o);
-    syncMatStatut(o);
+    syncMatStatut();
     /* → historique only if (Terminé or Annulé) AND devis Accepté or Refusé */
     var dvSettled=o.devis&&(o.devis.statut==='Accepté'||o.devis.statut==='Refusé');
     if((o.statut==='Terminé'||o.statut==='Annulé')&&dvSettled){
@@ -2032,31 +1587,35 @@ function saveModal(){
     var o={id:EID||(nextId('tech')),nom:gv('fnom'),fonction:gv('ffonc'),zone:gv('fzone'),tel:gv('ftel'),email:gv('femail'),statut:gv('fstat')};
     if(EID){var i=D.techniciens.findIndex(function(x){return x.id===EID;});if(i>=0)D.techniciens[i]=o;}else D.techniciens.push(o);
   }else if(MODE==='stock'){
-    var o={id:EID||(nextId('stock')),ref:gv('fref'),designation:gv('fdes'),categorie:gv('fcat'),qte:gn('fqte'),qte_min:gn('fmin'),prix:gn('fprix'),fournisseur:gv('ffour')};
+    var o={id:EID||(nextId('stock')),ref:gv('fref'),designation:gv('fdes'),categorie:gv('fcat'),qte:gn('fqte'),qte_min:gn('fmin'),prix:gn('fprix'),fournisseur:gv('ffour'),delai_reappro:gn('fdelai')||7,derniere_commande:gv('fdcmd'),nb_commandes:(EID?((D.stock.find(function(x){return x.id===EID;})||{}).nb_commandes||0):0)};
     if(EID){var i=D.stock.findIndex(function(x){return x.id===EID;});if(i>=0)D.stock[i]=o;}else D.stock.push(o);
   }
-  save();closeModal();draw(PAGE,LS);
+  (async function(){
+    var tables={inter:'interventions',mat:'materiels',cli:'clients',tech:'techniciens',stock:'stock'};
+    var tbl=tables[MODE];
+    if(tbl&&o){await saveToSupa(tbl,o);}
+    save();closeModal();draw(PAGE,LS);
+  })();
 }
 
 /* ================================================================
-   BOOT — Supabase Auth
+   BOOT
 ================================================================ */
-(async function() {
-  // Check existing session
-  var sessionResult = await supa.auth.getSession();
-  if(sessionResult.data && sessionResult.data.session) {
-    CURRENT_SESSION = sessionResult.data.session;
-      await initApp();
+load();
+(async function(){
+  var s=await supa.auth.getSession();
+  if(s.data&&s.data.session){
+    await loadFromSupabase();
+    hideLoginOverlay();
+    draw(PAGE,'');
   } else {
-    showLogin();
+    showLoginOverlay();
+    draw(PAGE,'');
   }
-  // Listen for auth changes
-  supa.auth.onAuthStateChange(function(event, session) {
-    if(event === 'SIGNED_OUT') { showLogin(); }
+  supa.auth.onAuthStateChange(function(event){
+    if(event==='SIGNED_OUT'){showLoginOverlay();}
   });
 })();
 </script>
-</body>
-</html><template id="app-template"></template>
 </body>
 </html>
