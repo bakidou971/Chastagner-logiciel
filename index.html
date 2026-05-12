@@ -21,7 +21,7 @@
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);font-size:13px;height:100vh;overflow:hidden;}
 .app{display:flex;height:100vh;}
-.sb{width:220px;min-width:220px;background:var(--bg1);border-right:1px solid var(--bdr);display:flex;flex-direction:column;}
+.sb{width:220px;min-width:220px;background:var(--bg1);border-right:1px solid var(--bdr);display:flex;flex-direction:column;display:flex;flex-direction:column;}
 .sb-brand{padding:14px 16px;border-bottom:1px solid var(--bdr);}
 .sb-name{font-size:13px;font-weight:800;}
 .sb-sub{font-size:10px;color:var(--txt2);margin-top:2px;text-transform:uppercase;letter-spacing:.4px;}
@@ -196,7 +196,6 @@ textarea.fi{resize:vertical;}
     <div class="sb-brand" style="display:flex;align-items:center;justify-content:space-between">
       <div class="sb-name">Chastagner Location SAV</div>
       <div class="sb-sub">GMAO Maintenance</div>
-      <button onclick="doLogout()" style="position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;padding:4px;color:var(--txt3)" title="Déconnexion">⏻</button>
     </div>
     <div class="sb-nav">
       <div class="sb-sec">Principal</div>
@@ -230,6 +229,9 @@ textarea.fi{resize:vertical;}
         <button class="bp" id="btn-add" onclick="openAdd()">+ Ajouter</button>
       </div>
     </div>
+    <div style="padding:10px 14px;border-top:1px solid var(--bdr);flex-shrink:0">
+      <button onclick="doLogout()" style="width:100%;padding:8px;background:var(--redbg);color:var(--redtxt);border:1px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">⏻ Se déconnecter</button>
+    </div>
     <div class="ct" id="ct"></div>
   </div>
 </div>
@@ -254,6 +256,9 @@ var CURRENT_SESSION = null;
 
 /* ── Login screen ─────────────────────────────────────────────── */
 function showLogin(msg) {
+  // Save template before replacing body
+  var tmpl = document.getElementById('app-template');
+  var tmplHTML = tmpl ? tmpl.outerHTML : '';
   document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,sans-serif">'+
     '<div style="background:var(--bg1);border:1px solid var(--bdr);border-radius:16px;padding:40px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.08)">'+
       '<div style="text-align:center;margin-bottom:28px">'+
@@ -273,7 +278,7 @@ function showLogin(msg) {
       '<button onclick="doLogin()" style="width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Se connecter</button>'+
       '<div id="login-spinner" style="display:none;text-align:center;margin-top:12px;font-size:12px;color:var(--txt2)">Connexion en cours…</div>'+
     '</div>'+
-  '</div>';
+  '</div>' + tmplHTML;
 }
 
 async function doLogin() {
@@ -297,6 +302,7 @@ async function doLogout() {
   await supa.auth.signOut();
   CURRENT_SESSION = null;
   D = {};
+  PAGE = 'dashboard';
   showLogin();
 }
 
@@ -370,11 +376,23 @@ async function deleteRecord(table, id) {
 
 /* ── initApp: called after successful login ──────────────────── */
 async function initApp() {
-  // Rebuild full page
-  document.body.innerHTML = document.getElementById('app-template').innerHTML;
+  // Restore full app from template
+  var tmpl = document.getElementById('app-template');
+  if(tmpl) {
+    document.body.innerHTML = tmpl.innerHTML;
+  } else {
+    // template already consumed — reload page
+    window.location.reload();
+    return;
+  }
+  // Show loading indicator
+  var ct = document.getElementById('ct');
+  if(ct) ct.innerHTML = '<div style="padding:40px;text-align:center;color:var(--txt2);font-size:14px">Chargement des données…</div>';
+
   await loadFromSupabase();
   syncMatStatut();
-  // Migrate Terminé interventions to historique
+
+  // Migrate Terminé/Annulé interventions to historique
   if(D.interventions) {
     var mv = D.interventions.filter(function(i){ return i.statut==='Terminé'||i.statut==='Annulé'; });
     if(mv.length) {
@@ -2028,16 +2046,7 @@ function saveModal(){
   var sessionResult = await supa.auth.getSession();
   if(sessionResult.data && sessionResult.data.session) {
     CURRENT_SESSION = sessionResult.data.session;
-    // Restore app template
-    var tmpl = document.getElementById('app-template');
-    if(tmpl) {
-      var appRoot = document.getElementById('app-root');
-      if(appRoot) appRoot.innerHTML = tmpl.innerHTML;
-    }
-    load();
-    await loadFromSupabase();
-    syncMatStatut();
-    draw(PAGE, '');
+      await initApp();
   } else {
     showLogin();
   }
@@ -2049,6 +2058,5 @@ function saveModal(){
 </script>
 </body>
 </html><template id="app-template"></template>
-<div id="app-root"></div>
 </body>
 </html>
