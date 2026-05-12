@@ -371,6 +371,7 @@ function fmtDateShort(ds){if(!ds)return'—';var d=new Date(ds);return String(d.
 function addWorkdays(ds,days){var d=new Date(ds),a=0;while(a<days){d.setDate(d.getDate()+1);var w=d.getDay();if(w!==0&&w!==6)a++;}return d.toISOString().split('T')[0];}
 function wdBetween(d1,d2){if(!d1||!d2)return 0;var a=new Date(d1),b=new Date(d2);if(b<=a)return 0;var c=0,cur=new Date(a);while(cur<b){cur.setDate(cur.getDate()+1);var w=cur.getDay();if(w!==0&&w!==6)c++;}return c;}
 function wdUntil(ds){if(!ds)return null;var now=new Date();now.setHours(0,0,0,0);var end=new Date(ds);end.setHours(0,0,0,0);if(end<=now)return 0;return wdBetween(now.toISOString().split('T')[0],ds);}
+function uniq(arr){var seen={},out=[];arr.forEach(function(x){if(x!=null&&!seen[x]){seen[x]=1;out.push(x);}});return out;}
 function calBetween(d1,d2){if(!d1||!d2)return 0;return Math.round((new Date(d2)-new Date(d1))/(1000*60*60*24));}
 function durText(i){
   if(!i.date_debut)return '—';
@@ -616,7 +617,7 @@ function barChartH(items,maxVal,colors){
   }).join('');
 }
 function sparkBars(vals){
-  var mx=Math.max(1,...vals);
+  var mx=Math.max.apply(null,[1].concat(vals));
   return'<div class="sparkbar">'+vals.map(function(v){var h=Math.max(4,Math.round(v/mx*34));return'<div class="sbar" style="height:'+h+'px"></div>';}).join('')+'</div>';
 }
 
@@ -685,7 +686,7 @@ function rDash(){
   var donut2=donutSVG([{pct:k.tauxA,color:'#16a34a'},{pct:100-k.tauxA,color:'#e4e3db'}],65,65,52,18,k.tauxA+'%','acceptés');
   /* Tech bars */
   var techItems=Object.entries(k.byTech).sort(function(a,b){return b[1]-a[1];}).slice(0,5).map(function(e){return{label:e[0].split(' ')[0],value:e[1]};});
-  var maxT=Math.max(1,...techItems.map(function(x){return x.value;}));
+  var maxT=Math.max.apply(null,[1].concat(techItems.map(function(x){return x.value;})));
   var techBars=barChartH(techItems,maxT,['#2563eb']);
   /* Spark monthly */
   var spark=sparkBars(k.monthly.map(function(m){return m.cnt;}));
@@ -743,8 +744,8 @@ function rInter(f){
   filtered.sort(function(a,b){var pa=getPrio(a),pb=getPrio(b);if(pa.wd===null)return 1;if(pb.wd===null)return -1;return pa.wd-pb.wd;});
   var pg=pag(filtered);
   /* Filter selects */
-  var clients=[...new Set(D.interventions.map(function(i){return i.client;}).filter(Boolean))];
-  var techs=[...new Set(D.interventions.map(function(i){return i.technicien;}).filter(Boolean))];
+  var clients=uniq(D.interventions.map(function(i){return i.client;}).filter(Boolean));
+  var techs=uniq(D.interventions.map(function(i){return i.technicien;}).filter(Boolean));
   var filterBar='<div class="filter-bar">'+
     '<span class="filter-label">Filtres :</span>'+
     '<select id="fi-stat" onchange="applyInterFilters()"><option value="">Tous statuts</option>'+SI.map(function(s){return'<option>'+s+'</option>';}).join('')+'</select>'+
@@ -827,8 +828,8 @@ function rHist(f){
       (i.technicien||'').toLowerCase().indexOf(f)>=0||String(i.id).indexOf(f)>=0||(i.client||'').toLowerCase().indexOf(f)>=0;
   });
   /* Filters */
-  var clients=[...new Set((D.historique||[]).map(function(i){return i.client;}).filter(Boolean))];
-  var techs=[...new Set((D.historique||[]).map(function(i){return i.technicien;}).filter(Boolean))];
+  var clients=uniq((D.historique||[]).map(function(i){return i.client;}).filter(Boolean));
+  var techs=uniq((D.historique||[]).map(function(i){return i.technicien;}).filter(Boolean));
   var filterBar='<div class="filter-bar">'+
     '<span class="filter-label">Filtres :</span>'+
     '<select id="fh-stat" onchange="applyHistFilters()"><option value="">Tous statuts</option><option>Terminé</option><option>Annulé</option></select>'+
@@ -998,10 +999,10 @@ function rAnalytics(){
     return'<tr><td style="font-weight:700;font-size:11px">'+(i+1)+'.</td><td style="font-weight:700">'+escH(m.article)+'</td><td style="color:var(--txt2);font-size:10px">'+escH(m.serie)+'</td><td>'+bdg('b-red',m.count+' interv.')+'</td></tr>';
   }).join(''):'<tr><td colspan="4" style="color:var(--txt2);text-align:center;padding:14px">Aucune donnée</td></tr>';
   /* CA bars monthly */
-  var maxCA=Math.max(1,...k.monthly.map(function(m){return m.ca;}));
+  var maxCA=Math.max.apply(null,[1].concat(k.monthly.map(function(m){return m.ca;})));
   var caBars=barChartH(k.monthly.map(function(m){return{label:m.label,value:m.ca};}),maxCA,['#16a34a']);
   /* Closures bars monthly */
-  var maxC=Math.max(1,...k.monthly.map(function(m){return m.cnt;}));
+  var maxC=Math.max.apply(null,[1].concat(k.monthly.map(function(m){return m.cnt;})));
   var closureBars=barChartH(k.monthly.map(function(m){return{label:m.label,value:m.cnt};}),maxC,['#2563eb']);
   /* Devis donut */
   var donutDv=donutSVG([{pct:k.tauxA,color:'#16a34a'},{pct:100-k.tauxA,color:'#e4e3db'}],65,65,52,18,k.tauxA+'%','acceptés');
@@ -1156,8 +1157,8 @@ function rAnalytics(){
 ================================================================ */
 function rMat(f){
   var vgpR=getVGPRelances();var vrMap={};vgpR.forEach(function(v){vrMap[v.inter.serie]={daysLeft:v.daysLeft,calDays:v.calDays,date:v.relanceDate};});
-  var clients=[...new Set(D.materiels.map(function(m){return m.client;}).filter(Boolean))];
-  var marques=[...new Set(D.materiels.map(function(m){return m.marque;}).filter(Boolean))];
+  var clients=uniq(D.materiels.map(function(m){return m.client;}).filter(Boolean));
+  var marques=uniq(D.materiels.map(function(m){return m.marque;}).filter(Boolean));
   var filterBar='<div class="filter-bar">'+
     '<span class="filter-label">Filtres :</span>'+
     '<select id="fm-stat" onchange="applyMatFilters()"><option value="">Tous statuts</option>'+SM.map(function(s){return s?'<option>'+s+'</option>':'';}).join('')+'</select>'+
@@ -1246,8 +1247,8 @@ function rCli(f){
 ================================================================ */
 function rTech(f){
   var filteredList=D.techniciens.filter(function(t){return!f||t.nom.toLowerCase().indexOf(f)>=0;});
-  var fonctions=[...new Set(D.techniciens.map(function(t){return t.fonction||t.specialite;}).filter(Boolean))];
-  var zones=[...new Set(D.techniciens.map(function(t){return t.zone;}).filter(Boolean))];
+  var fonctions=uniq(D.techniciens.map(function(t){return t.fonction||t.specialite;}).filter(Boolean));
+  var zones=uniq(D.techniciens.map(function(t){return t.zone;}).filter(Boolean));
   var filterBar='<div class="filter-bar">'+
     '<span class="filter-label">Filtres :</span>'+
     '<select id="ft-fonc" onchange="applyTechFilters()"><option value="">Toutes fonctions</option>'+fonctions.map(function(x){return'<option>'+escH(x)+'</option>';}).join('')+'</select>'+
@@ -1820,7 +1821,7 @@ function mInter(id){
   TMP_PIECES=d.pieces?d.pieces.slice():[];
   DV_P=d.devis&&d.devis.lignes_pieces?JSON.parse(JSON.stringify(d.devis.lignes_pieces)):[];
   DV_MO=d.devis&&d.devis.mo?JSON.parse(JSON.stringify(d.devis.mo)):[];
-  var articles=[...new Set(D.materiels.map(function(m){return m.article;}).filter(Boolean))].sort();
+  var articles=uniq(D.materiels.map(function(m){return m.article;}).filter(Boolean)).sort();
   var series=D.materiels.map(function(m){return m.serie;}).filter(Boolean);
   var cliO=D.clients.map(function(c){return'<option'+(d.client===c.nom?' selected':'')+' value="'+escH(c.nom)+'">'+escH(c.nom)+'</option>';}).join('');
   var techO=D.techniciens.filter(function(t){return t.statut==='Actif';}).map(function(t){return'<option'+(d.technicien===t.nom?' selected':'')+' value="'+escH(t.nom)+'">'+escH(t.nom)+'</option>';}).join('');
