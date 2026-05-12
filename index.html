@@ -1079,7 +1079,55 @@ function rAnalytics(){
     '<div class="card"><div class="ch"><span class="ct2">Performance techniciens</span></div>'+
       '<div class="tw"><table class="tbl"><thead><tr><th>Nom</th><th>Fonction</th><th style="text-align:center">Actives</th><th style="text-align:center">Terminées</th><th style="text-align:center">Moy. durée</th><th style="text-align:right">CA généré</th></tr></thead><tbody>'+techRows+'</tbody></table></div>'+
     '</div>'+
-  '</div>';
++(function(){
+  var sk=calcStockKPIs();var st=D.stock||[];if(!st.length)return '';
+  var nOk2=st.filter(function(s){return s.qte>s.qte_min;}).length;
+  var gP=sk.tauxDispo/100;var gCol2=gP>=0.8?'#16A34A':gP>=0.6?'#D97706':'#DC2626';
+  var cr2=sk.rupture>0?'var(--red)':'var(--greentxt)';var tot2=st.length||1;
+  var deg2=0,arcs2='';
+  [{n:nOk2,c:'#16A34A'},{n:sk.alerte,c:'#D97706'},{n:sk.rupture,c:'#DC2626'}].forEach(function(sl){
+    if(!sl.n)return;var d=sl.n/tot2*360;if(d>=360)d=359.99;
+    var s2=deg2*Math.PI/180,e2=(deg2+d)*Math.PI/180;
+    var x1=40+34*Math.cos(s2-Math.PI/2),y1=40+34*Math.sin(s2-Math.PI/2);
+    var x2=40+34*Math.cos(e2-Math.PI/2),y2=40+34*Math.sin(e2-Math.PI/2);
+    arcs2+='<path d="M40,40 L'+x1+','+y1+' A34,34 0 '+(d>180?1:0)+',1 '+x2+','+y2+' Z" fill="'+sl.c+'"/>';
+    deg2+=d;
+  });
+  var donutA='<svg viewBox="0 0 80 80" width="68" height="68" style="display:block;flex-shrink:0">'+arcs2+'<circle cx="40" cy="40" r="20" fill="var(--bg)"/><text x="40" y="44" font-size="11" font-weight="bold" fill="var(--txt)" text-anchor="middle">'+tot2+'</text></svg>';
+  var gR2=32,gCx2=46,gCy2=40,gAng2=180*gP,gFull2=180-gAng2;
+  var gpx2=gCx2+gR2*Math.cos(gFull2*Math.PI/180),gpy2=gCy2-gR2*Math.sin(gFull2*Math.PI/180);
+  var jaugeA='<svg viewBox="0 0 92 52" width="88" height="52" style="display:block;margin:0 auto">'+
+    '<path d="M'+(gCx2-gR2)+','+gCy2+' A'+gR2+','+gR2+' 0 0,1 '+(gCx2+gR2)+','+gCy2+'" fill="none" stroke="#E5E7EB" stroke-width="8" stroke-linecap="round"/>'+
+    '<path d="M'+(gCx2-gR2)+','+gCy2+' A'+gR2+','+gR2+' 0 '+(gAng2>90?1:0)+',1 '+gpx2+','+gpy2+'" fill="none" stroke="'+gCol2+'" stroke-width="8" stroke-linecap="round"/>'+
+    '<text x="'+gCx2+'" y="'+(gCy2-2)+'" font-size="13" font-weight="bold" fill="'+gCol2+'" text-anchor="middle">'+sk.tauxDispo+'%</text>'+
+    '<text x="'+gCx2+'" y="'+(gCy2+12)+'" font-size="7" fill="var(--txt2)" text-anchor="middle">disponibilité</text></svg>';
+  var barsA=sk.top5.length?sk.top5.map(function(p,i){
+    var w=Math.max(6,Math.round(p.count/(sk.top5[0].count||1)*100));
+    var cols=['#2563EB','#7C3AED','#0891B2','#16A34A','#D97706'];
+    return'<div style="margin-bottom:5px"><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--txt2);margin-bottom:2px"><span>'+escH(p.nom.length>18?p.nom.substring(0,18)+'…':p.nom)+'</span><span style="font-weight:700;color:var(--blue)">'+p.count+'×</span></div>'+
+      '<div style="background:var(--bg2);border-radius:3px;height:6px"><div style="background:'+cols[i%5]+';height:6px;border-radius:3px;width:'+w+'%"></div></div></div>';
+  }).join(''):'<div style="color:var(--txt3);font-size:11px">Aucune pièce utilisée.</div>';
+  return '<div class="card" style="margin-top:16px">'+
+    '<div class="ch"><span class="ct2">Pièces Détachées — Analytique</span></div>'+
+    '<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">'+
+      '<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Taux rupture</div><div class="kp-v" style="color:'+cr2+'">'+sk.tauxRupture+'%</div><div class="kp-s">'+sk.rupture+' rupture — '+sk.alerte+' alerte</div></div>'+
+      '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Valeur stock</div><div class="kp-v">'+eur(sk.valeur)+'</div><div class="kp-s">'+tot2+' réf.</div></div>'+
+      '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Délai réappro.</div><div class="kp-v">'+sk.avgDelai+' j.</div><div class="kp-s">'+sk.nbCmds+' cmd.</div></div>'+
+      '<div class="kp" style="border-left-color:var(--greentxt)"><div class="kp-l">Dispo. pièces</div><div class="kp-v" style="color:'+gCol2+'">'+sk.tauxDispo+'%</div><div class="kp-s">'+(sk.interBloquees?sk.interBloquees+' bloquée(s)':'Toutes dispo.')+'</div></div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+
+      '<div class="card" style="padding:12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">État stock</div>'+
+        '<div style="display:flex;align-items:center;gap:8px">'+donutA+
+          '<div style="font-size:10px;line-height:1.8"><div><span style="color:#16A34A;font-weight:700">●</span> OK : '+nOk2+'</div>'+
+          (sk.alerte?'<div><span style="color:#D97706;font-weight:700">●</span> Alerte : '+sk.alerte+'</div>':'')+
+          (sk.rupture?'<div><span style="color:#DC2626;font-weight:700">●</span> Rupture : '+sk.rupture+'</div>':'')+
+          '</div></div></div>'+
+      '<div class="card" style="padding:12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux disponibilité</div>'+
+        jaugeA+'</div>'+
+      '<div class="card" style="padding:12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Top pièces</div>'+
+        barsA+'</div>'+
+    '</div></div>';
+})()+'</div>';
 }
 
 /* ================================================================
@@ -1240,7 +1288,7 @@ function rStock(f){
       '<td>'+bdg(c,e)+'</td>'+
       '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editStock('+s.id+')">Modifier</button></td></tr>';
   }).join('');
-  return'<div class="kg" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+
+  return kpiPanel+'<div class="kg" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+
     '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Références</div><div class="kp-v">'+D.stock.length+'</div></div>'+
     '<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Alertes</div><div class="kp-v">'+D.stock.filter(function(s){return s.qte<=s.qte_min;}).length+'</div></div>'+
     '<div class="kp" style="border-left-color:var(--green)"><div class="kp-l">Valeur totale</div><div class="kp-v">'+eur(val)+'</div></div></div>'+
