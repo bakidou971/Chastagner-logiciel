@@ -309,7 +309,7 @@ var USERS=[];
 ================================================================ */
 function load(){
   loadCounters();
-  (function(){var vk='chastagner_v7_ver',cv='8.0';if(localStorage.getItem(vk)!==cv){var cnt=localStorage.getItem(SK+'_cnt');localStorage.clear();if(cnt)localStorage.setItem(SK+'_cnt',cnt);localStorage.setItem(vk,cv);}})();
+  (function(){var vk='chastagner_v7_ver',cv='7.3';if(localStorage.getItem(vk)!==cv){var cnt=localStorage.getItem(SK+'_cnt');localStorage.clear();if(cnt)localStorage.setItem(SK+'_cnt',cnt);localStorage.setItem(vk,cv);}})();
   try{var s=localStorage.getItem(SK);if(s)D=JSON.parse(s);else{D=buildDefaults();save();}}
   catch(e){D=buildDefaults();}
   if(!D.historique)D.historique=[];
