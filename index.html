@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -233,6 +234,7 @@ textarea.fi{resize:vertical;}
 </div>
 
 <!-- MODAL -->
+
 <div class="ov" id="ov" onclick="bgClose(event)">
   <div class="modal" id="modal">
     <div class="mh"><span class="mh-t" id="mtitle"></span><button class="mx" onclick="closeModal()">×</button></div>
@@ -307,7 +309,7 @@ var USERS=[];
 ================================================================ */
 function load(){
   loadCounters();
-  (function(){var vk='chastagner_v7_ver',cv='7.3';if(localStorage.getItem(vk)!==cv){var cnt=localStorage.getItem(SK+'_cnt');localStorage.clear();if(cnt)localStorage.setItem(SK+'_cnt',cnt);localStorage.setItem(vk,cv);}})();
+  (function(){var vk='chastagner_v7_ver',cv='8.0';if(localStorage.getItem(vk)!==cv){var cnt=localStorage.getItem(SK+'_cnt');localStorage.clear();if(cnt)localStorage.setItem(SK+'_cnt',cnt);localStorage.setItem(vk,cv);}})();
   try{var s=localStorage.getItem(SK);if(s)D=JSON.parse(s);else{D=buildDefaults();save();}}
   catch(e){D=buildDefaults();}
   if(!D.historique)D.historique=[];
@@ -1045,7 +1047,108 @@ function rAnalytics(){
     '<div class="card"><div class="ch"><span class="ct2">Performance techniciens</span></div>'+
       '<div class="tw"><table class="tbl"><thead><tr><th>Nom</th><th>Fonction</th><th style="text-align:center">Actives</th><th style="text-align:center">Terminées</th><th style="text-align:center">Moy. durée</th><th style="text-align:right">CA généré</th></tr></thead><tbody>'+techRows+'</tbody></table></div>'+
     '</div>'+
-  +'<div class="card" style="margin-top:16px">'+'<div class="ch"><span class="ct2">KPIs Pièces Détachées</span></div>'+(function(){var sk=calcStockKPIs();var cr=sk.rupture>0?'var(--red)':'var(--greentxt)';var ca=sk.alerte>0?'var(--amber)':'var(--greentxt)';var t5=sk.top5.map(function(p,i){return'<tr style="border-bottom:1px solid var(--bg2)">'+'<td style="padding:6px 10px;font-weight:700;color:var(--blue);width:24px">'+(i+1)+'</td>'+'<td style="padding:6px 10px;font-weight:600;text-transform:capitalize">'+escH(p.nom)+'</td>'+'<td style="padding:6px 10px"><div style="background:var(--blue);height:6px;border-radius:3px;width:'+Math.round(p.count/(sk.top5[0].count||1)*100)+'%;min-width:6px"></div></td>'+'<td style="padding:6px 10px;font-weight:700;color:var(--greentxt);text-align:right">'+p.count+'x</td>'+'</tr>';}).join('');return'<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">'+'<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Taux rupture stock</div><div class="kp-v" style="color:'+cr+'">'+sk.tauxRupture+'%</div><div class="kp-s">'+sk.rupture+' rupture — '+sk.alerte+' alerte</div></div>'+'<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Valeur stock total</div><div class="kp-v">'+eur(sk.valeur)+'</div><div class="kp-s">'+D.stock.length+' référence(s)</div></div>'+'<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Délai moy. réappro.</div><div class="kp-v">'+sk.avgDelai+' j.</div><div class="kp-s">'+sk.nbCmds+' commande(s)</div></div>'+'<div class="kp" style="border-left-color:var(--greentxt)"><div class="kp-l">Taux dispo pièces</div><div class="kp-v" style="color:var(--greentxt)">'+sk.tauxDispo+'%</div><div class="kp-s">'+sk.interBloquees+' bloquée(s)</div></div>'+'</div>'+(sk.top5.length?'<div style="margin-top:6px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:6px">Top 5 pièces utilisées</div>'+'<table style="width:100%;border-collapse:collapse;font-size:12px">'+t5+'</table></div>':'<div style="color:var(--txt3);font-size:12px;padding:6px 0">Aucune pièce utilisée dans les interventions.</div>');})()+(function(){var sk=calcStockKPIs();var cr=sk.rupture>0?'var(--red)':'var(--greentxt)';var t5r=sk.top5.map(function(p,i){return'<tr style="border-bottom:1px solid var(--bg2)">'+'<td style="padding:6px 10px;font-weight:700;color:var(--blue);width:24px">'+(i+1)+'</td>'+'<td style="padding:6px 10px;font-weight:600;text-transform:capitalize">'+escH(p.nom)+'</td>'+'<td style="padding:6px 10px"><div style="background:var(--blue);height:6px;border-radius:3px;width:'+Math.round(p.count/(sk.top5[0].count||1)*100)+'%;min-width:6px"></div></td>'+'<td style="padding:6px 10px;font-weight:700;color:var(--greentxt);text-align:right">'+p.count+'x</td>'+"</tr>";}).join('');return'<div class="card" style="margin-top:16px">'+'<div class="ch"><span class="ct2">KPIs Pièces Détachées</span></div>'+'<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">'+'<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Taux rupture stock</div><div class="kp-v" style="color:'+cr+'">'+sk.tauxRupture+'%</div><div class="kp-s">'+sk.rupture+' rupture — '+sk.alerte+' alerte</div></div>'+'<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Valeur stock total</div><div class="kp-v">'+eur(sk.valeur)+'</div><div class="kp-s">'+D.stock.length+' réf.</div></div>'+'<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Délai moy. réappro.</div><div class="kp-v">'+sk.avgDelai+' j.</div><div class="kp-s">'+sk.nbCmds+' commandes enreg.</div></div>'+'<div class="kp" style="border-left-color:var(--greentxt)"><div class="kp-l">Dispo. pièces</div><div class="kp-v" style="color:var(--greentxt)">'+sk.tauxDispo+'%</div><div class="kp-s">'+sk.interBloquees+' bloquée(s)</div></div>'+'</div>'+(sk.top5.length?'<div style="margin-top:6px">'+'<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:6px">Top 5 pièces utilisées</div>'+'<table style="width:100%;border-collapse:collapse;font-size:12px">'+t5r+'</table></div>':'<div style="color:var(--txt3);font-size:12px;padding:6px 0">Aucune pièce utilisée pour le moment.</div>')+'</div>';})()+'</div>'+'</div>';
+  +'<div class="card" style="margin-top:16px">'+'<div class="ch"><span class="ct2">KPIs Pièces Détachées</span></div>'+(function(){
+  var sk=calcStockKPIs();
+  if(!D.stock||!D.stock.length)return '<div style="padding:20px;color:var(--txt3);font-size:12px">Aucune pièce en stock.</div>';
+
+  /* ── Mini donut état stock ──────────────────────────────── */
+  var nOk=D.stock.filter(function(s){return s.qte>s.qte_min;}).length;
+  var nAlt=sk.alerte, nRup=sk.rupture, tot=D.stock.length||1;
+  var deg=0,arcs='';
+  [{n:nOk,c:'#16A34A'},{n:nAlt,c:'#D97706'},{n:nRup,c:'#DC2626'}].forEach(function(sl){
+    if(!sl.n)return;
+    var d=sl.n/tot*360; if(d>=360)d=359.99;
+    var s=deg*Math.PI/180,e=(deg+d)*Math.PI/180;
+    var x1=40+36*Math.cos(s-Math.PI/2),y1=40+36*Math.sin(s-Math.PI/2);
+    var x2=40+36*Math.cos(e-Math.PI/2),y2=40+36*Math.sin(e-Math.PI/2);
+    arcs+='<path d="M40,40 L'+x1+','+y1+' A36,36 0 '+(d>180?1:0)+',1 '+x2+','+y2+' Z" fill="'+sl.c+'"/>';
+    deg+=d;
+  });
+  var donutHtml='<svg viewBox="0 0 80 80" width="70" height="70" style="display:block;flex-shrink:0">'+arcs+
+    '<circle cx="40" cy="40" r="22" fill="var(--bg)"/>'+
+    '<text x="40" y="44" font-size="13" font-weight="bold" fill="var(--txt)" text-anchor="middle">'+tot+'</text>'+
+    '</svg>';
+
+  /* ── Jauge dispo demi-cercle ────────────────────────────── */
+  var gPct=sk.tauxDispo/100;
+  var gCol=gPct>=0.8?'#16A34A':gPct>=0.6?'#D97706':'#DC2626';
+  var gR=34,gCx=50,gCy=44;
+  var gAng=180*gPct, gFull=180-gAng;
+  var gpx=gCx+gR*Math.cos(gFull*Math.PI/180), gpy=gCy-gR*Math.sin(gFull*Math.PI/180);
+  var gaugeHtml='<svg viewBox="0 0 100 55" width="90" height="50" style="display:block;margin:0 auto">'+
+    '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 0,1 '+(gCx+gR)+','+gCy+'" fill="none" stroke="#E5E7EB" stroke-width="9" stroke-linecap="round"/>'+
+    '<path d="M'+(gCx-gR)+','+gCy+' A'+gR+','+gR+' 0 '+(gAng>90?1:0)+',1 '+gpx+','+gpy+'" fill="none" stroke="'+gCol+'" stroke-width="9" stroke-linecap="round"/>'+
+    '<text x="'+gCx+'" y="'+(gCy-3)+'" font-size="14" font-weight="bold" fill="'+gCol+'" text-anchor="middle">'+sk.tauxDispo+'%</text>'+
+    '<text x="'+gCx+'" y="'+(gCy+11)+'" font-size="8" fill="var(--txt2)" text-anchor="middle">disponibilité</text>'+
+    '</svg>';
+
+  /* ── Barres: top pièces utilisées ──────────────────────── */
+  var barsHtml='<div style="color:var(--txt3);font-size:11px">—</div>';
+  if(sk.top5&&sk.top5.length){
+    var maxC=sk.top5[0].count||1;
+    barsHtml='<div style="width:100%">';
+    sk.top5.forEach(function(p,i){
+      var w=Math.max(6,Math.round(p.count/maxC*100));
+      var label=p.nom.length>16?p.nom.substring(0,16)+'…':p.nom;
+      barsHtml+='<div style="margin-bottom:5px">'+
+        '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--txt2);margin-bottom:2px">'+
+          '<span>'+escH(label)+'</span><span style="font-weight:700;color:var(--blue)">'+p.count+'×</span>'+
+        '</div>'+
+        '<div style="background:var(--bg2);border-radius:3px;height:7px">'+
+          '<div style="background:'+(i===0?'#2563EB':i===1?'#7C3AED':'#0891B2')+';height:7px;border-radius:3px;width:'+w+'%"></div>'+
+        '</div>'+
+      '</div>';
+    });
+    barsHtml+='</div>';
+  }
+
+  /* ── Sparkline commandes ────────────────────────────────── */
+  var cmdM={};
+  D.stock.forEach(function(s){if(s.derniere_commande){var m=s.derniere_commande.substring(0,7);cmdM[m]=(cmdM[m]||0)+(s.nb_commandes||1);}});
+  var ms6=[];for(var mi=5;mi>=0;mi--){var dd=new Date();dd.setMonth(dd.getMonth()-mi);ms6.push(dd.toISOString().substring(0,7));}
+  var spV=ms6.map(function(m){return cmdM[m]||0;});
+  var spMax=Math.max.apply(null,spV)||1;
+  var spW=160,spH=40,spP=6,spStep=(spW-spP*2)/(spV.length-1||1);
+  var spPts=spV.map(function(v,i){return (spP+i*spStep)+','+(spH-spP-Math.round(v/spMax*(spH-spP*2)));}).join(' ');
+  var sparkHtml='<svg viewBox="0 0 '+spW+' '+spH+'" width="100%" height="'+spH+'" style="display:block">'+
+    '<polyline points="'+spPts+'" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
+    spV.map(function(v,i){
+      var x=spP+i*spStep,y=spH-spP-Math.round(v/spMax*(spH-spP*2));
+      return'<circle cx="'+x+'" cy="'+y+'" r="2.5" fill="'+( v>0?'#2563EB':'#E5E7EB')+'"/>';
+    }).join('')+
+    '</svg>';
+
+  /* ── Assemble ────────────────────────────────────────────── */
+  return '<div class="card" style="margin-top:16px">'+
+    '<div class="ch"><span class="ct2">Pièces Détachées — Analytique</span></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:0 0 4px">'+
+      /* Col 1: Donut état */
+      '<div>'+
+        '<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">État du stock</div>'+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          donutHtml+
+          '<div style="font-size:10px;line-height:1.8">'+
+            '<div><span style="color:#16A34A;font-weight:700">●</span> OK : '+nOk+'</div>'+
+            (nAlt?'<div><span style="color:#D97706;font-weight:700">●</span> Alerte : '+nAlt+'</div>':'')+
+            (nRup?'<div><span style="color:#DC2626;font-weight:700">●</span> Rupture : '+nRup+'</div>':'')+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      /* Col 2: Jauge + sparkline */
+      '<div>'+
+        '<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux disponibilité</div>'+
+        gaugeHtml+
+        '<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin:8px 0 4px">Commandes / 6 mois</div>'+
+        sparkHtml+
+      '</div>'+
+      /* Col 3: Barres top pièces */
+      '<div>'+
+        '<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Top pièces utilisées</div>'+
+        barsHtml+
+      '</div>'+
+    '</div>'+
+  '</div>';
+})()+(function(){var sk=calcStockKPIs();var cr=sk.rupture>0?'var(--red)':'var(--greentxt)';var t5r='';return'<div class="card" style="margin-top:16px">'+'<div class="ch"><span class="ct2">KPIs Pièces Détachées</span></div>'+'<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">'+'<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Taux rupture stock</div><div class="kp-v" style="color:'+cr+'">'+sk.tauxRupture+'%</div><div class="kp-s">'+sk.rupture+' rupture — '+sk.alerte+' alerte</div></div>'+'<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Valeur stock total</div><div class="kp-v">'+eur(sk.valeur)+'</div><div class="kp-s">'+D.stock.length+' réf.</div></div>'+'<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Délai moy. réappro.</div><div class="kp-v">'+sk.avgDelai+' j.</div><div class="kp-s">'+sk.nbCmds+' commandes enreg.</div></div>'+'<div class="kp" style="border-left-color:var(--greentxt)"><div class="kp-l">Dispo. pièces</div><div class="kp-v" style="color:var(--greentxt)">'+sk.tauxDispo+'%</div><div class="kp-s">'+sk.interBloquees+' bloquée(s)</div></div>'+'</div>'+(sk.top5.length?'<div style="margin-top:6px">'+'<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:6px">Top 5 pièces utilisées</div>'+'<table style="width:100%;border-collapse:collapse;font-size:12px">'+t5r+'</table></div>':'<div style="color:var(--txt3);font-size:12px;padding:6px 0">Aucune pièce utilisée pour le moment.</div>')+'</div>';})()+'</div>'+'</div>';
 }
 
 /* ================================================================
@@ -1584,7 +1687,7 @@ function rSettings(){
         '<div id="pass-msg" style="margin-top:5px;font-size:11px"></div></div>'+
     '</div></div>';
 }
-function delHist(id){
+function delHist(id){id=Number(id);
   if(!confirm('Supprimer définitivement cette intervention de l\'historique ?'))return;
   var inter=D.historique.find(function(x){return x.id===id;});
   D.historique=D.historique.filter(function(x){return x.id!==id;});
@@ -1747,173 +1850,175 @@ function mInter(id){
   '</div>'+
   '<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat">'+opts(SI,d.statut)+'</select></div>'+
   '<div class="fg"><label class="fl">Description / diagnostic</label><textarea class="fi" id="fdesc" rows="3">'+(d.description||'')+'</textarea></div>'+
-  '<div class="fg"><label class="fl">Pièces remplacées</label>'+
-    '<div class="ptags" id="ptags">'+renderPTags()+'</div>'+
-    '<div style="display:flex;gap:6px">'+
-      '<div class="acw" style="flex:1"><input class="fi" id="fpiece-in" placeholder="Saisir ou choisir…"><div class="acd" id="fpiece-drop"></div></div>'+
-      '<button class="bp" onclick="addPieceInput()" style="padding:7px 11px;font-size:11px">+ Ajouter</button>'+
-    '</div></div>';
 
-  var tab2='<div class="fg2">'+
-    '<div class="fg"><label class="fl">Statut devis</label><select class="fi" id="dv-stat">'+opts(DV_STATS,dvS)+'</select></div>'+
-    '<div class="fg"><label class="fl">Date devis</label><input class="fi" type="date" id="dv-date" value="'+dvD+'"></div>'+
-  '</div>'+
-  '<div class="vgp-box"><input type="checkbox" id="dv-vgp" style="width:16px;height:16px;cursor:pointer" '+dvV+'> <label for="dv-vgp" style="font-size:12px;font-weight:600;color:var(--cyantxt);cursor:pointer">VGP effectuée — relance automatique à 6 mois</label></div>'+
-  '<div class="dv-sec"><div class="dv-sec-title">Pièces</div><div id="dvp-list">'+renderDvP()+'</div>'+
-    '<button class="bs" onclick="DV_P.push({desc:\'\',qte:1,pu:0});refreshDvP()" style="font-size:11px;margin-top:5px">+ Ajouter pièce</button></div>'+
-  '<div class="dv-sec"><div class="dv-sec-title">Main d\'œuvre</div><div id="dvm-list">'+renderDvMO()+'</div>'+
-    '<button class="bs" onclick="DV_MO.push({desc:\'M.O.\',technicien:\'\',heures:1,taux:65});refreshDvMO()" style="font-size:11px;margin-top:5px">+ Ajouter ligne M.O.</button></div>'+
-  '<div class="fg2" style="margin-top:5px"><div class="fg"><label class="fl">TVA (%)</label><input class="fi" type="number" id="dv-tva" value="'+dvT+'" step="0.1" style="width:90px" oninput="updateDvTot()"></div></div>'+
-  '<div id="dv-tot-zone">'+renderDvTot()+'</div>'+
-  '<div class="fg" style="margin-top:10px"><label class="fl">Notes</label><textarea class="fi" id="dv-notes" rows="2">'+escH(dvN)+'</textarea></div>';
+‘<div class="fg"><label class="fl">Pièces remplacées</label>’+
+‘<div class="ptags" id="ptags">’+renderPTags()+’</div>’+
+‘<div style="display:flex;gap:6px">’+
+‘<div class="acw" style="flex:1"><input class="fi" id="fpiece-in" placeholder="Saisir ou choisir…"><div class="acd" id="fpiece-drop"></div></div>’+
+‘<button class="bp" onclick="addPieceInput()" style="padding:7px 11px;font-size:11px">+ Ajouter</button>’+
+‘</div></div>’;
 
-  var body='<div class="mtabs"><div class="mtab on" data-tab="info" onclick="switchTab(\'info\')">Intervention'+idBadge+'</div><div class="mtab" data-tab="devis" onclick="switchTab(\'devis\')">Devis</div></div>'+
-    '<div id="tab-info" class="tab-pane show">'+tab1+'</div>'+
-    '<div id="tab-devis" class="tab-pane">'+tab2+'</div>';
+var tab2=’<div class="fg2">’+
+‘<div class="fg"><label class="fl">Statut devis</label><select class="fi" id="dv-stat">’+opts(DV_STATS,dvS)+’</select></div>’+
+‘<div class="fg"><label class="fl">Date devis</label><input class="fi" type="date" id="dv-date" value="'+dvD+'"></div>’+
+‘</div>’+
+‘<div class="vgp-box"><input type=“checkbox” id=“dv-vgp” style=“width:16px;height:16px;cursor:pointer” ‘+dvV+’> <label for="dv-vgp" style="font-size:12px;font-weight:600;color:var(--cyantxt);cursor:pointer">VGP effectuée — relance automatique à 6 mois</label></div>’+
+‘<div class="dv-sec"><div class="dv-sec-title">Pièces</div><div id="dvp-list">’+renderDvP()+’</div>’+
+‘<button class="bs" onclick="DV_P.push({desc:\'\',qte:1,pu:0});refreshDvP()" style="font-size:11px;margin-top:5px">+ Ajouter pièce</button></div>’+
+‘<div class="dv-sec"><div class="dv-sec-title">Main d'œuvre</div><div id="dvm-list">’+renderDvMO()+’</div>’+
+‘<button class="bs" onclick="DV_MO.push({desc:\'M.O.\',technicien:\'\',heures:1,taux:65});refreshDvMO()" style="font-size:11px;margin-top:5px">+ Ajouter ligne M.O.</button></div>’+
+‘<div class="fg2" style="margin-top:5px"><div class="fg"><label class="fl">TVA (%)</label><input class="fi" type="number" id="dv-tva" value="'+dvT+'" step="0.1" style="width:90px" oninput="updateDvTot()"></div></div>’+
+‘<div id="dv-tot-zone">’+renderDvTot()+’</div>’+
+‘<div class="fg" style="margin-top:10px"><label class="fl">Notes</label><textarea class="fi" id="dv-notes" rows="2">’+escH(dvN)+’</textarea></div>’;
 
-  openModal(id?'Modifier INT-'+String(id).padStart(4,'0'):'Nouvelle intervention',body,!!id);
-  makeAC('fart-in','fart-drop',articles,null);
-  makeAC('fserie-in','fserie-drop',series,function(s){var m=D.materiels.find(function(x){return x.serie===s;});if(m){var a=document.getElementById('fart-in');if(a)a.value=m.article;}});
-  makeAC('fpiece-in','fpiece-drop',stk,null);
-  document.getElementById('fpiece-in').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addPieceInput();}});
+var body=’<div class="mtabs"><div class="mtab on" data-tab="info" onclick="switchTab(\'info\')">Intervention’+idBadge+’</div><div class="mtab" data-tab="devis" onclick="switchTab(\'devis\')">Devis</div></div>’+
+‘<div id="tab-info" class="tab-pane show">’+tab1+’</div>’+
+‘<div id="tab-devis" class="tab-pane">’+tab2+’</div>’;
+
+openModal(id?‘Modifier INT-’+String(id).padStart(4,‘0’):‘Nouvelle intervention’,body,!!id);
+makeAC(‘fart-in’,‘fart-drop’,articles,null);
+makeAC(‘fserie-in’,‘fserie-drop’,series,function(s){var m=D.materiels.find(function(x){return x.serie===s;});if(m){var a=document.getElementById(‘fart-in’);if(a)a.value=m.article;}});
+makeAC(‘fpiece-in’,‘fpiece-drop’,stk,null);
+document.getElementById(‘fpiece-in’).addEventListener(‘keydown’,function(e){if(e.key===‘Enter’){e.preventDefault();addPieceInput();}});
 }
 function editInter(id){mInter(id);}
-function autoFin(){var deb=document.getElementById('fdeb');var fin=document.getElementById('dfin');if(deb&&fin&&deb.value)fin.value=addWorkdays(deb.value,10);}
+function autoFin(){var deb=document.getElementById(‘fdeb’);var fin=document.getElementById(‘dfin’);if(deb&&fin&&deb.value)fin.value=addWorkdays(deb.value,10);}
 
 /* ================================================================
-   OTHER MODALS
+OTHER MODALS
 ================================================================ */
 function mMat(id){
-  MODE='mat';EID=id||null;var d=id?D.materiels.find(function(x){return x.id===id;}):{};
-  var cO=D.clients.map(function(c){return'<option'+(d.client===c.nom?' selected':'')+' value="'+escH(c.nom)+'">'+escH(c.nom)+'</option>';}).join('');
-  var tO=D.techniciens.map(function(t){return'<option'+(d.technicien===t.nom?' selected':'')+' value="'+escH(t.nom)+'">'+escH(t.nom)+'</option>';}).join('');
-  var idB=id?'<span class="id-bdg">MAT-'+String(id).padStart(4,'0')+'</span>':'';
-  openModal((id?'Modifier matériel':'Nouveau matériel')+idB,
-    '<div class="fg2"><div class="fg"><label class="fl">Article</label><input class="fi" id="fart" value="'+escH(d.article||'')+'"></div>'+
-    '<div class="fg"><label class="fl">N° de série</label><input class="fi" id="fserie" value="'+escH(d.serie||'')+'"></div></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Client</label><select class="fi" id="fcli">'+cO+'</select></div>'+
-    '<div class="fg"><label class="fl">Marque</label><select class="fi" id="fmarq">'+opts(MARQUES,d.marque)+'</select></div></div>'+
-    '<div class="fg"><label class="fl">Technicien</label><select class="fi" id="ftech"><option value="">Non assigné</option>'+tO+'</select></div>'+
-    '<div class="fg"><label class="fl">Localisation</label><select class="fi" id="floc">'+opts(ZONES,d.localisation)+'</select></div>',!!id);
+MODE=‘mat’;EID=id||null;var d=id?D.materiels.find(function(x){return x.id===id;}):{};
+var cO=D.clients.map(function(c){return’<option’+(d.client===c.nom?’ selected’:’’)+’ value=”’+escH(c.nom)+’”>’+escH(c.nom)+’</option>’;}).join(’’);
+var tO=D.techniciens.map(function(t){return’<option’+(d.technicien===t.nom?’ selected’:’’)+’ value=”’+escH(t.nom)+’”>’+escH(t.nom)+’</option>’;}).join(’’);
+var idB=id?’<span class="id-bdg">MAT-’+String(id).padStart(4,‘0’)+’</span>’:’’;
+openModal((id?‘Modifier matériel’:‘Nouveau matériel’)+idB,
+‘<div class="fg2"><div class="fg"><label class="fl">Article</label><input class="fi" id="fart" value="'+escH(d.article||'')+'"></div>’+
+‘<div class="fg"><label class="fl">N° de série</label><input class="fi" id="fserie" value="'+escH(d.serie||'')+'"></div></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Client</label><select class="fi" id="fcli">’+cO+’</select></div>’+
+‘<div class="fg"><label class="fl">Marque</label><select class="fi" id="fmarq">’+opts(MARQUES,d.marque)+’</select></div></div>’+
+‘<div class="fg"><label class="fl">Technicien</label><select class="fi" id="ftech"><option value="">Non assigné</option>’+tO+’</select></div>’+
+‘<div class="fg"><label class="fl">Localisation</label><select class="fi" id="floc">’+opts(ZONES,d.localisation)+’</select></div>’,!!id);
 }
 function editMat(id){mMat(id);}
 
 function mCli(id){
-  MODE='cli';EID=id||null;var d=id?D.clients.find(function(x){return x.id===id;}):{};
-  openModal(id?'Modifier client':'Nouveau client',
-    '<div class="fg"><label class="fl">Nom</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Contact</label><input class="fi" id="fcontact" value="'+escH(d.contact||'')+'"></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Adresse</label><input class="fi" id="fadr" value="'+escH(d.adresse||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Notes</label><textarea class="fi" id="fnotes" rows="2">'+(d.notes||'')+'</textarea></div>',!!id);
+MODE=‘cli’;EID=id||null;var d=id?D.clients.find(function(x){return x.id===id;}):{};
+openModal(id?‘Modifier client’:‘Nouveau client’,
+‘<div class="fg"><label class="fl">Nom</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Contact</label><input class="fi" id="fcontact" value="'+escH(d.contact||'')+'"></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>’+
+‘<div class="fg"><label class="fl">Adresse</label><input class="fi" id="fadr" value="'+escH(d.adresse||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Notes</label><textarea class="fi" id="fnotes" rows="2">’+(d.notes||’’)+’</textarea></div>’,!!id);
 }
 function editCli(id){mCli(id);}
 
 function mTech(id){
-  MODE='tech';EID=id||null;var d=id?D.techniciens.find(function(x){return x.id===id;}):{};
-  var curFonc=d.fonction||d.specialite||'';
-  openModal(id?'Modifier technicien':'Nouveau technicien',
-    '<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>'+
-    '<div class="fg2">'+
-      '<div class="fg"><label class="fl">Fonction</label><select class="fi" id="ffonc">'+opts(FONCTIONS,curFonc)+'</select></div>'+
-      '<div class="fg"><label class="fl">Zone d\'intervention</label><select class="fi" id="fzone">'+opts(ZONES,d.zone)+'</select></div>'+
-    '</div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat"><option'+(d.statut==='Actif'?' selected':'')+' value="Actif">Actif</option><option'+(d.statut==='Inactif'?' selected':'')+' value="Inactif">Inactif</option></select></div>',!!id);
+MODE=‘tech’;EID=id||null;var d=id?D.techniciens.find(function(x){return x.id===id;}):{};
+var curFonc=d.fonction||d.specialite||’’;
+openModal(id?‘Modifier technicien’:‘Nouveau technicien’,
+‘<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>’+
+‘<div class="fg2">’+
+‘<div class="fg"><label class="fl">Fonction</label><select class="fi" id="ffonc">’+opts(FONCTIONS,curFonc)+’</select></div>’+
+‘<div class="fg"><label class="fl">Zone d'intervention</label><select class="fi" id="fzone">’+opts(ZONES,d.zone)+’</select></div>’+
+‘</div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>’+
+‘<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat"><option’+(d.statut===‘Actif’?’ selected’:’’)+’ value=“Actif”>Actif</option><option’+(d.statut===‘Inactif’?’ selected’:’’)+’ value=“Inactif”>Inactif</option></select></div>’,!!id);
 }
 function editTech(id){mTech(id);}
 
 function mStock(id){
-  MODE='stock';EID=id||null;var d=id?D.stock.find(function(x){return x.id===id;}):{};
-  openModal(id?'Modifier pièce — '+escH(d.ref):'Nouvelle pièce',
-    '<div class="fg2"><div class="fg"><label class="fl">Référence</label><input class="fi" id="fref" value="'+escH(d.ref||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Catégorie</label><input class="fi" id="fcat" value="'+escH(d.categorie||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Désignation</label><input class="fi" id="fdes" value="'+escH(d.designation||'')+'"></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Quantité</label><input class="fi" type="number" id="fqte" value="'+(d.qte!=null?d.qte:0)+'" min="0" step="1"></div>'+
-    '<div class="fg"><label class="fl">Seuil min.</label><input class="fi" type="number" id="fmin" value="'+(d.qte_min!=null?d.qte_min:1)+'" min="0" step="1"></div></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Prix unitaire (€)</label><input class="fi" type="number" step="0.01" id="fprix" value="'+(d.prix||0)+'"></div>'+
-    '<div class="fg"><label class="fl">Fournisseur</label><input class="fi" id="ffour" value="'+escH(d.fournisseur||'')+'"></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-    '<div class="fg"><label class="fl">Délai réappro. (jours)</label><input class="fi" type="number" id="fdelai" value="'+(d.delai_reappro||7)+'" min="1"></div>'+
-    '<div class="fg"><label class="fl">Dernière commande</label><input class="fi" type="date" id="fdcmd" value="'+(d.derniere_commande||'')+'"></div>'+
-    '</div></div>',!!id);
+MODE=‘stock’;EID=id||null;var d=id?D.stock.find(function(x){return x.id===id;}):{};
+openModal(id?‘Modifier pièce — ‘+escH(d.ref):‘Nouvelle pièce’,
+‘<div class="fg2"><div class="fg"><label class="fl">Référence</label><input class="fi" id="fref" value="'+escH(d.ref||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Catégorie</label><input class="fi" id="fcat" value="'+escH(d.categorie||'')+'"></div></div>’+
+‘<div class="fg"><label class="fl">Désignation</label><input class="fi" id="fdes" value="'+escH(d.designation||'')+'"></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Quantité</label><input class="fi" type="number" id="fqte" value="'+(d.qte!=null?d.qte:0)+'" min="0" step="1"></div>’+
+‘<div class="fg"><label class="fl">Seuil min.</label><input class="fi" type="number" id="fmin" value="'+(d.qte_min!=null?d.qte_min:1)+'" min="0" step="1"></div></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Prix unitaire (€)</label><input class="fi" type="number" step="0.01" id="fprix" value="'+(d.prix||0)+'"></div>’+
+‘<div class="fg"><label class="fl">Fournisseur</label><input class="fi" id="ffour" value="'+escH(d.fournisseur||'')+'"></div>’+
+‘<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">’+
+‘<div class="fg"><label class="fl">Délai réappro. (jours)</label><input class="fi" type="number" id="fdelai" value="'+(d.delai_reappro||7)+'" min="1"></div>’+
+‘<div class="fg"><label class="fl">Dernière commande</label><input class="fi" type="date" id="fdcmd" value="'+(d.derniere_commande||'')+'"></div>’+
+‘</div></div>’,!!id);
 }
 function editStock(id){mStock(Number(id));}
 function cmdStock(id){
-  id=Number(id);
-  var s=D.stock.find(function(x){return x.id===id;});
-  if(!s)return;
-  var qte=prompt('Quantité reçue pour '+s.ref+' — '+s.designation+' ?','');
-  if(!qte||isNaN(Number(qte))||Number(qte)<=0)return;
-  s.qte=s.qte+Number(qte);
-  s.derniere_commande=todayStr();
-  s.nb_commandes=(s.nb_commandes||0)+1;
-  save();draw(PAGE,LS);
+id=Number(id);
+var s=D.stock.find(function(x){return x.id===id;});
+if(!s)return;
+var qte=prompt(‘Quantité reçue pour ‘+s.ref+’ — ‘+s.designation+’ ?’,’’);
+if(!qte||isNaN(Number(qte))||Number(qte)<=0)return;
+s.qte=s.qte+Number(qte);
+s.derniere_commande=todayStr();
+s.nb_commandes=(s.nb_commandes||0)+1;
+save();draw(PAGE,LS);
 }
 
 /* USERS */
 function newUser(){editUser(null);}
 function editUser(id){
-  var u=id?USERS.find(function(x){return x.id===id;}):{perms:[]};
-  var permCBs=ALL_PERMS.map(function(p){var chk=u.role==='admin'||(u.perms&&u.perms.indexOf(p)>=0);var lbl=p.replace('view_','Voir ').replace('edit_','Modifier ');return'<label class="perm-item"><input type="checkbox" value="'+p+'" '+(chk?'checked':'')+' class="perm-chk"> '+escH(lbl)+'</label>';}).join('');
-  var body='<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="u-nom" value="'+escH(u.nom||'')+'"></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Identifiant</label><input class="fi" id="u-user" value="'+escH(u.username||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email (connexion alternative)</label><input class="fi" id="u-email" type="email" value="'+escH(u.email||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Mot de passe</label><div style="position:relative"><input class="fi" type="password" id="u-pass" placeholder="'+(id?'Laisser vide = inchangé':'Définir un mot de passe')+'" value="" style="padding-right:36px"><button onclick="tvp(\'u-pass\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px">&#128065;</button></div></div>'+
-    '<div class="fg"><label class="fl">Rôle</label><select class="fi" id="u-role" onchange="toggleAdminPerms(this.value)"><option'+(u.role==='tech'?' selected':'')+' value="tech">Technicien</option><option'+(u.role==='admin'?' selected':'')+' value="admin">Administrateur</option></select></div>'+
-    '<div class="fg" id="perm-block" style="'+(u.role==='admin'?'opacity:.5;pointer-events:none':'')+'"><label class="fl">Droits d\'accès</label><div class="perm-grid">'+permCBs+'</div></div>';
-  MODE='user';EID=id||null;
-  openModal(id?'Modifier utilisateur':'Nouvel utilisateur',body,id&&u.id!==1);
+var u=id?USERS.find(function(x){return x.id===id;}):{perms:[]};
+var permCBs=ALL_PERMS.map(function(p){var chk=u.role===‘admin’||(u.perms&&u.perms.indexOf(p)>=0);var lbl=p.replace(‘view_’,‘Voir ‘).replace(‘edit_’,‘Modifier ‘);return’<label class="perm-item"><input type=“checkbox” value=”’+p+’” ‘+(chk?‘checked’:’’)+’ class=“perm-chk”> ‘+escH(lbl)+’</label>’;}).join(’’);
+var body=’<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="u-nom" value="'+escH(u.nom||'')+'"></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Identifiant</label><input class="fi" id="u-user" value="'+escH(u.username||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Email (connexion alternative)</label><input class="fi" id="u-email" type="email" value="'+escH(u.email||'')+'"></div></div>’+
+‘<div class="fg"><label class="fl">Mot de passe</label><div style="position:relative"><input class="fi" type="password" id="u-pass" placeholder="'+(id?'Laisser vide = inchangé':'Définir un mot de passe')+'" value="" style="padding-right:36px"><button onclick="tvp(\'u-pass\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px">👁</button></div></div>’+
+‘<div class="fg"><label class="fl">Rôle</label><select class="fi" id="u-role" onchange="toggleAdminPerms(this.value)"><option’+(u.role===‘tech’?’ selected’:’’)+’ value=“tech”>Technicien</option><option’+(u.role===‘admin’?’ selected’:’’)+’ value=“admin”>Administrateur</option></select></div>’+
+‘<div class="fg" id="perm-block" style="'+(u.role==='admin'?'opacity:.5;pointer-events:none':'')+'"><label class="fl">Droits d'accès</label><div class="perm-grid">’+permCBs+’</div></div>’;
+MODE=‘user’;EID=id||null;
+openModal(id?‘Modifier utilisateur’:‘Nouvel utilisateur’,body,id&&u.id!==1);
 }
-function toggleAdminPerms(v){var b=document.getElementById('perm-block');if(b)b.style=v==='admin'?'opacity:.5;pointer-events:none':'';}
+function toggleAdminPerms(v){var b=document.getElementById(‘perm-block’);if(b)b.style=v===‘admin’?‘opacity:.5;pointer-events:none’:’’;}
 function saveUser(){
-  var nom=gv('u-nom'),uname=gv('u-user'),pass=gv('u-pass'),role=gv('u-role'),email=gv('u-email');
-  var perms=[];document.querySelectorAll('.perm-chk:checked').forEach(function(el){perms.push(el.value);});
-  if(!nom||!uname){alert('Nom et identifiant requis.');return;}
-  if(EID){var u=USERS.find(function(x){return x.id===EID;});u.nom=nom;u.username=uname;u.role=role;u.perms=perms;u.email=email;if(pass)u.password=pass;}
-  else USERS.push({id:nextId('user'),nom:nom,username:uname,password:pass,role:role,perms:perms,email:email});
-  save();closeModal();draw('settings','');
+var nom=gv(‘u-nom’),uname=gv(‘u-user’),pass=gv(‘u-pass’),role=gv(‘u-role’),email=gv(‘u-email’);
+var perms=[];document.querySelectorAll(’.perm-chk:checked’).forEach(function(el){perms.push(el.value);});
+if(!nom||!uname){alert(‘Nom et identifiant requis.’);return;}
+if(EID){var u=USERS.find(function(x){return x.id===EID;});u.nom=nom;u.username=uname;u.role=role;u.perms=perms;u.email=email;if(pass)u.password=pass;}
+else USERS.push({id:nextId(‘user’),nom:nom,username:uname,password:pass,role:role,perms:perms,email:email});
+save();closeModal();draw(‘settings’,’’);
 }
 
 /* ================================================================
-   SAVE MODAL
+SAVE MODAL
 ================================================================ */
 function saveModal(){
-  if(MODE==='view'){closeModal();return;}
-  if(MODE==='user'){saveUser();return;}
-  if(MODE==='inter'){
-    var o={id:EID||(nextId('inter')),article:gv('fart-in'),serie:gv('fserie-in'),client:gv('fcli'),statut:gv('fstat'),technicien:gv('ftech'),date_debut:gv('fdeb'),heure_debut:gv('fhdeb'),date_fin:gv('dfin'),heure_fin:gv('dhfin'),description:gv('fdesc'),pieces:TMP_PIECES.slice(),devis:collectDevis()};
-    if(EID){var i=D.interventions.findIndex(function(x){return x.id===EID;});if(i>=0)D.interventions[i]=o;}else D.interventions.unshift(o);
-    syncMatStatut();
-    /* → historique only if (Terminé or Annulé) AND devis Accepté or Refusé */
-    var dvSettled=o.devis&&(o.devis.statut==='Accepté'||o.devis.statut==='Refusé');
-    if((o.statut==='Terminé'||o.statut==='Annulé')&&dvSettled){
-      o.date_cloture=o.date_cloture||todayStr();
-      if(!D.historique.find(function(h){return h.id===o.id;}))D.historique.unshift(o);
-      D.interventions=D.interventions.filter(function(x){return x.id!==o.id;});
-    }
-  }else if(MODE==='mat'){
-    var dmat=EID?D.materiels.find(function(x){return x.id===EID;}):{}; var o={id:EID||(nextId('mat')),article:gv('fart'),serie:gv('fserie'),client:gv('fcli'),marque:gv('fmarq'),technicien:gv('ftech'),statut:(dmat&&dmat.statut)||'',localisation:gv('floc')};
-    if(EID){var i=D.materiels.findIndex(function(x){return x.id===EID;});if(i>=0)D.materiels[i]=o;}else D.materiels.push(o);
-  }else if(MODE==='cli'){
-    var o={id:EID||(nextId('cli')),nom:gv('fnom'),contact:gv('fcontact'),tel:gv('ftel'),email:gv('femail'),adresse:gv('fadr'),notes:gv('fnotes')};
-    if(EID){var i=D.clients.findIndex(function(x){return x.id===EID;});if(i>=0)D.clients[i]=o;}else D.clients.push(o);
-  }else if(MODE==='tech'){
-    var o={id:EID||(nextId('tech')),nom:gv('fnom'),fonction:gv('ffonc'),zone:gv('fzone'),tel:gv('ftel'),email:gv('femail'),statut:gv('fstat')};
-    if(EID){var i=D.techniciens.findIndex(function(x){return x.id===EID;});if(i>=0)D.techniciens[i]=o;}else D.techniciens.push(o);
-  }else if(MODE==='stock'){
-    var o={id:EID||(nextId('stock')),ref:gv('fref'),designation:gv('fdes'),categorie:gv('fcat'),qte:gn('fqte'),qte_min:gn('fmin'),prix:gn('fprix'),fournisseur:gv('ffour'),delai_reappro:gn('fdelai'),derniere_commande:gv('fdcmd'),nb_commandes:(EID?((D.stock.find(function(x){return x.id===EID;})||{}).nb_commandes||0):0)};
-    if(EID){var i=D.stock.findIndex(function(x){return x.id===EID;});if(i>=0)D.stock[i]=o;}else D.stock.push(o);
-  }
-  save();closeModal();draw(PAGE,LS);
+if(MODE===‘view’){closeModal();return;}
+if(MODE===‘user’){saveUser();return;}
+if(MODE===‘inter’){
+var o={id:EID||(nextId(‘inter’)),article:gv(‘fart-in’),serie:gv(‘fserie-in’),client:gv(‘fcli’),statut:gv(‘fstat’),technicien:gv(‘ftech’),date_debut:gv(‘fdeb’),heure_debut:gv(‘fhdeb’),date_fin:gv(‘dfin’),heure_fin:gv(‘dhfin’),description:gv(‘fdesc’),pieces:TMP_PIECES.slice(),devis:collectDevis()};
+if(EID){var i=D.interventions.findIndex(function(x){return x.id===EID;});if(i>=0)D.interventions[i]=o;}else D.interventions.unshift(o);
+syncMatStatut();
+/* → historique only if (Terminé or Annulé) AND devis Accepté or Refusé */
+var dvSettled=o.devis&&(o.devis.statut===‘Accepté’||o.devis.statut===‘Refusé’);
+if((o.statut===‘Terminé’||o.statut===‘Annulé’)&&dvSettled){
+o.date_cloture=o.date_cloture||todayStr();
+if(!D.historique.find(function(h){return h.id===o.id;}))D.historique.unshift(o);
+D.interventions=D.interventions.filter(function(x){return x.id!==o.id;});
+}
+}else if(MODE===‘mat’){
+var dmat=EID?D.materiels.find(function(x){return x.id===EID;}):{}; var o={id:EID||(nextId(‘mat’)),article:gv(‘fart’),serie:gv(‘fserie’),client:gv(‘fcli’),marque:gv(‘fmarq’),technicien:gv(‘ftech’),statut:(dmat&&dmat.statut)||’’,localisation:gv(‘floc’)};
+if(EID){var i=D.materiels.findIndex(function(x){return x.id===EID;});if(i>=0)D.materiels[i]=o;}else D.materiels.push(o);
+}else if(MODE===‘cli’){
+var o={id:EID||(nextId(‘cli’)),nom:gv(‘fnom’),contact:gv(‘fcontact’),tel:gv(‘ftel’),email:gv(‘femail’),adresse:gv(‘fadr’),notes:gv(‘fnotes’)};
+if(EID){var i=D.clients.findIndex(function(x){return x.id===EID;});if(i>=0)D.clients[i]=o;}else D.clients.push(o);
+}else if(MODE===‘tech’){
+var o={id:EID||(nextId(‘tech’)),nom:gv(‘fnom’),fonction:gv(‘ffonc’),zone:gv(‘fzone’),tel:gv(‘ftel’),email:gv(‘femail’),statut:gv(‘fstat’)};
+if(EID){var i=D.techniciens.findIndex(function(x){return x.id===EID;});if(i>=0)D.techniciens[i]=o;}else D.techniciens.push(o);
+}else if(MODE===‘stock’){
+var o={id:EID||(nextId(‘stock’)),ref:gv(‘fref’),designation:gv(‘fdes’),categorie:gv(‘fcat’),qte:gn(‘fqte’),qte_min:gn(‘fmin’),prix:gn(‘fprix’),fournisseur:gv(‘ffour’),delai_reappro:gn(‘fdelai’),derniere_commande:gv(‘fdcmd’),nb_commandes:(EID?((D.stock.find(function(x){return x.id===EID;})||{}).nb_commandes||0):0)};
+if(EID){var i=D.stock.findIndex(function(x){return x.id===EID;});if(i>=0)D.stock[i]=o;}else D.stock.push(o);
+}
+save();closeModal();draw(PAGE,LS);
 }
 
 /* ================================================================
-   BOOT
+BOOT
 ================================================================ */
 load();
 </script>
+
 </body>
 </html>
