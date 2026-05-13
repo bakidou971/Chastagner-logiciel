@@ -234,11 +234,14 @@ textarea.fi{resize:vertical;}
       <div class="sb-sec">Administration</div>
       <div class="ni" id="ni-settings" onclick="goPage('settings',this)"><span class="ni-dot"></span>Réglages</div>
     </div>
+    <div style="padding:8px 14px;border-top:1px solid var(--bdr);">
+      <button onclick="doLogout()" style="width:100%;padding:7px 10px;background:var(--redbg);color:var(--redtxt);border:1px solid #fca5a5;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><span>⏻</span>Se déconnecter</button>
+    </div>
     <div class="sb-user">
-      <div class="av" id="sb-av">DB</div>
-      <div>
-        <div style="font-size:12px;font-weight:700;" id="sb-name">Danael BOSMON</div>
-        <div style="font-size:10px;color:var(--txt2);">Administrateur</div>
+      <div class="av" id="sb-av">?</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="sb-name">—</div>
+        <div style="font-size:10px;color:var(--txt2);" id="sb-role">—</div>
       </div>
     </div>
   </div>
@@ -302,6 +305,26 @@ async function doLogin(){
   } else {
     await loadFromSupabase();
     hideLoginOverlay();
+    /* Mettre à jour le nom/avatar dans la sidebar */
+    var user = result.data && result.data.user ? result.data.user : null;
+    if(user) {
+      var nom = (user.user_metadata && user.user_metadata.full_name) || user.email || '?';
+      var initiales = nom.split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase() || '?';
+      var sbName = document.getElementById('sb-name');
+      var sbAv = document.getElementById('sb-av');
+      var sbRole = document.getElementById('sb-role');
+      if(sbName) sbName.textContent = nom;
+      if(sbAv) sbAv.textContent = initiales;
+      /* Chercher le rôle dans les users locaux par email */
+      var localUser = (USERS||[]).find(function(u){return u.email===user.email || u.username===user.email;});
+      if(localUser) {
+        CURRENT_USER = localUser;
+        if(sbRole) sbRole.textContent = (ROLES[localUser.role]||{label:localUser.role}).label || localUser.role;
+      } else {
+        if(sbRole) sbRole.textContent = user.email || '';
+      }
+    }
+    applySidebarPerms();
     draw(PAGE,'');
   }
 }
@@ -383,7 +406,7 @@ function loadCounters(){try{var s=localStorage.getItem(SK+'_cnt');if(s)COUNTERS=
 
 function buildDefaults(){
   return{
-    users:[{id:1,username:'danael.bosmon',password:'danab123.',nom:'Danael BOSMON',role:'admin',email:'',perms:ALL_PERMS}],
+    users:[{id:1,username:'danael.bosmon',password:'danab123.',nom:'Danael BOSMON',role:'createur',email:'',perms:[]}],
     clients:[{id:1,nom:'H. CHEVALIER',contact:'Direction',tel:'',email:'',adresse:'France',notes:''}],
     techniciens:[
       {id:1,nom:'Sael BALERZY',fonction:'Semi-itinérant',tel:'',email:'',zone:'Herbay-sur-Seine (02)',statut:'Actif'},
@@ -442,8 +465,8 @@ function load(){
     save();
   }
   draw(PAGE,'');
-}
-function save(){D.users=USERS;try{localStorage.setItem(SK,JSON.stringify(D));}catch(e){}}
+  applySidebarPerms();
+}D.users=USERS;try{localStorage.setItem(SK,JSON.stringify(D));}catch(e){}}
 async function saveToSupa(table,obj){
   if(obj.id&&obj.id>0){
     var saved=await sbUpdate(table,obj.id,obj);
@@ -483,7 +506,66 @@ function durText(i){if(!i.date_debut)return '—';var d2s=i.date_cloture||i.date
 function durMinutes(i){if(!i.date_debut)return 0;var d2s=i.date_cloture||i.date_fin;if(!d2s)return 0;var t1=i.heure_debut||'08:00',t2=i.date_cloture?(i.heure_cloture||'17:00'):(i.heure_fin||'17:00');return Math.max(0,Math.round((new Date(d2s+'T'+t2)-new Date(i.date_debut+'T'+t1))/(1000*60)));}
 function avgDurText(m){if(!m)return '—';var d=Math.floor(m/1440),h=Math.floor((m%1440)/60),mn=Math.round(m%60);if(d>0&&h>0)return d+' j. '+h+'h';if(d>0)return d+' j.';if(h>0)return h+'h';return mn+'min';}
 function todayStr(){return new Date().toISOString().split('T')[0];}
-function hasPerm(){return true;}
+/* ===== SYSTÈME DE RÔLES =====
+   createur   : accès total
+   responsable: créer/modifier inter, valider statuts, commandes stock, KPIs, attribuer
+   technicien : modifier inter (ses champs) + devis, voir tout
+   commercial : voir inter + montant devis, changer statut devis
+   admin      : gérer rôles, matériels, clients, pièces détachées
+*/
+var ROLES = {
+  createur:    {label:'Créateur',    color:'#7c3aed'},
+  responsable: {label:'Responsable', color:'#2563eb'},
+  technicien:  {label:'Technicien',  color:'#0891b2'},
+  commercial:  {label:'Commercial',  color:'#d97706'},
+  admin:       {label:'Administrateur', color:'#16a34a'}
+};
+
+function getRole(){
+  return CURRENT_USER && CURRENT_USER.role ? CURRENT_USER.role : 'technicien';
+}
+
+function hasPerm(perm){
+  var r = getRole();
+  if(r === 'createur') return true;
+  var perms = {
+    /* Interventions */
+    'create_inter':      ['responsable','createur'],
+    'edit_inter':        ['responsable','technicien','createur'],
+    'delete_inter':      ['responsable','createur'],
+    'close_inter':       ['responsable','createur'],
+    'assign_inter':      ['responsable','createur'],
+    'view_inter':        ['responsable','technicien','commercial','admin','createur'],
+    /* Devis */
+    'edit_devis':        ['responsable','technicien','createur'],
+    'change_devis_stat': ['responsable','commercial','createur'],
+    'view_devis_amount': ['responsable','technicien','commercial','createur'],
+    /* KPIs / Analytics */
+    'view_analytics':    ['responsable','createur'],
+    /* Stock */
+    'view_stock':        ['responsable','admin','createur'],
+    'order_stock':       ['responsable','createur'],
+    'edit_stock':        ['admin','createur'],
+    /* Référentiels */
+    'view_materiels':    ['responsable','technicien','commercial','admin','createur'],
+    'edit_materiels':    ['admin','createur'],
+    'view_clients':      ['responsable','technicien','commercial','admin','createur'],
+    'edit_clients':      ['admin','createur'],
+    'view_techniciens':  ['responsable','admin','createur'],
+    'edit_techniciens':  ['admin','createur'],
+    /* Admin */
+    'manage_users':      ['admin','createur'],
+    'view_dashboard':    ['responsable','technicien','commercial','admin','createur'],
+    'view_historique':   ['responsable','technicien','commercial','admin','createur'],
+    'view_planning':     ['responsable','technicien','createur'],
+  };
+  return perms[perm] ? perms[perm].indexOf(r) >= 0 : false;
+}
+
+function roleBadge(r){
+  var info = ROLES[r] || {label:r, color:'#aaa'};
+  return '<span style="display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;background:'+info.color+'18;color:'+info.color+';border:1px solid '+info.color+'44">'+info.label+'</span>';
+}
 
 function getPrio(i){
   if(!i.date_fin)return{label:'Sans échéance',cls:'b-gray',wd:null,pct:0};
@@ -661,9 +743,33 @@ function goPage(p,el){
   var titles={dashboard:'Tableau de bord',interventions:'Interventions',historique:'Historique',planning:'Planning',analytics:'Analytique KPIs',materiels:'Matériels',clients:'Clients',techniciens:'Techniciens',stock:'Pièces détachées',settings:'Réglages'};
   document.getElementById('ptitle').textContent=titles[p]||p;
   document.getElementById('gsrc').value='';
+  /* Bouton Ajouter selon page et rôle */
   var noAdd=['dashboard','historique','planning','analytics','settings'];
-  document.getElementById('btn-add').style.display=noAdd.indexOf(p)>=0?'none':'';
+  var canAdd = noAdd.indexOf(p) < 0;
+  if(p==='interventions' && !hasPerm('create_inter')) canAdd=false;
+  if(p==='materiels' && !hasPerm('edit_materiels')) canAdd=false;
+  if(p==='clients' && !hasPerm('edit_clients')) canAdd=false;
+  if(p==='techniciens' && !hasPerm('edit_techniciens')) canAdd=false;
+  if(p==='stock' && !hasPerm('edit_stock')) canAdd=false;
+  document.getElementById('btn-add').style.display=canAdd?'':'none';
   draw(p,'');
+}
+function applySidebarPerms(){
+  /* Masquer les sections selon le rôle */
+  var nav = document.getElementById('ni-analytics');
+  if(nav) nav.parentNode.style.display = hasPerm('view_analytics') ? '' : 'none';
+  var ns = document.getElementById('ni-stock');
+  if(ns) ns.parentNode.style.display = hasPerm('view_stock') ? '' : 'none';
+  var nset = document.getElementById('ni-settings');
+  if(nset) nset.parentNode.style.display = hasPerm('manage_users') ? '' : 'none';
+  var nmat = document.getElementById('ni-materiels');
+  if(nmat) nmat.style.display = hasPerm('view_materiels') ? '' : 'none';
+  var ncli = document.getElementById('ni-clients');
+  if(ncli) ncli.style.display = hasPerm('view_clients') ? '' : 'none';
+  var ntech = document.getElementById('ni-techniciens');
+  if(ntech) ntech.style.display = hasPerm('view_techniciens') ? '' : 'none';
+  var nplan = document.getElementById('ni-planning');
+  if(nplan) nplan.style.display = hasPerm('view_planning') ? '' : 'none';
 }
 function doSearch(v){CP=1;LS=v.toLowerCase();draw(PAGE,LS);}
 function draw(p,f){
@@ -800,9 +906,9 @@ function rInter(f){
       '<td>'+(i.technicien?escH(i.technicien):'<span style="color:var(--txt3)">—</span>')+'</td>'+
       '<td style="font-size:11px">'+(tot?eur(tot):'—')+'</td>'+
       '<td style="white-space:nowrap">'+
-        '<button class="bs" style="font-size:10px;padding:3px 7px;margin-right:3px" onclick="editInter('+i.id+')">Modifier</button>'+
-        '<button class="bg-btn" style="font-size:10px;padding:3px 7px;margin-right:3px" onclick="cloreInter('+i.id+')" '+(closeOk?'':'disabled title="'+closeTitle+'"')+'>✓ Clore</button>'+
-        '<button style="font-size:10px;padding:3px 7px;background:var(--redbg);color:var(--redtxt);border:1px solid #fca5a5;border-radius:var(--r);cursor:pointer" onclick="delInter('+i.id+')" title="Supprimer">✕</button>'+
+        (hasPerm('edit_inter') ? '<button class="bs" style="font-size:10px;padding:3px 7px;margin-right:3px" onclick="editInter('+i.id+')">Modifier</button>' : '') +
+        (hasPerm('close_inter') ? '<button class="bg-btn" style="font-size:10px;padding:3px 7px;margin-right:3px" onclick="cloreInter('+i.id+')" '+(closeOk?'':'disabled title="'+closeTitle+'"')+'>✓ Clore</button>' : '') +
+        (hasPerm('delete_inter') ? '<button style="font-size:10px;padding:3px 7px;background:var(--redbg);color:var(--redtxt);border:1px solid #fca5a5;border-radius:var(--r);cursor:pointer" onclick="delInter('+i.id+')" title="Supprimer">✕</button>' : '') +
       '</td></tr>';
   }).join('');
   return filterBar+'<div class="card"><div class="ch"><span class="ct2">Interventions actives</span><span class="cc">'+pg.total+'</span></div>'+
@@ -1310,8 +1416,8 @@ function rSettings(){
       '<td style="font-weight:700">'+escH(u.nom)+'</td>'+
       '<td style="font-family:monospace;font-size:11px">'+escH(u.username)+'</td>'+
       '<td style="color:var(--txt2);font-size:11px">'+(u.email?escH(u.email):'<span style="color:var(--txt3)">—</span>')+'</td>'+
-      '<td>'+bdg(isAdmin?'b-red':'b-blue',isAdmin?'Admin':'Technicien')+'</td>'+
-      '<td>'+(isAdmin?'Tous':u.perms.length+'/'+ALL_PERMS.length+' droits')+'</td>'+
+      '<td>'+roleBadge(u.role||'technicien')+'</td>'+
+      '<td style="color:var(--txt2);font-size:11px)">'+(u.email?escH(u.email):'<span style="color:var(--txt3)">—</span>')+'</td>'+
       '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editUser('+u.id+')">Modifier</button></td></tr>';
   }).join('');
   var myEmail=CURRENT_USER&&CURRENT_USER.email?CURRENT_USER.email:'';
@@ -1591,24 +1697,28 @@ function cmdStock(id){id=Number(id);var s=D.stock.find(function(x){return x.id==
 /* USERS */
 function newUser(){editUser(null);}
 function editUser(id){
-  var u=id?USERS.find(function(x){return x.id===id;}):{perms:[]};
-  var permCBs=ALL_PERMS.map(function(p){var chk=u.role==='admin'||(u.perms&&u.perms.indexOf(p)>=0);var lbl=p.replace('view_','Voir ').replace('edit_','Modifier ');return'<label class="perm-item"><input type="checkbox" value="'+p+'" '+(chk?'checked':'')+' class="perm-chk"> '+escH(lbl)+'</label>';}).join('');
+  var u=id?USERS.find(function(x){return x.id===id;}):{};
   var body='<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="u-nom" value="'+escH(u.nom||'')+'"></div>'+
     '<div class="fg2"><div class="fg"><label class="fl">Identifiant</label><input class="fi" id="u-user" value="'+escH(u.username||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email (connexion alternative)</label><input class="fi" id="u-email" type="email" value="'+escH(u.email||'')+'"></div></div>'+
+    '<div class="fg"><label class="fl">Email</label><input class="fi" id="u-email" type="email" value="'+escH(u.email||'')+'"></div></div>'+
     '<div class="fg"><label class="fl">Mot de passe</label><div style="position:relative"><input class="fi" type="password" id="u-pass" placeholder="'+(id?'Laisser vide = inchangé':'Définir un mot de passe')+'" value="" style="padding-right:36px"><button onclick="tvp(\'u-pass\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px">&#128065;</button></div></div>'+
-    '<div class="fg"><label class="fl">Rôle</label><select class="fi" id="u-role" onchange="toggleAdminPerms(this.value)"><option'+(u.role==='tech'?' selected':'')+' value="tech">Technicien</option><option'+(u.role==='admin'?' selected':'')+' value="admin">Administrateur</option></select></div>'+
-    '<div class="fg" id="perm-block" style="'+(u.role==='admin'?'opacity:.5;pointer-events:none':'')+'"><label class="fl">Droits d\'accès</label><div class="perm-grid">'+permCBs+'</div></div>';
+    '<div class="fg"><label class="fl">Rôle</label><select class="fi" id="u-role"><option'+(u.role==='technicien'?' selected':'')+' value="technicien">Technicien</option><option'+(u.role==='responsable'?' selected':'')+' value="responsable">Responsable</option><option'+(u.role==='commercial'?' selected':'')+' value="commercial">Commercial</option><option'+(u.role==='admin'?' selected':'')+' value="admin">Administrateur</option><option'+(u.role==='createur'?' selected':'')+' value="createur">Créateur</option></select></div>'+
+    '<div style="background:var(--bg2);border-radius:var(--r);padding:10px 12px;font-size:11px;color:var(--txt2)">'+
+    '<strong style="color:var(--txt);display:block;margin-bottom:6px">Accès selon le rôle :</strong>'+
+    '<div>🔧 <strong>Technicien</strong> — Modifier ses interventions + devis</div>'+
+    '<div>👔 <strong>Responsable</strong> — Créer interventions, valider, KPIs, stock</div>'+
+    '<div>💼 <strong>Commercial</strong> — Voir interventions, changer statut devis</div>'+
+    '<div>⚙️ <strong>Administrateur</strong> — Gérer utilisateurs, matériels, clients, pièces</div>'+
+    '<div>👑 <strong>Créateur</strong> — Accès total</div>'+
+    '</div>';
   MODE='user';EID=id||null;
   openModal(id?'Modifier utilisateur':'Nouvel utilisateur',body,id&&u.id!==1);
 }
-function toggleAdminPerms(v){var b=document.getElementById('perm-block');if(b)b.style=v==='admin'?'opacity:.5;pointer-events:none':'';}
 function saveUser(){
   var nom=gv('u-nom'),uname=gv('u-user'),pass=gv('u-pass'),role=gv('u-role'),email=gv('u-email');
-  var perms=[];document.querySelectorAll('.perm-chk:checked').forEach(function(el){perms.push(el.value);});
   if(!nom||!uname){alert('Nom et identifiant requis.');return;}
-  if(EID){var u=USERS.find(function(x){return x.id===EID;});u.nom=nom;u.username=uname;u.role=role;u.perms=perms;u.email=email;if(pass)u.password=pass;}
-  else USERS.push({id:nextId('user'),nom:nom,username:uname,password:pass,role:role,perms:perms,email:email});
+  if(EID){var u=USERS.find(function(x){return x.id===EID;});u.nom=nom;u.username=uname;u.role=role;u.email=email;if(pass)u.password=pass;}
+  else USERS.push({id:nextId('user'),nom:nom,username:uname,password:pass,role:role,email:email});
   save();closeModal();draw('settings','');
 }
 
@@ -1669,8 +1779,6 @@ load();
   });
 })();
 </script>
-<div style="position:fixed;bottom:0;left:0;width:220px;padding:10px 14px;background:var(--bg1);border-top:1px solid var(--bdr);border-right:1px solid var(--bdr);z-index:100;box-sizing:border-box">
-  <button onclick="doLogout()" style="width:100%;padding:8px 12px;background:var(--redbg);color:var(--redtxt);border:1px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><span>⏻</span>Se déconnecter</button>
-</div>
+
 </body>
 </html>
