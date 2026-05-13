@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -191,7 +192,7 @@ textarea.fi{resize:vertical;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div id="login-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:#f0efe9;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+<div id="login-overlay" style="position:fixed;inset:0;z-index:9999;background:#f0efe9;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
   <div style="background:#fff;border:1px solid #e4e3db;border-radius:16px;padding:40px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.08)">
     <div style="text-align:center;margin-bottom:28px">
       <div style="font-size:32px;margin-bottom:10px">🔧</div>
@@ -258,6 +259,7 @@ textarea.fi{resize:vertical;}
 </div>
 
 <!-- MODAL -->
+
 <div class="ov" id="ov" onclick="bgClose(event)">
   <div class="modal" id="modal">
     <div class="mh"><span class="mh-t" id="mtitle"></span><button class="mx" onclick="closeModal()">×</button></div>
@@ -1603,181 +1605,182 @@ function mInter(id){
   '</div>'+
   '<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat">'+opts(SI,d.statut)+'</select></div>'+
   '<div class="fg"><label class="fl">Description / diagnostic</label><textarea class="fi" id="fdesc" rows="3">'+(d.description||'')+'</textarea></div>'+
-  '<div class="fg"><label class="fl">Pièces remplacées</label>'+
-    '<div class="ptags" id="ptags">'+renderPTags()+'</div>'+
-    '<div style="display:flex;gap:6px">'+
-      '<div class="acw" style="flex:1"><input class="fi" id="fpiece-in" placeholder="Saisir ou choisir…"><div class="acd" id="fpiece-drop"></div></div>'+
-      '<button class="bp" onclick="addPieceInput()" style="padding:7px 11px;font-size:11px">+ Ajouter</button>'+
-    '</div></div>';
 
-  var tab2='<div class="fg2">'+
-    '<div class="fg"><label class="fl">Statut devis</label><select class="fi" id="dv-stat">'+opts(DV_STATS,dvS)+'</select></div>'+
-    '<div class="fg"><label class="fl">Date devis</label><input class="fi" type="date" id="dv-date" value="'+dvD+'"></div>'+
-  '</div>'+
-  '<div class="vgp-box"><input type="checkbox" id="dv-vgp" style="width:16px;height:16px;cursor:pointer" '+dvV+'> <label for="dv-vgp" style="font-size:12px;font-weight:600;color:var(--cyantxt);cursor:pointer">VGP effectuée — relance automatique à 6 mois</label></div>'+
-  '<div class="dv-sec"><div class="dv-sec-title">Pièces</div><div id="dvp-list">'+renderDvP()+'</div>'+
-    '<button class="bs" onclick="DV_P.push({desc:\'\',qte:1,pu:0});refreshDvP()" style="font-size:11px;margin-top:5px">+ Ajouter pièce</button></div>'+
-  '<div class="dv-sec"><div class="dv-sec-title">Main d\'œuvre</div><div id="dvm-list">'+renderDvMO()+'</div>'+
-    '<button class="bs" onclick="DV_MO.push({desc:\'M.O.\',technicien:\'\',heures:1,taux:65});refreshDvMO()" style="font-size:11px;margin-top:5px">+ Ajouter ligne M.O.</button></div>'+
-  '<div class="fg2" style="margin-top:5px"><div class="fg"><label class="fl">TVA (%)</label><input class="fi" type="number" id="dv-tva" value="'+dvT+'" step="0.1" style="width:90px" oninput="updateDvTot()"></div></div>'+
-  '<div id="dv-tot-zone">'+renderDvTot()+'</div>'+
-  '<div class="fg" style="margin-top:10px"><label class="fl">Notes</label><textarea class="fi" id="dv-notes" rows="2">'+escH(dvN)+'</textarea></div>';
+‘<div class="fg"><label class="fl">Pièces remplacées</label>’+
+‘<div class="ptags" id="ptags">’+renderPTags()+’</div>’+
+‘<div style="display:flex;gap:6px">’+
+‘<div class="acw" style="flex:1"><input class="fi" id="fpiece-in" placeholder="Saisir ou choisir…"><div class="acd" id="fpiece-drop"></div></div>’+
+‘<button class="bp" onclick="addPieceInput()" style="padding:7px 11px;font-size:11px">+ Ajouter</button>’+
+‘</div></div>’;
 
-  var body='<div class="mtabs"><div class="mtab on" data-tab="info" onclick="switchTab(\'info\')">Intervention'+idBadge+'</div><div class="mtab" data-tab="devis" onclick="switchTab(\'devis\')">Devis</div></div>'+
-    '<div id="tab-info" class="tab-pane show">'+tab1+'</div>'+
-    '<div id="tab-devis" class="tab-pane">'+tab2+'</div>';
+var tab2=’<div class="fg2">’+
+‘<div class="fg"><label class="fl">Statut devis</label><select class="fi" id="dv-stat">’+opts(DV_STATS,dvS)+’</select></div>’+
+‘<div class="fg"><label class="fl">Date devis</label><input class="fi" type="date" id="dv-date" value="'+dvD+'"></div>’+
+‘</div>’+
+‘<div class="vgp-box"><input type=“checkbox” id=“dv-vgp” style=“width:16px;height:16px;cursor:pointer” ‘+dvV+’> <label for="dv-vgp" style="font-size:12px;font-weight:600;color:var(--cyantxt);cursor:pointer">VGP effectuée — relance automatique à 6 mois</label></div>’+
+‘<div class="dv-sec"><div class="dv-sec-title">Pièces</div><div id="dvp-list">’+renderDvP()+’</div>’+
+‘<button class="bs" onclick="DV_P.push({desc:\'\',qte:1,pu:0});refreshDvP()" style="font-size:11px;margin-top:5px">+ Ajouter pièce</button></div>’+
+‘<div class="dv-sec"><div class="dv-sec-title">Main d'œuvre</div><div id="dvm-list">’+renderDvMO()+’</div>’+
+‘<button class="bs" onclick="DV_MO.push({desc:\'M.O.\',technicien:\'\',heures:1,taux:65});refreshDvMO()" style="font-size:11px;margin-top:5px">+ Ajouter ligne M.O.</button></div>’+
+‘<div class="fg2" style="margin-top:5px"><div class="fg"><label class="fl">TVA (%)</label><input class="fi" type="number" id="dv-tva" value="'+dvT+'" step="0.1" style="width:90px" oninput="updateDvTot()"></div></div>’+
+‘<div id="dv-tot-zone">’+renderDvTot()+’</div>’+
+‘<div class="fg" style="margin-top:10px"><label class="fl">Notes</label><textarea class="fi" id="dv-notes" rows="2">’+escH(dvN)+’</textarea></div>’;
 
-  openModal(id?'Modifier INT-'+String(id).padStart(4,'0'):'Nouvelle intervention',body,!!id);
-  makeAC('fart-in','fart-drop',articles,null);
-  makeAC('fserie-in','fserie-drop',series,function(s){var m=D.materiels.find(function(x){return x.serie===s;});if(m){var a=document.getElementById('fart-in');if(a)a.value=m.article;}});
-  makeAC('fpiece-in','fpiece-drop',stk,null);
-  document.getElementById('fpiece-in').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addPieceInput();}});
+var body=’<div class="mtabs"><div class="mtab on" data-tab="info" onclick="switchTab(\'info\')">Intervention’+idBadge+’</div><div class="mtab" data-tab="devis" onclick="switchTab(\'devis\')">Devis</div></div>’+
+‘<div id="tab-info" class="tab-pane show">’+tab1+’</div>’+
+‘<div id="tab-devis" class="tab-pane">’+tab2+’</div>’;
+
+openModal(id?‘Modifier INT-’+String(id).padStart(4,‘0’):‘Nouvelle intervention’,body,!!id);
+makeAC(‘fart-in’,‘fart-drop’,articles,null);
+makeAC(‘fserie-in’,‘fserie-drop’,series,function(s){var m=D.materiels.find(function(x){return x.serie===s;});if(m){var a=document.getElementById(‘fart-in’);if(a)a.value=m.article;}});
+makeAC(‘fpiece-in’,‘fpiece-drop’,stk,null);
+document.getElementById(‘fpiece-in’).addEventListener(‘keydown’,function(e){if(e.key===‘Enter’){e.preventDefault();addPieceInput();}});
 }
 function editInter(id){mInter(id);}
-function autoFin(){var deb=document.getElementById('fdeb');var fin=document.getElementById('dfin');if(deb&&fin&&deb.value)fin.value=addWorkdays(deb.value,10);}
+function autoFin(){var deb=document.getElementById(‘fdeb’);var fin=document.getElementById(‘dfin’);if(deb&&fin&&deb.value)fin.value=addWorkdays(deb.value,10);}
 
 /* ================================================================
-   OTHER MODALS
+OTHER MODALS
 ================================================================ */
 function mMat(id){
-  MODE='mat';EID=id||null;var d=id?D.materiels.find(function(x){return x.id===id;}):{};
-  var cO=D.clients.map(function(c){return'<option'+(d.client===c.nom?' selected':'')+' value="'+escH(c.nom)+'">'+escH(c.nom)+'</option>';}).join('');
-  var tO=D.techniciens.map(function(t){return'<option'+(d.technicien===t.nom?' selected':'')+' value="'+escH(t.nom)+'">'+escH(t.nom)+'</option>';}).join('');
-  var idB=id?'<span class="id-bdg">MAT-'+String(id).padStart(4,'0')+'</span>':'';
-  openModal((id?'Modifier matériel':'Nouveau matériel')+idB,
-    '<div class="fg2"><div class="fg"><label class="fl">Article</label><input class="fi" id="fart" value="'+escH(d.article||'')+'"></div>'+
-    '<div class="fg"><label class="fl">N° de série</label><input class="fi" id="fserie" value="'+escH(d.serie||'')+'"></div></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Client</label><select class="fi" id="fcli">'+cO+'</select></div>'+
-    '<div class="fg"><label class="fl">Marque</label><select class="fi" id="fmarq">'+opts(MARQUES,d.marque)+'</select></div></div>'+
-    '<div class="fg"><label class="fl">Technicien</label><select class="fi" id="ftech"><option value="">Non assigné</option>'+tO+'</select></div>'+
-    '<div class="fg"><label class="fl">Localisation</label><select class="fi" id="floc">'+opts(ZONES,d.localisation)+'</select></div>',!!id);
+MODE=‘mat’;EID=id||null;var d=id?D.materiels.find(function(x){return x.id===id;}):{};
+var cO=D.clients.map(function(c){return’<option’+(d.client===c.nom?’ selected’:’’)+’ value=”’+escH(c.nom)+’”>’+escH(c.nom)+’</option>’;}).join(’’);
+var tO=D.techniciens.map(function(t){return’<option’+(d.technicien===t.nom?’ selected’:’’)+’ value=”’+escH(t.nom)+’”>’+escH(t.nom)+’</option>’;}).join(’’);
+var idB=id?’<span class="id-bdg">MAT-’+String(id).padStart(4,‘0’)+’</span>’:’’;
+openModal((id?‘Modifier matériel’:‘Nouveau matériel’)+idB,
+‘<div class="fg2"><div class="fg"><label class="fl">Article</label><input class="fi" id="fart" value="'+escH(d.article||'')+'"></div>’+
+‘<div class="fg"><label class="fl">N° de série</label><input class="fi" id="fserie" value="'+escH(d.serie||'')+'"></div></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Client</label><select class="fi" id="fcli">’+cO+’</select></div>’+
+‘<div class="fg"><label class="fl">Marque</label><select class="fi" id="fmarq">’+opts(MARQUES,d.marque)+’</select></div></div>’+
+‘<div class="fg"><label class="fl">Technicien</label><select class="fi" id="ftech"><option value="">Non assigné</option>’+tO+’</select></div>’+
+‘<div class="fg"><label class="fl">Localisation</label><select class="fi" id="floc">’+opts(ZONES,d.localisation)+’</select></div>’,!!id);
 }
 function editMat(id){mMat(id);}
 
 function mCli(id){
-  MODE='cli';EID=id||null;var d=id?D.clients.find(function(x){return x.id===id;}):{};
-  openModal(id?'Modifier client':'Nouveau client',
-    '<div class="fg"><label class="fl">Nom</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Contact</label><input class="fi" id="fcontact" value="'+escH(d.contact||'')+'"></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Adresse</label><input class="fi" id="fadr" value="'+escH(d.adresse||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Notes</label><textarea class="fi" id="fnotes" rows="2">'+(d.notes||'')+'</textarea></div>',!!id);
+MODE=‘cli’;EID=id||null;var d=id?D.clients.find(function(x){return x.id===id;}):{};
+openModal(id?‘Modifier client’:‘Nouveau client’,
+‘<div class="fg"><label class="fl">Nom</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Contact</label><input class="fi" id="fcontact" value="'+escH(d.contact||'')+'"></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>’+
+‘<div class="fg"><label class="fl">Adresse</label><input class="fi" id="fadr" value="'+escH(d.adresse||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Notes</label><textarea class="fi" id="fnotes" rows="2">’+(d.notes||’’)+’</textarea></div>’,!!id);
 }
 function editCli(id){mCli(id);}
 
 function mTech(id){
-  MODE='tech';EID=id||null;var d=id?D.techniciens.find(function(x){return x.id===id;}):{};
-  var curFonc=d.fonction||d.specialite||'';
-  openModal(id?'Modifier technicien':'Nouveau technicien',
-    '<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>'+
-    '<div class="fg2">'+
-      '<div class="fg"><label class="fl">Fonction</label><select class="fi" id="ffonc">'+opts(FONCTIONS,curFonc)+'</select></div>'+
-      '<div class="fg"><label class="fl">Zone d\'intervention</label><select class="fi" id="fzone">'+opts(ZONES,d.zone)+'</select></div>'+
-    '</div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat"><option'+(d.statut==='Actif'?' selected':'')+' value="Actif">Actif</option><option'+(d.statut==='Inactif'?' selected':'')+' value="Inactif">Inactif</option></select></div>',!!id);
+MODE=‘tech’;EID=id||null;var d=id?D.techniciens.find(function(x){return x.id===id;}):{};
+var curFonc=d.fonction||d.specialite||’’;
+openModal(id?‘Modifier technicien’:‘Nouveau technicien’,
+‘<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>’+
+‘<div class="fg2">’+
+‘<div class="fg"><label class="fl">Fonction</label><select class="fi" id="ffonc">’+opts(FONCTIONS,curFonc)+’</select></div>’+
+‘<div class="fg"><label class="fl">Zone d'intervention</label><select class="fi" id="fzone">’+opts(ZONES,d.zone)+’</select></div>’+
+‘</div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>’+
+‘<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat"><option’+(d.statut===‘Actif’?’ selected’:’’)+’ value=“Actif”>Actif</option><option’+(d.statut===‘Inactif’?’ selected’:’’)+’ value=“Inactif”>Inactif</option></select></div>’,!!id);
 }
 function editTech(id){mTech(id);}
 
 function mStock(id){
-  MODE='stock';EID=id||null;var d=id?D.stock.find(function(x){return x.id===id;}):{};
-  openModal(id?'Modifier pièce — '+escH(d.ref):'Nouvelle pièce',
-    '<div class="fg2"><div class="fg"><label class="fl">Référence</label><input class="fi" id="fref" value="'+escH(d.ref||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Catégorie</label><input class="fi" id="fcat" value="'+escH(d.categorie||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Désignation</label><input class="fi" id="fdes" value="'+escH(d.designation||'')+'"></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Quantité</label><input class="fi" type="number" id="fqte" value="'+(d.qte!=null?d.qte:0)+'" min="0" step="1"></div>'+
-    '<div class="fg"><label class="fl">Seuil min.</label><input class="fi" type="number" id="fmin" value="'+(d.qte_min!=null?d.qte_min:1)+'" min="0" step="1"></div></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Prix unitaire (€)</label><input class="fi" type="number" step="0.01" id="fprix" value="'+(d.prix||0)+'"></div>'+
-    '<div class="fg"><label class="fl">Fournisseur</label><input class="fi" id="ffour" value="'+escH(d.fournisseur||'')+'"></div></div>',!!id);
+MODE=‘stock’;EID=id||null;var d=id?D.stock.find(function(x){return x.id===id;}):{};
+openModal(id?‘Modifier pièce — ‘+escH(d.ref):‘Nouvelle pièce’,
+‘<div class="fg2"><div class="fg"><label class="fl">Référence</label><input class="fi" id="fref" value="'+escH(d.ref||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Catégorie</label><input class="fi" id="fcat" value="'+escH(d.categorie||'')+'"></div></div>’+
+‘<div class="fg"><label class="fl">Désignation</label><input class="fi" id="fdes" value="'+escH(d.designation||'')+'"></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Quantité</label><input class="fi" type="number" id="fqte" value="'+(d.qte!=null?d.qte:0)+'" min="0" step="1"></div>’+
+‘<div class="fg"><label class="fl">Seuil min.</label><input class="fi" type="number" id="fmin" value="'+(d.qte_min!=null?d.qte_min:1)+'" min="0" step="1"></div></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Prix unitaire (€)</label><input class="fi" type="number" step="0.01" id="fprix" value="'+(d.prix||0)+'"></div>’+
+‘<div class="fg"><label class="fl">Fournisseur</label><input class="fi" id="ffour" value="'+escH(d.fournisseur||'')+'"></div></div>’,!!id);
 }
 function editStock(id){mStock(Number(id));}
-function cmdStock(id){id=Number(id);var s=D.stock.find(function(x){return x.id===id;});if(!s)return;var q=prompt('Quantité reçue pour '+s.ref+' ?','');if(!q||isNaN(Number(q))||Number(q)<=0)return;s.qte=s.qte+Number(q);s.derniere_commande=todayStr();s.nb_commandes=(s.nb_commandes||0)+1;(async function(){await sbUpdate('stock',s.id,s);save();draw(PAGE,LS);})();}
+function cmdStock(id){id=Number(id);var s=D.stock.find(function(x){return x.id===id;});if(!s)return;var q=prompt(‘Quantité reçue pour ‘+s.ref+’ ?’,’’);if(!q||isNaN(Number(q))||Number(q)<=0)return;s.qte=s.qte+Number(q);s.derniere_commande=todayStr();s.nb_commandes=(s.nb_commandes||0)+1;(async function(){await sbUpdate(‘stock’,s.id,s);save();draw(PAGE,LS);})();}
 
 /* USERS */
 function newUser(){editUser(null);}
 function editUser(id){
-  var u=id?USERS.find(function(x){return x.id===id;}):{};
-  var body='<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="u-nom" value="'+escH(u.nom||'')+'"></div>'+
-    '<div class="fg2"><div class="fg"><label class="fl">Identifiant</label><input class="fi" id="u-user" value="'+escH(u.username||'')+'"></div>'+
-    '<div class="fg"><label class="fl">Email</label><input class="fi" id="u-email" type="email" value="'+escH(u.email||'')+'"></div></div>'+
-    '<div class="fg"><label class="fl">Mot de passe</label><div style="position:relative"><input class="fi" type="password" id="u-pass" placeholder="'+(id?'Laisser vide = inchangé':'Définir un mot de passe')+'" value="" style="padding-right:36px"><button onclick="tvp(\'u-pass\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px">&#128065;</button></div></div>'+
-    '<div class="fg"><label class="fl">Rôle</label><select class="fi" id="u-role"><option'+(u.role==='technicien'?' selected':'')+' value="technicien">Technicien</option><option'+(u.role==='responsable'?' selected':'')+' value="responsable">Responsable</option><option'+(u.role==='commercial'?' selected':'')+' value="commercial">Commercial</option><option'+(u.role==='admin'?' selected':'')+' value="admin">Administrateur</option><option'+(u.role==='createur'?' selected':'')+' value="createur">Créateur</option></select></div>'+
-    '<div style="background:var(--bg2);border-radius:var(--r);padding:10px 12px;font-size:11px;color:var(--txt2)">'+
-    '<strong style="color:var(--txt);display:block;margin-bottom:6px">Accès selon le rôle :</strong>'+
-    '<div>🔧 <strong>Technicien</strong> — Modifier ses interventions + devis</div>'+
-    '<div>👔 <strong>Responsable</strong> — Créer interventions, valider, KPIs, stock</div>'+
-    '<div>💼 <strong>Commercial</strong> — Voir interventions, changer statut devis</div>'+
-    '<div>⚙️ <strong>Administrateur</strong> — Gérer utilisateurs, matériels, clients, pièces</div>'+
-    '<div>👑 <strong>Créateur</strong> — Accès total</div>'+
-    '</div>';
-  MODE='user';EID=id||null;
-  openModal(id?'Modifier utilisateur':'Nouvel utilisateur',body,id&&u.id!==1);
+var u=id?USERS.find(function(x){return x.id===id;}):{};
+var body=’<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="u-nom" value="'+escH(u.nom||'')+'"></div>’+
+‘<div class="fg2"><div class="fg"><label class="fl">Identifiant</label><input class="fi" id="u-user" value="'+escH(u.username||'')+'"></div>’+
+‘<div class="fg"><label class="fl">Email</label><input class="fi" id="u-email" type="email" value="'+escH(u.email||'')+'"></div></div>’+
+‘<div class="fg"><label class="fl">Mot de passe</label><div style="position:relative"><input class="fi" type="password" id="u-pass" placeholder="'+(id?'Laisser vide = inchangé':'Définir un mot de passe')+'" value="" style="padding-right:36px"><button onclick="tvp(\'u-pass\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px">👁</button></div></div>’+
+‘<div class="fg"><label class="fl">Rôle</label><select class="fi" id="u-role"><option’+(u.role===‘technicien’?’ selected’:’’)+’ value=“technicien”>Technicien</option><option’+(u.role===‘responsable’?’ selected’:’’)+’ value=“responsable”>Responsable</option><option’+(u.role===‘commercial’?’ selected’:’’)+’ value=“commercial”>Commercial</option><option’+(u.role===‘admin’?’ selected’:’’)+’ value=“admin”>Administrateur</option><option’+(u.role===‘createur’?’ selected’:’’)+’ value=“createur”>Créateur</option></select></div>’+
+‘<div style="background:var(--bg2);border-radius:var(--r);padding:10px 12px;font-size:11px;color:var(--txt2)">’+
+‘<strong style="color:var(--txt);display:block;margin-bottom:6px">Accès selon le rôle :</strong>’+
+‘<div>🔧 <strong>Technicien</strong> — Modifier ses interventions + devis</div>’+
+‘<div>👔 <strong>Responsable</strong> — Créer interventions, valider, KPIs, stock</div>’+
+‘<div>💼 <strong>Commercial</strong> — Voir interventions, changer statut devis</div>’+
+‘<div>⚙️ <strong>Administrateur</strong> — Gérer utilisateurs, matériels, clients, pièces</div>’+
+‘<div>👑 <strong>Créateur</strong> — Accès total</div>’+
+‘</div>’;
+MODE=‘user’;EID=id||null;
+openModal(id?‘Modifier utilisateur’:‘Nouvel utilisateur’,body,id&&u.id!==1);
 }
 function saveUser(){
-  var nom=gv('u-nom'),uname=gv('u-user'),pass=gv('u-pass'),role=gv('u-role'),email=gv('u-email');
-  if(!nom||!uname){alert('Nom et identifiant requis.');return;}
-  if(EID){var u=USERS.find(function(x){return x.id===EID;});u.nom=nom;u.username=uname;u.role=role;u.email=email;if(pass)u.password=pass;}
-  else USERS.push({id:nextId('user'),nom:nom,username:uname,password:pass,role:role,email:email});
-  save();closeModal();draw('settings','');
+var nom=gv(‘u-nom’),uname=gv(‘u-user’),pass=gv(‘u-pass’),role=gv(‘u-role’),email=gv(‘u-email’);
+if(!nom||!uname){alert(‘Nom et identifiant requis.’);return;}
+if(EID){var u=USERS.find(function(x){return x.id===EID;});u.nom=nom;u.username=uname;u.role=role;u.email=email;if(pass)u.password=pass;}
+else USERS.push({id:nextId(‘user’),nom:nom,username:uname,password:pass,role:role,email:email});
+save();closeModal();draw(‘settings’,’’);
 }
 
 /* ================================================================
-   SAVE MODAL
+SAVE MODAL
 ================================================================ */
 function saveModal(){
-  if(MODE==='view'){closeModal();return;}
-  if(MODE==='user'){saveUser();return;}
-  if(MODE==='inter'){
-    var o={id:EID||(nextId('inter')),article:gv('fart-in'),serie:gv('fserie-in'),client:gv('fcli'),statut:gv('fstat'),technicien:gv('ftech'),date_debut:gv('fdeb'),date_fin:gv('dfin'),description:gv('fdesc'),pieces:TMP_PIECES.slice(),devis:collectDevis()};
-    if(EID){var i=D.interventions.findIndex(function(x){return x.id===EID;});if(i>=0)D.interventions[i]=o;}else D.interventions.unshift(o);
-    syncMatStatut();
-    /* → historique only if (Terminé or Annulé) AND devis Accepté or Refusé */
-    var dvSettled=o.devis&&(o.devis.statut==='Accepté'||o.devis.statut==='Refusé');
-    if((o.statut==='Terminé'||o.statut==='Annulé')&&dvSettled){
-      o.date_cloture=o.date_cloture||todayStr();
-      if(!D.historique.find(function(h){return h.id===o.id;}))D.historique.unshift(o);
-      D.interventions=D.interventions.filter(function(x){return x.id!==o.id;});
-    }
-  }else if(MODE==='mat'){
-    var dmat=EID?D.materiels.find(function(x){return x.id===EID;}):{}; var o={id:EID||(nextId('mat')),article:gv('fart'),serie:gv('fserie'),client:gv('fcli'),marque:gv('fmarq'),technicien:gv('ftech'),statut:(dmat&&dmat.statut)||'',localisation:gv('floc')};
-    if(EID){var i=D.materiels.findIndex(function(x){return x.id===EID;});if(i>=0)D.materiels[i]=o;}else D.materiels.push(o);
-  }else if(MODE==='cli'){
-    var o={id:EID||(nextId('cli')),nom:gv('fnom'),contact:gv('fcontact'),tel:gv('ftel'),email:gv('femail'),adresse:gv('fadr'),notes:gv('fnotes')};
-    if(EID){var i=D.clients.findIndex(function(x){return x.id===EID;});if(i>=0)D.clients[i]=o;}else D.clients.push(o);
-  }else if(MODE==='tech'){
-    var o={id:EID||(nextId('tech')),nom:gv('fnom'),fonction:gv('ffonc'),zone:gv('fzone'),tel:gv('ftel'),email:gv('femail'),statut:gv('fstat')};
-    if(EID){var i=D.techniciens.findIndex(function(x){return x.id===EID;});if(i>=0)D.techniciens[i]=o;}else D.techniciens.push(o);
-  }else if(MODE==='stock'){
-    var o={id:EID||(nextId('stock')),ref:gv('fref'),designation:gv('fdes'),categorie:gv('fcat'),qte:gn('fqte'),qte_min:gn('fmin'),prix:gn('fprix'),fournisseur:gv('ffour'),delai_reappro:gn('fdelai')||7,derniere_commande:gv('fdcmd'),nb_commandes:(EID?((D.stock.find(function(x){return x.id===EID;})||{}).nb_commandes||0):0)};
-    if(EID){var i=D.stock.findIndex(function(x){return x.id===EID;});if(i>=0)D.stock[i]=o;}else D.stock.push(o);
-  }
-  (async function(){
-    var tables={inter:'interventions',mat:'materiels',cli:'clients',tech:'techniciens',stock:'stock'};
-    var tbl=tables[MODE];
-    if(tbl&&o){await saveToSupa(tbl,o);}
-    save();closeModal();draw(PAGE,LS);
-  })();
+if(MODE===‘view’){closeModal();return;}
+if(MODE===‘user’){saveUser();return;}
+if(MODE===‘inter’){
+var o={id:EID||(nextId(‘inter’)),article:gv(‘fart-in’),serie:gv(‘fserie-in’),client:gv(‘fcli’),statut:gv(‘fstat’),technicien:gv(‘ftech’),date_debut:gv(‘fdeb’),date_fin:gv(‘dfin’),description:gv(‘fdesc’),pieces:TMP_PIECES.slice(),devis:collectDevis()};
+if(EID){var i=D.interventions.findIndex(function(x){return x.id===EID;});if(i>=0)D.interventions[i]=o;}else D.interventions.unshift(o);
+syncMatStatut();
+/* → historique only if (Terminé or Annulé) AND devis Accepté or Refusé */
+var dvSettled=o.devis&&(o.devis.statut===‘Accepté’||o.devis.statut===‘Refusé’);
+if((o.statut===‘Terminé’||o.statut===‘Annulé’)&&dvSettled){
+o.date_cloture=o.date_cloture||todayStr();
+if(!D.historique.find(function(h){return h.id===o.id;}))D.historique.unshift(o);
+D.interventions=D.interventions.filter(function(x){return x.id!==o.id;});
+}
+}else if(MODE===‘mat’){
+var dmat=EID?D.materiels.find(function(x){return x.id===EID;}):{}; var o={id:EID||(nextId(‘mat’)),article:gv(‘fart’),serie:gv(‘fserie’),client:gv(‘fcli’),marque:gv(‘fmarq’),technicien:gv(‘ftech’),statut:(dmat&&dmat.statut)||’’,localisation:gv(‘floc’)};
+if(EID){var i=D.materiels.findIndex(function(x){return x.id===EID;});if(i>=0)D.materiels[i]=o;}else D.materiels.push(o);
+}else if(MODE===‘cli’){
+var o={id:EID||(nextId(‘cli’)),nom:gv(‘fnom’),contact:gv(‘fcontact’),tel:gv(‘ftel’),email:gv(‘femail’),adresse:gv(‘fadr’),notes:gv(‘fnotes’)};
+if(EID){var i=D.clients.findIndex(function(x){return x.id===EID;});if(i>=0)D.clients[i]=o;}else D.clients.push(o);
+}else if(MODE===‘tech’){
+var o={id:EID||(nextId(‘tech’)),nom:gv(‘fnom’),fonction:gv(‘ffonc’),zone:gv(‘fzone’),tel:gv(‘ftel’),email:gv(‘femail’),statut:gv(‘fstat’)};
+if(EID){var i=D.techniciens.findIndex(function(x){return x.id===EID;});if(i>=0)D.techniciens[i]=o;}else D.techniciens.push(o);
+}else if(MODE===‘stock’){
+var o={id:EID||(nextId(‘stock’)),ref:gv(‘fref’),designation:gv(‘fdes’),categorie:gv(‘fcat’),qte:gn(‘fqte’),qte_min:gn(‘fmin’),prix:gn(‘fprix’),fournisseur:gv(‘ffour’),delai_reappro:gn(‘fdelai’)||7,derniere_commande:gv(‘fdcmd’),nb_commandes:(EID?((D.stock.find(function(x){return x.id===EID;})||{}).nb_commandes||0):0)};
+if(EID){var i=D.stock.findIndex(function(x){return x.id===EID;});if(i>=0)D.stock[i]=o;}else D.stock.push(o);
+}
+(async function(){
+var tables={inter:‘interventions’,mat:‘materiels’,cli:‘clients’,tech:‘techniciens’,stock:‘stock’};
+var tbl=tables[MODE];
+if(tbl&&o){await saveToSupa(tbl,o);}
+save();closeModal();draw(PAGE,LS);
+})();
 }
 
 /* ================================================================
-   BOOT
+BOOT
 ================================================================ */
 load();
 (async function(){
-  var s=await supa.auth.getSession();
-  if(s.data&&s.data.session){
-    await loadFromSupabase();
-    hideLoginOverlay();
-    draw(PAGE,'');
-  } else {
-    showLoginOverlay();
-    draw(PAGE,'');
-  }
-  supa.auth.onAuthStateChange(function(event){
-    if(event==='SIGNED_OUT'){showLoginOverlay();}
-  });
+var s=await supa.auth.getSession();
+if(s.data&&s.data.session){
+await loadFromSupabase();
+hideLoginOverlay();
+draw(PAGE,’’);
+} else {
+showLoginOverlay();
+draw(PAGE,’’);
+}
+supa.auth.onAuthStateChange(function(event){
+if(event===‘SIGNED_OUT’){showLoginOverlay();}
+});
 })();
 </script>
 
