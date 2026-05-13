@@ -522,7 +522,8 @@ var ROLES = {
 };
 
 function getRole(){
-  return CURRENT_USER && CURRENT_USER.role ? CURRENT_USER.role : 'technicien';
+  if(CURRENT_USER && CURRENT_USER.role) return CURRENT_USER.role;
+  return 'createur'; /* Par défaut avant login = accès total pour ne pas bloquer */
 }
 
 function hasPerm(perm){
@@ -741,8 +742,8 @@ function goPage(p,el){
   document.querySelectorAll('.ni').forEach(function(i){i.classList.remove('on');});
   var ni=document.getElementById('ni-'+p);if(ni)ni.classList.add('on');
   var titles={dashboard:'Tableau de bord',interventions:'Interventions',historique:'Historique',planning:'Planning',analytics:'Analytique KPIs',materiels:'Matériels',clients:'Clients',techniciens:'Techniciens',stock:'Pièces détachées',settings:'Réglages'};
-  document.getElementById('ptitle').textContent=titles[p]||p;
-  document.getElementById('gsrc').value='';
+  var pt=document.getElementById('ptitle');if(pt)pt.textContent=titles[p]||p;
+  var gs=document.getElementById('gsrc');if(gs)gs.value='';
   /* Bouton Ajouter selon page et rôle */
   var noAdd=['dashboard','historique','planning','analytics','settings'];
   var canAdd = noAdd.indexOf(p) < 0;
@@ -751,25 +752,25 @@ function goPage(p,el){
   if(p==='clients' && !hasPerm('edit_clients')) canAdd=false;
   if(p==='techniciens' && !hasPerm('edit_techniciens')) canAdd=false;
   if(p==='stock' && !hasPerm('edit_stock')) canAdd=false;
-  document.getElementById('btn-add').style.display=canAdd?'':'none';
+  var btnAdd = document.getElementById('btn-add');
+  if(btnAdd) btnAdd.style.display=canAdd?'':'none';
   draw(p,'');
 }
 function applySidebarPerms(){
-  /* Masquer les sections selon le rôle */
-  var nav = document.getElementById('ni-analytics');
-  if(nav) nav.parentNode.style.display = hasPerm('view_analytics') ? '' : 'none';
-  var ns = document.getElementById('ni-stock');
-  if(ns) ns.parentNode.style.display = hasPerm('view_stock') ? '' : 'none';
-  var nset = document.getElementById('ni-settings');
-  if(nset) nset.parentNode.style.display = hasPerm('manage_users') ? '' : 'none';
-  var nmat = document.getElementById('ni-materiels');
-  if(nmat) nmat.style.display = hasPerm('view_materiels') ? '' : 'none';
-  var ncli = document.getElementById('ni-clients');
-  if(ncli) ncli.style.display = hasPerm('view_clients') ? '' : 'none';
-  var ntech = document.getElementById('ni-techniciens');
-  if(ntech) ntech.style.display = hasPerm('view_techniciens') ? '' : 'none';
-  var nplan = document.getElementById('ni-planning');
-  if(nplan) nplan.style.display = hasPerm('view_planning') ? '' : 'none';
+  var ids = ['ni-analytics','ni-stock','ni-settings','ni-materiels','ni-clients','ni-techniciens','ni-planning'];
+  var perms = {
+    'ni-analytics':   'view_analytics',
+    'ni-stock':       'view_stock',
+    'ni-settings':    'manage_users',
+    'ni-materiels':   'view_materiels',
+    'ni-clients':     'view_clients',
+    'ni-techniciens': 'view_techniciens',
+    'ni-planning':    'view_planning'
+  };
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.style.display = hasPerm(perms[id]) ? '' : 'none';
+  });
 }
 function doSearch(v){CP=1;LS=v.toLowerCase();draw(PAGE,LS);}
 function draw(p,f){
