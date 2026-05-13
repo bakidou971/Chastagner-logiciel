@@ -273,7 +273,13 @@ textarea.fi{resize:vertical;}
 ================================================================ */
 var SUPA_URL='https://gruruldzmkimknynnzpi.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdydXJ1bGR6bWtpbWtueW5uenBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MDYzOTIsImV4cCI6MjA5NDE4MjM5Mn0.NqvGzO8CM0EETApn6-skwCQaqag7aq-faRSuFlF5cgg';
-var supa=supabase.createClient(SUPA_URL,SUPA_KEY);
+var supa;
+try {
+  supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+} catch(e) {
+  document.getElementById('login-error').style.display='block';
+  document.getElementById('login-error').textContent='Erreur init Supabase: '+e.message;
+}
 
 function showLoginOverlay(msg){
   var ov=document.getElementById('login-overlay');
@@ -290,6 +296,7 @@ function hideLoginOverlay(){
 }
 
 async function doLogin(){
+  if(!supa){showLoginOverlay('Erreur : bibliothèque Supabase non chargée. Vérifiez votre connexion internet.');return;}
   var email=(document.getElementById('login-email')||{}).value||'';
   var pass=(document.getElementById('login-pass')||{}).value||'';
   if(!email||!pass){showLoginOverlay('Veuillez remplir tous les champs.');return;}
