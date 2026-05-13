@@ -4,3 +4,1673 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chastagner Location SAV — GMAO</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f0efe9;--bg1:#fff;--bg2:#f7f6f0;
+  --txt:#1a1a18;--txt2:#6b7280;--txt3:#b0afaa;
+  --bdr:#e4e3db;--bdr2:#d0cfc7;
+  --blue:#2563eb;--bluebg:#eff6ff;--bluetxt:#1e40af;
+  --red:#dc2626;--redbg:#fef2f2;--redtxt:#991b1b;
+  --amber:#d97706;--amberbg:#fffbeb;--ambertxt:#92400e;
+  --green:#16a34a;--greenbg:#f0fdf4;--greentxt:#166534;
+  --orange:#ea580c;--orangebg:#fff7ed;--orangetxt:#9a3412;
+  --purple:#7c3aed;--purplebg:#f5f3ff;--purpletxt:#5b21b6;
+  --cyan:#0891b2;--cyanbg:#ecfeff;--cyantxt:#164e63;
+  --r:8px;--rl:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);font-size:13px;height:100vh;overflow:hidden;}
+.app{display:flex;height:100vh;}
+.sb{width:220px;min-width:220px;background:var(--bg1);border-right:1px solid var(--bdr);display:flex;flex-direction:column;}
+.sb-brand{padding:14px 16px;border-bottom:1px solid var(--bdr);}
+.sb-name{font-size:13px;font-weight:800;}
+.sb-sub{font-size:10px;color:var(--txt2);margin-top:2px;text-transform:uppercase;letter-spacing:.4px;}
+.sb-nav{flex:1;padding:8px;overflow-y:auto;}
+.sb-sec{font-size:9px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;padding:10px 8px 3px;}
+.ni{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--txt2);margin-bottom:1px;font-weight:500;}
+.ni:hover,.ni.on{background:var(--bg2);color:var(--txt);}
+.ni.on{font-weight:700;}
+.ni-dot{width:6px;height:6px;border-radius:50%;background:var(--bdr2);flex-shrink:0;}
+.ni.on .ni-dot{background:var(--blue);}
+.sb-user{padding:12px 14px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:10px;}
+.av{width:32px;height:32px;border-radius:50%;background:var(--bluebg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--bluetxt);flex-shrink:0;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{background:var(--bg1);border-bottom:1px solid var(--bdr);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.topbar-title{font-size:14px;font-weight:800;}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ct{flex:1;overflow-y:auto;padding:14px 18px;}
+/* BUTTONS */
+.bp{background:var(--blue);color:#fff;border:none;padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:700;cursor:pointer;}
+.bp:hover{background:#1d4ed8;}
+.bp:disabled{background:var(--txt3);cursor:not-allowed;opacity:.6;}
+.bs{background:var(--bg1);border:1px solid var(--bdr2);padding:6px 11px;border-radius:var(--r);font-size:11px;color:var(--txt2);cursor:pointer;font-weight:500;}
+.bs:hover{background:var(--bg2);}
+.bd{background:var(--red);color:#fff;border:none;padding:6px 11px;border-radius:var(--r);font-size:11px;font-weight:700;cursor:pointer;}
+.bg-btn{background:var(--green);color:#fff;border:none;padding:5px 9px;border-radius:var(--r);font-size:11px;font-weight:700;cursor:pointer;}
+.bg-btn:disabled{background:var(--txt3);cursor:not-allowed;}
+.src{border:1px solid var(--bdr2);border-radius:var(--r);padding:6px 10px;font-size:12px;background:var(--bg2);color:var(--txt);width:180px;outline:none;}
+.src:focus{border-color:var(--blue);background:var(--bg1);}
+/* KPI */
+.kg{display:grid;gap:10px;margin-bottom:14px;}
+.kp{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);padding:13px 15px;border-left:3px solid;}
+.kp-l{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:4px;}
+.kp-v{font-size:20px;font-weight:800;line-height:1;}
+.kp-s{font-size:10px;margin-top:4px;color:var(--txt3);}
+/* CARD */
+.card{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;}
+.ch{padding:10px 14px 8px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.ct2{font-size:12px;font-weight:700;}
+.cc{font-size:11px;color:var(--txt2);}
+.tw{overflow-x:auto;}
+.tbl{width:100%;border-collapse:collapse;min-width:500px;}
+.tbl th{text-align:left;padding:7px 11px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--txt2);border-bottom:1px solid var(--bdr);background:var(--bg2);white-space:nowrap;}
+.tbl td{padding:7px 11px;border-bottom:1px solid #f4f3ee;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#faf9f5;}
+/* BADGE */
+.bdg{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-size:9px;font-weight:700;white-space:nowrap;}
+.b-red{background:var(--redbg);color:var(--redtxt);}
+.b-amber{background:var(--amberbg);color:var(--ambertxt);}
+.b-orange{background:var(--orangebg);color:var(--orangetxt);}
+.b-green{background:var(--greenbg);color:var(--greentxt);}
+.b-blue{background:var(--bluebg);color:var(--bluetxt);}
+.b-gray{background:var(--bg2);color:var(--txt2);}
+.b-purple{background:var(--purplebg);color:var(--purpletxt);}
+.b-cyan{background:var(--cyanbg);color:var(--cyantxt);}
+/* PRIORITY */
+.pb{display:flex;align-items:center;gap:5px;}
+.pb-t{width:44px;height:4px;background:#eee;border-radius:99px;overflow:hidden;}
+.pb-f{height:100%;border-radius:99px;}
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;}
+.chip{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid;}
+/* FILTERS */
+.filter-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--bdr);background:var(--bg2);}
+.filter-bar select,.filter-bar input{border:1px solid var(--bdr2);border-radius:var(--r);padding:5px 9px;font-size:11px;background:var(--bg1);color:var(--txt);outline:none;}
+.filter-bar select:focus,.filter-bar input:focus{border-color:var(--blue);}
+.filter-label{font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;}
+/* CHARTS */
+.chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.chart-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.chart-box{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px;}
+.chart-title{font-size:11px;font-weight:700;margin-bottom:10px;color:var(--txt);}
+.donut-wrap{display:flex;align-items:center;gap:14px;}
+.donut-legend{display:flex;flex-direction:column;gap:5px;}
+.dl-item{display:flex;align-items:center;gap:6px;font-size:11px;}
+.dl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.bc-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.bc-lbl{font-size:11px;color:var(--txt2);width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bc-track{flex:1;height:16px;background:var(--bg2);border-radius:4px;overflow:hidden;position:relative;}
+.bc-fill{height:100%;border-radius:4px;}
+.bc-val{position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:#fff;}
+/* PERIOD TABS */
+.period-tabs{display:flex;gap:0;border-bottom:1px solid var(--bdr);margin-bottom:12px;}
+.ptab{padding:7px 14px;font-size:11px;cursor:pointer;color:var(--txt2);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;}
+.ptab.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:700;}
+/* PLANNING */
+.plan-grid{display:grid;gap:0;}
+.plan-header{display:flex;background:var(--bg2);border-bottom:1px solid var(--bdr);}
+.plan-tech-col{width:130px;min-width:130px;padding:8px 10px;font-size:10px;font-weight:700;color:var(--txt2);border-right:1px solid var(--bdr);}
+.plan-day{flex:1;padding:6px 4px;font-size:10px;font-weight:700;color:var(--txt2);text-align:center;border-right:1px solid var(--bdr);}
+.plan-day.today{background:var(--bluebg);color:var(--bluetxt);}
+.plan-row{display:flex;border-bottom:1px solid var(--bdr);min-height:52px;}
+.plan-tech{width:130px;min-width:130px;padding:8px 10px;font-size:11px;font-weight:700;border-right:1px solid var(--bdr);display:flex;align-items:center;}
+.plan-cell{flex:1;border-right:1px solid var(--bdr);padding:3px;position:relative;min-height:52px;}
+.plan-event{border-radius:5px;padding:3px 6px;font-size:10px;font-weight:600;margin-bottom:2px;cursor:pointer;line-height:1.3;}
+.plan-week-nav{display:flex;align-items:center;gap:8px;}
+/* AUTOCOMPLETE */
+.acw{position:relative;}
+.acd{position:absolute;top:100%;left:0;right:0;background:var(--bg1);border:1px solid var(--bdr2);border-top:none;border-radius:0 0 var(--r) var(--r);z-index:30;max-height:180px;overflow-y:auto;display:none;box-shadow:0 4px 10px rgba(0,0,0,.08);}
+.acd.show{display:block;}
+.aci{padding:7px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid #f4f3ee;}
+.aci:hover{background:var(--bg2);}
+/* PIECES */
+.ptags{min-height:26px;margin-bottom:7px;display:flex;flex-wrap:wrap;gap:4px;}
+.ptag{display:inline-flex;align-items:center;background:var(--bluebg);color:var(--bluetxt);border-radius:99px;padding:3px 9px;font-size:11px;font-weight:600;}
+.ptag-rm{cursor:pointer;margin-left:4px;opacity:.5;font-size:14px;line-height:1;}
+.ptag-rm:hover{opacity:1;}
+/* DEVIS */
+.dv-sec{background:var(--bg2);border-radius:var(--r);padding:12px;margin-bottom:10px;}
+.dv-sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:9px;color:var(--txt2);}
+.dv-line{display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.dv-line input,.dv-line select{border:1px solid var(--bdr2);border-radius:6px;padding:5px 7px;font-size:12px;background:var(--bg1);color:var(--txt);outline:none;font-family:inherit;}
+.dv-line input:focus,.dv-line select:focus{border-color:var(--blue);}
+.dv-desc{flex:1;min-width:0;}
+.dv-qty{width:55px;}
+.dv-pu{width:80px;}
+.dv-tech-sel{width:130px;}
+.dv-hours{width:60px;}
+.dv-rate{width:75px;}
+.dv-tot{width:80px;text-align:right;font-weight:700;font-size:12px;}
+.dv-rm{cursor:pointer;color:var(--red);font-size:17px;line-height:1;background:none;border:none;opacity:.6;}
+.dv-rm:hover{opacity:1;}
+.vgp-box{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--cyanbg);border:1px solid rgba(8,145,178,.2);border-radius:var(--r);margin-bottom:10px;}
+/* VGP RELANCE */
+.vgp-alert{background:var(--amberbg);border-left:3px solid var(--amber);border-radius:var(--r);padding:9px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center;}
+.ov.show{display:flex;}
+.modal{background:var(--bg1);border-radius:14px;width:min(680px,96vw);max-height:92vh;overflow-y:auto;border:1px solid var(--bdr2);}
+.mh{padding:14px 17px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg1);z-index:2;}
+.mh-t{font-size:14px;font-weight:700;}
+.mx{background:none;border:none;font-size:22px;cursor:pointer;color:var(--txt2);line-height:1;}
+.mb{padding:16px;}
+.mf{padding:11px 16px;border-top:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:var(--bg1);}
+.mf-r{display:flex;gap:8px;}
+.mtabs{display:flex;border-bottom:1px solid var(--bdr);margin-bottom:14px;}
+.mtab{padding:8px 14px;font-size:12px;cursor:pointer;color:var(--txt2);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;}
+.mtab.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:700;}
+.tab-pane{display:none;}
+.tab-pane.show{display:block;}
+/* FORM */
+.fg{margin-bottom:12px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.fl{font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.3px;display:block;margin-bottom:4px;}
+.fi{width:100%;border:1px solid var(--bdr2);border-radius:var(--r);padding:7px 9px;font-size:12px;background:var(--bg1);color:var(--txt);outline:none;font-family:inherit;}
+.fi:focus{border-color:var(--blue);}
+textarea.fi{resize:vertical;}
+.id-bdg{display:inline-block;background:var(--bg2);border:1px solid var(--bdr2);border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;color:var(--txt2);margin-left:7px;font-family:monospace;}
+/* PAGER */
+.pager{display:flex;align-items:center;gap:4px;padding:9px 12px;border-top:1px solid var(--bdr);background:var(--bg2);flex-wrap:wrap;}
+.pg{padding:4px 8px;border-radius:5px;border:1px solid var(--bdr2);background:var(--bg1);cursor:pointer;font-size:11px;color:var(--txt2);}
+.pg:hover,.pg.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+.pg-info{font-size:11px;color:var(--txt2);margin-left:auto;}
+.conf{background:var(--redbg);border:1px solid #fca5a5;border-radius:var(--r);padding:11px;margin-top:10px;font-size:12px;color:var(--redtxt);}
+/* SETTINGS */
+.perm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px;}
+.perm-item{display:flex;align-items:center;gap:6px;font-size:12px;}
+/* KPI ANALYTICS */
+.kpi-trend{display:flex;align-items:center;gap:4px;font-size:10px;margin-top:3px;}
+.trend-up-good{color:var(--green);}
+.trend-down-bad{color:var(--red);}
+.trend-neutral{color:var(--txt2);}
+.sparkbar{display:flex;align-items:flex-end;gap:3px;height:36px;}
+.sbar{flex:1;background:var(--blue);border-radius:2px 2px 0 0;opacity:.75;min-width:6px;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div id="login-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:#f0efe9;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+  <div style="background:#fff;border:1px solid #e4e3db;border-radius:16px;padding:40px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.08)">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:32px;margin-bottom:10px">🔧</div>
+      <div style="font-size:18px;font-weight:800;color:#1a1a18">Chastagner Location SAV</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">GMAO Maintenance</div>
+    </div>
+    <div id="login-error" style="display:none;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:16px"></div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Email</label>
+      <input id="login-email" type="email" placeholder="votre@email.com" style="width:100%;padding:10px 14px;border:1px solid #e4e3db;border-radius:8px;font-size:14px;color:#1a1a18;box-sizing:border-box;outline:none">
+    </div>
+    <div style="margin-bottom:22px">
+      <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Mot de passe</label>
+      <input id="login-pass" type="password" placeholder="••••••••" style="width:100%;padding:10px 14px;border:1px solid #e4e3db;border-radius:8px;font-size:14px;color:#1a1a18;box-sizing:border-box;outline:none" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button id="login-btn" onclick="doLogin()" style="width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Se connecter</button>
+    <div id="login-loading" style="display:none;text-align:center;margin-top:12px;font-size:12px;color:#6b7280">Connexion en cours…</div>
+  </div>
+</div>
+
+<div class="app" style="display:flex">
+  <div class="sb">
+    <div class="sb-brand">
+      <div class="sb-name">Chastagner Location SAV</div>
+      <div class="sb-sub">GMAO Maintenance</div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">Principal</div>
+      <div class="ni on" id="ni-dashboard" onclick="goPage('dashboard',this)"><span class="ni-dot"></span>Tableau de bord</div>
+      <div class="ni" id="ni-interventions" onclick="goPage('interventions',this)"><span class="ni-dot"></span>Interventions</div>
+      <div class="ni" id="ni-historique" onclick="goPage('historique',this)"><span class="ni-dot"></span>Historique</div>
+      <div class="ni" id="ni-planning" onclick="goPage('planning',this)"><span class="ni-dot"></span>Planning</div>
+      <div class="ni" id="ni-analytics" onclick="goPage('analytics',this)"><span class="ni-dot"></span>Analytique KPIs</div>
+      <div class="sb-sec">Références</div>
+      <div class="ni" id="ni-materiels" onclick="goPage('materiels',this)"><span class="ni-dot"></span>Matériels</div>
+      <div class="ni" id="ni-clients" onclick="goPage('clients',this)"><span class="ni-dot"></span>Clients</div>
+      <div class="ni" id="ni-techniciens" onclick="goPage('techniciens',this)"><span class="ni-dot"></span>Techniciens</div>
+      <div class="sb-sec">Stock</div>
+      <div class="ni" id="ni-stock" onclick="goPage('stock',this)"><span class="ni-dot"></span>Pièces détachées</div>
+      <div class="sb-sec">Administration</div>
+      <div class="ni" id="ni-settings" onclick="goPage('settings',this)"><span class="ni-dot"></span>Réglages</div>
+    </div>
+    <div class="sb-user">
+      <div class="av" id="sb-av">DB</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;" id="sb-name">Danael BOSMON</div>
+        <div style="font-size:10px;color:var(--txt2);">Administrateur</div>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="ptitle">Tableau de bord</div>
+      <div class="topbar-right">
+        <input class="src" type="text" placeholder="Rechercher..." id="gsrc" oninput="doSearch(this.value)">
+        <button class="bp" id="btn-add" onclick="openAdd()">+ Ajouter</button>
+      </div>
+    </div>
+    <div class="ct" id="ct"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="bgClose(event)">
+  <div class="modal" id="modal">
+    <div class="mh"><span class="mh-t" id="mtitle"></span><button class="mx" onclick="closeModal()">×</button></div>
+    <div class="mb" id="mbody"></div>
+    <div class="mf"><div id="mfl"></div><div class="mf-r"><button class="bs" onclick="closeModal()">Fermer</button><button class="bp" id="msave" onclick="saveModal()">Enregistrer</button></div></div>
+  </div>
+</div>
+
+<script>
+
+/* ================================================================
+   SUPABASE
+================================================================ */
+var SUPA_URL='https://gruruldzmkimknynnzpi.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdydXJ1bGR6bWtpbWtueW5uenBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MDYzOTIsImV4cCI6MjA5NDE4MjM5Mn0.NqvGzO8CM0EETApn6-skwCQaqag7aq-faRSuFlF5cgg';
+var supa=supabase.createClient(SUPA_URL,SUPA_KEY);
+
+function showLoginOverlay(msg){
+  var ov=document.getElementById('login-overlay');
+  if(ov)ov.style.display='flex';
+  var err=document.getElementById('login-error');
+  if(err){err.style.display=msg?'block':'none';err.textContent=msg||'';}
+  var em=document.getElementById('login-email');if(em)em.value='';
+  var ps=document.getElementById('login-pass');if(ps)ps.value='';
+}
+
+function hideLoginOverlay(){
+  var ov=document.getElementById('login-overlay');
+  if(ov)ov.style.display='none';
+}
+
+async function doLogin(){
+  var email=(document.getElementById('login-email')||{}).value||'';
+  var pass=(document.getElementById('login-pass')||{}).value||'';
+  if(!email||!pass){showLoginOverlay('Veuillez remplir tous les champs.');return;}
+  var btn=document.getElementById('login-btn');
+  var ldg=document.getElementById('login-loading');
+  if(btn)btn.disabled=true;
+  if(ldg)ldg.style.display='block';
+  var result=await supa.auth.signInWithPassword({email:email,password:pass});
+  if(result.error){
+    if(btn)btn.disabled=false;
+    if(ldg)ldg.style.display='none';
+    showLoginOverlay('Erreur : '+result.error.message);
+  } else {
+    await loadFromSupabase();
+    hideLoginOverlay();
+    draw(PAGE,'');
+  }
+}
+
+async function doLogout(){
+  await supa.auth.signOut();
+  draw('dashboard','');
+  showLoginOverlay();
+}
+
+async function sbLoad(table){
+  var r=await supa.from(table).select('*').order('id');
+  if(r.error){console.error(table,r.error);return[];}
+  return r.data||[];
+}
+
+async function sbInsert(table,obj){
+  var c=Object.assign({},obj);delete c.id;delete c.created_at;delete c.updated_at;
+  var r=await supa.from(table).insert(c).select().single();
+  if(r.error){console.error('insert',table,r.error);return null;}
+  return r.data;
+}
+
+async function sbUpdate(table,id,obj){
+  var c=Object.assign({},obj);delete c.id;delete c.created_at;delete c.updated_at;
+  var r=await supa.from(table).update(c).eq('id',id).select().single();
+  if(r.error){console.error('update',table,r.error);return null;}
+  return r.data;
+}
+
+async function sbDelete(table,id){
+  var r=await supa.from(table).delete().eq('id',id);
+  if(r.error){console.error('delete',table,r.error);}
+}
+
+async function loadFromSupabase(){
+  var results=await Promise.all([
+    sbLoad('interventions'),sbLoad('historique'),sbLoad('materiels'),
+    sbLoad('clients'),sbLoad('techniciens'),sbLoad('stock')
+  ]);
+  var def=buildDefaults();
+  /* Use Supabase data if available, else use demo defaults */
+  D.interventions  = results[0].length ? results[0] : (D.interventions||def.interventions);
+  D.historique     = results[1].length ? results[1] : (D.historique||def.historique);
+  D.materiels      = results[2].length ? results[2] : (D.materiels||def.materiels);
+  D.clients        = results[3].length ? results[3] : (D.clients||def.clients);
+  D.techniciens    = results[4].length ? results[4] : (D.techniciens||def.techniciens);
+  D.stock          = results[5].length ? results[5] : (D.stock||def.stock);
+  syncMatStatut();
+}
+
+/* ================================================================
+   CONSTANTS & STATE
+================================================================ */
+var SK='chastagner_gmao_v7';
+var PAGE='dashboard',MODE='',EID=null,TMP_PIECES=[],DV_P=[],DV_MO=[];
+var STOCK_PAGE_NUM=1;
+var PS=50,CP=1,LS='';
+var PLAN_WEEK_OFFSET=0;
+var ANALYTICS_PERIOD='month';
+var CURRENT_USER=null;
+var ZONES=['Herbay-sur-Seine (02)','Neuilly-sur-Seine (01)','Orlean (05)','Rouen (06)','Lille (08)','Trappes (03)','Dunkerque (07)','Autre'];
+var FONCTIONS=['Semi-itinérant','Électro-technicien','Responsable'];
+var MARQUES=['MARQUE GELEE','IMER','HUCHEZ','TEA','VERLINDE','AUTRES','CMCO','TRACTEL','PARSON','TELIP','REMA','SVERO','HADEF','COMEGE','FIXATOR','DELTA'];
+var SM=['','En cours',"En attentes d'acceptation",'Devis fait','Finis'];
+var SI=['En cours','En attente','Devis fait','Terminé','Annulé'];
+var DV_STATS=['En attente','Envoyé','Accepté','Refusé'];
+var ALL_PERMS=['view_dashboard','view_interventions','edit_interventions','view_historique','view_materiels','edit_materiels','view_clients','edit_clients','view_techniciens','edit_techniciens','view_stock','edit_stock'];
+
+var MAT_DATA=[{"id": 1, "article": "HE200", "serie": "3996", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "Sael BALERZY", "statut": "En cours", "localisation": "Herbay-sur-Seine (02)"}, {"id": 2, "article": "ET300N/CHEVALET", "serie": "9305020", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "Juma", "statut": "En attentes d'acceptation", "localisation": "Neuilly-sur-Seine (01)"}, {"id": 3, "article": "ET300N/CHEVALET", "serie": "9305022", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "Imerane", "statut": "Devis fait", "localisation": "Orlean (05)"}, {"id": 4, "article": "CHEVALET300/I", "serie": "000550641", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "Danael BOSMON", "statut": "Finis", "localisation": "Rouen (06)"}, {"id": 5, "article": "CHEVALET300/I", "serie": "000550637", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "Gaillor DIAKOTA", "statut": "", "localisation": "Lille (08)"}, {"id": 6, "article": "PULLEYMAN", "serie": "0964", "client": "H. CHEVALIER", "marque": "HUCHEZ", "technicien": "", "statut": "", "localisation": "Trappes (03)"}, {"id": 7, "article": "HE200", "serie": "06537/1577640", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": "Dunkerque (07)"}, {"id": 8, "article": "PM1000", "serie": "CHA28988-10553", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 9, "article": "MMA151", "serie": "831410", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 10, "article": "MMA151", "serie": "831411", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 11, "article": "MMA151", "serie": "831413", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 12, "article": "MMA151", "serie": "841502", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 13, "article": "MMA151", "serie": "841503", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 14, "article": "MMA151", "serie": "841506", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 15, "article": "MMA151", "serie": "841507", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 16, "article": "PM2000", "serie": "B 06129407", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 17, "article": "CHM2000", "serie": "82483", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 18, "article": "MMA151", "serie": "86184", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 19, "article": "MMA151", "serie": "86185", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 20, "article": "MMA151", "serie": "86187", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 21, "article": "MMA151", "serie": "86189", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 22, "article": "PM500", "serie": "07033908", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 23, "article": "PM1000", "serie": "07033992", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 24, "article": "CHM1000", "serie": "85220", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 25, "article": "CHM1000", "serie": "85221", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 26, "article": "CHM1000", "serie": "85222", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 27, "article": "PM500", "serie": "07020101", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 28, "article": "MMA151", "serie": "887761", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 29, "article": "MMA151", "serie": "887762", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 30, "article": "MMA151", "serie": "892185", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 31, "article": "TR225", "serie": "9341175", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 32, "article": "CHM500", "serie": "98022", "client": "", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 33, "article": "MMA151", "serie": "952133", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 34, "article": "MMA151", "serie": "952134", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 35, "article": "MMA151", "serie": "952135", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 36, "article": "MMA151", "serie": "952136", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 37, "article": "MMA151", "serie": "TEL 03090050", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 38, "article": "MMA151", "serie": "TEL 03090049", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 39, "article": "TR225/1,50", "serie": "9369687", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 40, "article": "TR225", "serie": "9369754", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 41, "article": "ET300N/CHEVALET", "serie": "9369377", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 42, "article": "HE200", "serie": "10574 / 1570008", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": ""}, {"id": 43, "article": "HE200", "serie": "10574 / 1570011", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": ""}, {"id": 44, "article": "PE500", "serie": "1106201673", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 45, "article": "PE500", "serie": "1106201674", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 46, "article": "CHM500", "serie": "45898", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 47, "article": "PE500", "serie": "1247313776", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 48, "article": "TR50", "serie": "1318010", "client": "H. CHEVALIER", "marque": "TRACTEL", "technicien": "", "statut": "", "localisation": ""}, {"id": 49, "article": "TR225", "serie": "53817", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 50, "article": "PM3000", "serie": "1641798910", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 51, "article": "HE200", "serie": "N 7 INTERNE", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 52, "article": "HE200", "serie": "N INTERNE CH9", "client": "H. CHEVALIER", "marque": "MARQUE GELEE", "technicien": "", "statut": "", "localisation": ""}, {"id": 53, "article": "PE1000", "serie": "1610102405", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 54, "article": "TR30", "serie": "1613001", "client": "H. CHEVALIER", "marque": "TRACTEL", "technicien": "", "statut": "", "localisation": ""}, {"id": 55, "article": "CHM2000", "serie": "Y139907", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 56, "article": "PE1000", "serie": "05071194 G 1000", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 57, "article": "PE1000", "serie": "00C2 C15144", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 58, "article": "PM1000/6M", "serie": "302026", "client": "H. CHEVALIER", "marque": "TRACTEL", "technicien": "", "statut": "", "localisation": ""}, {"id": 59, "article": "PE500/MONO", "serie": "1909000797", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 60, "article": "HE200", "serie": "18823/1570845", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": ""}, {"id": 61, "article": "CHV2000 V", "serie": "19214013346", "client": "", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 62, "article": "CHM1000", "serie": "153259", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 63, "article": "PE2000", "serie": "19035/38565", "client": "H. CHEVALIER", "marque": "PARSON", "technicien": "", "statut": "", "localisation": ""}, {"id": 64, "article": "ET200N", "serie": "9408297", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 65, "article": "PE1000", "serie": "913302040", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 66, "article": "OSSATURE/HE200", "serie": "PLT016", "client": "H. CHEVALIER", "marque": "TELIP", "technicien": "", "statut": "", "localisation": ""}, {"id": 67, "article": "TR30", "serie": "1913002", "client": "", "marque": "TRACTEL", "technicien": "", "statut": "", "localisation": ""}, {"id": 68, "article": "TR225/1,50", "serie": "9641966", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 69, "article": "ET200N", "serie": "9549796", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 70, "article": "TR225/30", "serie": "9514627", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 71, "article": "PE1000", "serie": "14160", "client": "H. CHEVALIER", "marque": "PARSON", "technicien": "", "statut": "", "localisation": ""}, {"id": 72, "article": "CHM1000", "serie": "158704", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 73, "article": "CHM1000", "serie": "158715", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 74, "article": "CHM1000", "serie": "158716", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 75, "article": "HE200", "serie": "19745/1570620", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": ""}, {"id": 76, "article": "TR225/30", "serie": "9679348", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 77, "article": "HE300/CHEVALET", "serie": "20635/3040788", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": ""}, {"id": 78, "article": "CHEVALET300/T", "serie": "19840/100184", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": ""}, {"id": 79, "article": "HE200", "serie": "20685/1570107", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": ""}, {"id": 80, "article": "HE200", "serie": "20802/1570261", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": ""}, {"id": 81, "article": "HE200", "serie": "20802/1570262", "client": "H. CHEVALIER", "marque": "TEA", "technicien": "", "statut": "", "localisation": ""}, {"id": 82, "article": "PE2000", "serie": "18007", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 83, "article": "PE500/MONO", "serie": "18210", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 84, "article": "ET200N", "serie": "9549795", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 85, "article": "TR225/1,50", "serie": "9399026", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 86, "article": "CHM500", "serie": "167571", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 87, "article": "CHM500", "serie": "167581", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 88, "article": "CHM500", "serie": "167596", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 89, "article": "ET200N", "serie": "9612717", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 90, "article": "PE1000", "serie": "20058", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 91, "article": "ET200N", "serie": "9407991", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 92, "article": "PE500", "serie": "J17735", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 93, "article": "PE2000", "serie": "20016/20196", "client": "H. CHEVALIER", "marque": "PARSON", "technicien": "", "statut": "", "localisation": ""}, {"id": 94, "article": "PE500", "serie": "L11022", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 95, "article": "PE500", "serie": "L11017", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 96, "article": "PE500", "serie": "L11018", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 97, "article": "PE500", "serie": "J17738", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 98, "article": "CHM1000", "serie": "167787", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 99, "article": "CHM1000", "serie": "167788", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 100, "article": "CHM1000", "serie": "167789", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 101, "article": "CHM1000", "serie": "167791", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 102, "article": "CHM1000", "serie": "167792", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 103, "article": "CHM1000", "serie": "167795", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 104, "article": "CHM1000", "serie": "167796", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 105, "article": "CHM500", "serie": "168496", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 106, "article": "CHM1000", "serie": "167822", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 107, "article": "CHM1000", "serie": "167823", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 108, "article": "CHM1000", "serie": "167826", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 109, "article": "PE1000", "serie": "L04685", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 110, "article": "PE1000", "serie": "L04686", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 111, "article": "PE1000", "serie": "L06667", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 112, "article": "PE1000", "serie": "L06668", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 113, "article": "PE1000", "serie": "L06669", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 114, "article": "PE1000", "serie": "L06670", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 115, "article": "PE1000", "serie": "L04683", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 116, "article": "PE1000", "serie": "L04684", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 117, "article": "PE500", "serie": "L11019", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 118, "article": "CHM500", "serie": "170093", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 119, "article": "CHM500", "serie": "170094", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 120, "article": "CHM500", "serie": "170095", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 121, "article": "PE1000", "serie": "J30854", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 122, "article": "TR225/1,50", "serie": "9726707", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 123, "article": "CHM1000", "serie": "171409", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 124, "article": "CHM1000", "serie": "171410", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 125, "article": "CHM1000", "serie": "171412", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 126, "article": "CHM1000", "serie": "171413", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 127, "article": "CHM1000", "serie": "173420", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 128, "article": "CHM1000", "serie": "173421", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 129, "article": "CHM1000", "serie": "173424", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 130, "article": "PM1000", "serie": "19010261", "client": "H. CHEVALIER", "marque": "SVERO", "technicien": "", "statut": "", "localisation": ""}, {"id": 131, "article": "PM1000", "serie": "19021675", "client": "H. CHEVALIER", "marque": "SVERO", "technicien": "", "statut": "", "localisation": ""}, {"id": 132, "article": "PM1000", "serie": "20051414", "client": "H. CHEVALIER", "marque": "SVERO", "technicien": "", "statut": "", "localisation": ""}, {"id": 133, "article": "PM1000", "serie": "20051415", "client": "H. CHEVALIER", "marque": "SVERO", "technicien": "", "statut": "", "localisation": ""}, {"id": 134, "article": "GRIFFE1000", "serie": "04773", "client": "H. CHEVALIER", "marque": "HADEF", "technicien": "", "statut": "", "localisation": ""}, {"id": 135, "article": "TR225/30", "serie": "9773096", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 136, "article": "CHM1000", "serie": "174816", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 137, "article": "CHM1000", "serie": "174838", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 138, "article": "CHM1000", "serie": "176916", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 139, "article": "TR225/5", "serie": "9802059", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 140, "article": "CHM1000", "serie": "176827", "client": "H. CHEVALIER", "marque": "CMCO", "technicien": "", "statut": "", "localisation": ""}, {"id": 141, "article": "POTENCE500/C", "serie": "223128", "client": "H. CHEVALIER", "marque": "COMEGE", "technicien": "", "statut": "", "localisation": ""}, {"id": 142, "article": "TR225/30", "serie": "9802067", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 143, "article": "PE1000", "serie": "10000805260", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 144, "article": "POTENCE500/C", "serie": "231559", "client": "H. CHEVALIER", "marque": "COMEGE", "technicien": "", "statut": "", "localisation": ""}, {"id": 145, "article": "PE2000", "serie": "10000870799", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 146, "article": "PE1000", "serie": "22417034", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 147, "article": "PE1000", "serie": "22417032", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 148, "article": "PE1000", "serie": "K08695", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 149, "article": "TR225/1,50", "serie": "1320", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 150, "article": "PE1000", "serie": "19014", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 151, "article": "CHEVALET300/I", "serie": "9598288", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 152, "article": "PE500/MONO", "serie": "424 885 699", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 153, "article": "PE1000", "serie": "424 303 156", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 154, "article": "TR225/1,50", "serie": "9829379", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 155, "article": "PE1000 VX", "serie": "10001194058", "client": "", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 156, "article": "PE1000 VX", "serie": "10001217309", "client": "", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 157, "article": "PE2000 V", "serie": "10001217317", "client": "", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 158, "article": "LM500", "serie": "1934", "client": "", "marque": "FIXATOR", "technicien": "", "statut": "", "localisation": ""}, {"id": 159, "article": "MMA300", "serie": "001124", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 160, "article": "PE500/MONO", "serie": "22447092", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 161, "article": "TR225/30", "serie": "426969", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 162, "article": "HE200", "serie": "HILTI 419 141 695", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 163, "article": "LM500", "serie": "981", "client": "H. CHEVALIER", "marque": "FIXATOR", "technicien": "", "statut": "", "localisation": ""}, {"id": 164, "article": "TR225/30", "serie": "9886383", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 165, "article": "TR225/30", "serie": "9842868", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 166, "article": "PE3200", "serie": "M34220", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 167, "article": "PE1000", "serie": "20051", "client": "H. CHEVALIER", "marque": "VERLINDE", "technicien": "", "statut": "", "localisation": ""}, {"id": 168, "article": "TR225/1,50", "serie": "9886358", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 169, "article": "PE500/MONO", "serie": "R14989", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 170, "article": "TR225/30", "serie": "9886377", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 171, "article": "PE1000", "serie": "20080", "client": "H. CHEVALIER", "marque": "REMA", "technicien": "", "statut": "", "localisation": ""}, {"id": 172, "article": "HE300/CHEVALET", "serie": "930502005", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 173, "article": "PE500/MONO", "serie": "90124693", "client": "H. CHEVALIER", "marque": "DELTA", "technicien": "", "statut": "", "localisation": ""}, {"id": 174, "article": "PE500/MONO", "serie": "10001709835", "client": "H. CHEVALIER", "marque": "AUTRES", "technicien": "", "statut": "", "localisation": ""}, {"id": 175, "article": "CHM500", "serie": "2624092545", "client": "H. CHEVALIER", "marque": "DELTA", "technicien": "", "statut": "", "localisation": ""}, {"id": 176, "article": "TR225/1,50", "serie": "9817172", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 177, "article": "TR225/1,50", "serie": "9886378", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}, {"id": 178, "article": "TR225/30", "serie": "9814022", "client": "H. CHEVALIER", "marque": "IMER", "technicien": "", "statut": "", "localisation": ""}];
+
+/* ================================================================
+   DATA DEFAULTS
+================================================================ */
+var COUNTERS={inter:2848,mat:1000,cli:100,tech:100,stock:100,user:100};
+function nextId(t){var id=COUNTERS[t]||1;COUNTERS[t]=id+1;saveCounters();return id;}
+function saveCounters(){try{localStorage.setItem(SK+'_cnt',JSON.stringify(COUNTERS));}catch(e){}}
+function loadCounters(){try{var s=localStorage.getItem(SK+'_cnt');if(s)COUNTERS=JSON.parse(s);}catch(e){}}
+
+function buildDefaults(){
+  return{
+    users:[{id:1,username:'danael.bosmon',password:'danab123.',nom:'Danael BOSMON',role:'admin',email:'',perms:ALL_PERMS}],
+    clients:[{id:1,nom:'H. CHEVALIER',contact:'Direction',tel:'',email:'',adresse:'France',notes:''}],
+    techniciens:[
+      {id:1,nom:'Sael BALERZY',fonction:'Semi-itinérant',tel:'',email:'',zone:'Herbay-sur-Seine (02)',statut:'Actif'},
+      {id:2,nom:'Juma',fonction:'Électro-technicien',tel:'',email:'',zone:'Neuilly-sur-Seine (01)',statut:'Actif'},
+      {id:3,nom:'Imerane',fonction:'Électro-technicien',tel:'',email:'',zone:'Orlean (05)',statut:'Actif'},
+      {id:4,nom:'Danael BOSMON',fonction:'Responsable',tel:'',email:'',zone:'Rouen (06)',statut:'Actif'},
+      {id:5,nom:'Gaillor DIAKOTA',fonction:'Semi-itinérant',tel:'',email:'',zone:'Lille (08)',statut:'Actif'}
+    ],
+    materiels:JSON.parse(JSON.stringify(MAT_DATA)),
+    interventions:[],
+    historique:[],
+    materiels:[],
+        stock:[
+      {id:1,ref:'CHR-200',designation:'Crochet sécurité HE200',categorie:'Accrochage',qte:8,qte_min:3,prix:42.50,fournisseur:'VERLINDE',delai_reappro:5,nb_commandes:3,derniere_commande:'2026-04-12'},
+      {id:2,ref:'JH-01',designation:'Joint hydraulique Ø45mm',categorie:'Hydraulique',qte:2,qte_min:5,prix:8.90,fournisseur:'REMA',delai_reappro:7,nb_commandes:2,derniere_commande:'2026-03-20'},
+      {id:3,ref:'FM-300',designation:'Frein moteur ET300',categorie:'Moteur',qte:1,qte_min:2,prix:187.00,fournisseur:'IMER',delai_reappro:14,nb_commandes:1,derniere_commande:'2026-02-08'},
+      {id:4,ref:'G-01',designation:'Graisse NLGI-2 500g',categorie:'Lubrifiant',qte:24,qte_min:6,prix:6.20,fournisseur:'TOTAL',delai_reappro:3,nb_commandes:5,derniere_commande:'2026-04-28'},
+      {id:5,ref:'BL-M12',designation:'Boulon M12x50 Inox (x10)',categorie:'Visserie',qte:45,qte_min:20,prix:3.80,fournisseur:'BRICORAMA',delai_reappro:2,nb_commandes:4,derniere_commande:'2026-04-15'},
+      {id:6,ref:'CAB-10T',designation:'Câble acier 10T Ø18mm',categorie:'Levage',qte:0,qte_min:2,prix:320.00,fournisseur:'VERLINDE',delai_reappro:21,nb_commandes:1,derniere_commande:'2026-01-10'},
+      {id:7,ref:'MOT-PE1000',designation:'Moteur PE1000 230V',categorie:'Moteur',qte:1,qte_min:1,prix:640.00,fournisseur:'VERLINDE',delai_reappro:30,nb_commandes:1,derniere_commande:'2026-03-05'},
+      {id:8,ref:'ROU-6205',designation:'Roulement 6205-2RS',categorie:'Roulement',qte:12,qte_min:4,prix:4.50,fournisseur:'SKF',delai_reappro:5,nb_commandes:3,derniere_commande:'2026-04-20'},
+      {id:9,ref:'LIM-24V',designation:'Limiteur charge 24V',categorie:'Sécurité',qte:3,qte_min:2,prix:95.00,fournisseur:'CMCO',delai_reappro:10,nb_commandes:2,derniere_commande:'2026-03-18'},
+      {id:10,ref:'COUR-TR225',designation:'Courroie TR225',categorie:'Transmission',qte:6,qte_min:3,prix:28.00,fournisseur:'TRACTEL',delai_reappro:7,nb_commandes:2,derniere_commande:'2026-04-02'}
+    ]
+  };
+}
+
+var D={};
+var USERS=[];
+
+/* ================================================================
+   STORAGE
+================================================================ */
+function load(){
+  loadCounters();
+  (function(){var vk='chastagner_v7_ver',cv='7.3';if(localStorage.getItem(vk)!==cv){var cnt=localStorage.getItem(SK+'_cnt');localStorage.clear();if(cnt)localStorage.setItem(SK+'_cnt',cnt);localStorage.setItem(vk,cv);}})();
+  try{var s=localStorage.getItem(SK);if(s)D=JSON.parse(s);else{D=buildDefaults();save();}}
+  catch(e){D=buildDefaults();}
+  if(!D.historique)D.historique=[];
+  if(!D.users)D.users=buildDefaults().users;
+  USERS=D.users;
+  CURRENT_USER=USERS[0];
+  /* Sync all materiel statuts from active interventions on load */
+  if(D.interventions&&D.materiels){
+    /* First reset all materiels to empty */
+    D.materiels.forEach(function(m){m.statut='';});
+    /* Then sync from active interventions */
+    D.interventions.forEach(function(i){syncMatStatut();});
+    /* Then sync from historique (Terminé/Annulé → Finis) */
+    if(D.historique)(D.historique).forEach(function(i){syncMatStatut();});
+  }
+  /* migrate Annulé/Terminé to historique */
+  if(D.interventions){
+    var mv=D.interventions.filter(function(i){return i.statut==='Terminé'||i.statut==='Annulé';});
+    if(mv.length){mv.forEach(function(i){if(!D.historique.find(function(h){return h.id===i.id;}))D.historique.push(i);});D.interventions=D.interventions.filter(function(i){return i.statut!=='Terminé'&&i.statut!=='Annulé';});}
+    save();
+  }
+  draw(PAGE,'');
+}
+function save(){D.users=USERS;try{localStorage.setItem(SK,JSON.stringify(D));}catch(e){}}
+async function saveToSupa(table,obj){
+  if(obj.id&&obj.id>0){
+    var saved=await sbUpdate(table,obj.id,obj);
+    if(saved)obj.id=saved.id;
+  } else {
+    var saved=await sbInsert(table,obj);
+    if(saved)obj.id=saved.id;
+  }
+}
+function syncMatStatut(){
+  var mapActif={'En cours':'En cours','En attente':"En attente d'acceptation",'Devis fait':'Devis fait'};
+  D.materiels.forEach(function(m){m.statut='';});
+  (D.interventions||[]).forEach(function(i){
+    if(!i.serie)return;var ms=mapActif[i.statut];if(!ms)return;
+    var mat=D.materiels.find(function(m){return m.serie===i.serie;});if(mat)mat.statut=ms;
+  });
+}
+
+/* ================================================================
+   UTILS
+================================================================ */
+function maxId(a){return a.reduce(function(m,x){return Math.max(m,x.id);},0);}
+function eur(v){return Number(v||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:2});}
+function gv(id){var e=document.getElementById(id);return e?e.value.trim():'';}
+function gn(id){var e=document.getElementById(id);return e?parseFloat(e.value)||0:0;}
+function gb(id){var e=document.getElementById(id);return e?e.checked:false;}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function opts(arr,cur){return arr.map(function(x){return'<option'+(x===cur?' selected':'')+' value="'+escH(x)+'">'+escH(x)+'</option>';}).join('');}
+function fmtDate(ds){return ds?new Date(ds).toLocaleDateString('fr-FR'):'—';}
+function fmtDateShort(ds){if(!ds)return'—';var d=new Date(ds);return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');}
+function addWorkdays(ds,days){var d=new Date(ds),a=0;while(a<days){d.setDate(d.getDate()+1);var w=d.getDay();if(w!==0&&w!==6)a++;}return d.toISOString().split('T')[0];}
+function wdBetween(d1,d2){if(!d1||!d2)return 0;var a=new Date(d1),b=new Date(d2);if(b<=a)return 0;var c=0,cur=new Date(a);while(cur<b){cur.setDate(cur.getDate()+1);var w=cur.getDay();if(w!==0&&w!==6)c++;}return c;}
+function wdUntil(ds){if(!ds)return null;var now=new Date();now.setHours(0,0,0,0);var end=new Date(ds);end.setHours(0,0,0,0);if(end<=now)return 0;return wdBetween(now.toISOString().split('T')[0],ds);}
+function uniq(arr){var seen={},out=[];arr.forEach(function(x){if(x!=null&&!seen[x]){seen[x]=1;out.push(x);}});return out;}
+function calBetween(d1,d2){if(!d1||!d2)return 0;return Math.round((new Date(d2)-new Date(d1))/(1000*60*60*24));}
+function durText(i){if(!i.date_debut)return '—';var d2s=i.date_cloture||i.date_fin;if(!d2s)return '—';var t1=i.heure_debut||'08:00',t2=i.date_cloture?(i.heure_cloture||'17:00'):(i.heure_fin||'17:00');var d1dt=new Date(i.date_debut+'T'+t1),d2dt=new Date(d2s+'T'+t2);var diff=d2dt-d1dt;if(diff<=0)return '0h';var totalH=Math.floor(diff/(1000*60*60)),j=Math.floor(totalH/24),h=totalH%24;if(j===0)return h+'h';if(h===0)return j+' j.';return j+' j. '+h+'h';}
+function durMinutes(i){if(!i.date_debut)return 0;var d2s=i.date_cloture||i.date_fin;if(!d2s)return 0;var t1=i.heure_debut||'08:00',t2=i.date_cloture?(i.heure_cloture||'17:00'):(i.heure_fin||'17:00');return Math.max(0,Math.round((new Date(d2s+'T'+t2)-new Date(i.date_debut+'T'+t1))/(1000*60)));}
+function avgDurText(m){if(!m)return '—';var d=Math.floor(m/1440),h=Math.floor((m%1440)/60),mn=Math.round(m%60);if(d>0&&h>0)return d+' j. '+h+'h';if(d>0)return d+' j.';if(h>0)return h+'h';return mn+'min';}
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function hasPerm(){return true;}
+
+function getPrio(i){
+  if(!i.date_fin)return{label:'Sans échéance',cls:'b-gray',wd:null,pct:0};
+  var wd=wdUntil(i.date_fin);
+  if(wd===0||wd<0)return{label:'Dépassé',cls:'b-red',wd:0,pct:100};
+  if(wd<=3)return{label:wd+'j ouv.',cls:'b-red',wd:wd,pct:85};
+  if(wd<=7)return{label:wd+'j ouv.',cls:'b-orange',wd:wd,pct:55};
+  if(wd<=10)return{label:wd+'j ouv.',cls:'b-amber',wd:wd,pct:30};
+  return{label:wd+'j ouv.',cls:'b-green',wd:wd,pct:8};
+}
+function prioBdg(i){
+  var p=getPrio(i);
+  if(p.wd===null)return'<span class="bdg '+p.cls+'">'+p.label+'</span>';
+  var cols={'b-red':'#dc2626','b-orange':'#ea580c','b-amber':'#d97706','b-green':'#16a34a'};
+  var col=cols[p.cls]||'#16a34a';
+  return'<div class="pb"><span class="bdg '+p.cls+'">'+p.label+'</span><div class="pb-t"><div class="pb-f" style="width:'+p.pct+'%;background:'+col+'"></div></div></div>';
+}
+function dvTotal(dv){
+  if(!dv)return{ht:0,tva:0,ttc:0};
+  var ht=0;
+  (dv.lignes_pieces||[]).forEach(function(l){ht+=Number(l.qte||0)*Number(l.pu||0);});
+  (dv.mo||[]).forEach(function(l){ht+=Number(l.heures||0)*Number(l.taux||0);});
+  var t=ht*(Number(dv.tva||20)/100);
+  return{ht:Math.round(ht*100)/100,tva:Math.round(t*100)/100,ttc:Math.round((ht+t)*100)/100};
+}
+/* Only count CA if devis Accepté and NOT Annulé/Refusé */
+function dvCA(i){
+  if(i.statut==='Annulé')return 0;
+  if(!i.devis||i.devis.statut==='Refusé')return 0;
+  if(i.devis.statut==='Accepté')return dvTotal(i.devis).ttc;
+  return 0;
+}
+
+/* Can close: all fields filled + devis Accepté or Refusé */
+function canClose(i){
+  if(!i.technicien||!i.article||!i.serie||!i.client||!i.date_debut||!i.date_fin)return false;
+  if(!i.devis||!i.devis.statut)return false;
+  return i.devis.statut==='Accepté'||i.devis.statut==='Refusé';
+}
+function closeBlockReason(i){
+  if(!i.technicien)return 'Technicien non assigné';
+  if(!i.article||!i.serie)return 'Article ou N° série manquant';
+  if(!i.client)return 'Client manquant';
+  if(!i.date_debut||!i.date_fin)return 'Dates manquantes';
+  if(!i.devis||!i.devis.statut)return 'Aucun devis renseigné';
+  if(i.devis.statut==='En attente'||i.devis.statut==='Envoyé')return "Devis en attente d'acceptation ou de refus";
+  return '';
+}
+
+/* BADGES */
+function bdg(c,t){return'<span class="bdg '+c+'">'+escH(String(t||''))+'</span>';}
+function bstat(s){return s==='En cours'?bdg('b-blue',s):s==='Terminé'?bdg('b-green',s):s==='En attente'?bdg('b-amber',s):s==='Devis fait'?bdg('b-purple',s):s==='Annulé'?bdg('b-red',s):bdg('b-gray',s||'—');}
+function bdvs(s){return s==='Accepté'?bdg('b-green',s):s==='Refusé'?bdg('b-red',s):s==='Envoyé'?bdg('b-blue',s):bdg('b-amber',s||'En attente');}
+function bmat(s){return s==='En cours'?bdg('b-blue','En cours'):s==='Finis'?bdg('b-green','Finis'):s==="En attentes d'acceptation"?bdg('b-amber','Att. accept.'):s==='Devis fait'?bdg('b-purple',s):bdg('b-gray',s||'—');}
+
+/* VGP relances - only if within 30 days (1 month) */
+function getVGPRelances(){
+  var res=[];
+  (D.historique||[]).forEach(function(i){
+    if(i.devis&&i.devis.vgp&&i.date_cloture){
+      var rd=new Date(i.date_cloture);rd.setMonth(rd.getMonth()+6);
+      var rs=rd.toISOString().split('T')[0];
+      var dl=wdUntil(rs);
+      var calDl=calBetween(todayStr(),rs);
+      if(calDl<=30){res.push({inter:i,relanceDate:rs,daysLeft:dl,calDays:calDl});}
+    }
+  });
+  return res;
+}
+
+/* ================================================================
+   KPI CALCS
+================================================================ */
+function filterByPeriod(arr,period,dateField){
+  var now=new Date();
+  return arr.filter(function(i){
+    if(!i[dateField])return false;
+    var d=new Date(i[dateField]);
+    if(period==='month')return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    if(period==='quarter'){var q=Math.floor(now.getMonth()/3);return Math.floor(d.getMonth()/3)===q&&d.getFullYear()===now.getFullYear();}
+    if(period==='year')return d.getFullYear()===now.getFullYear();
+    return true;
+  });
+}
+
+function calcStockKPIs(){var sk={rupture:0,alerte:0,tauxRupture:0,valeur:0,top5:[],avgDelai:7,nbCmds:0,interBloquees:0,tauxDispo:100};var st=D.stock||[];var tot=st.length;if(!tot)return sk;sk.rupture=st.filter(function(s){return s.qte===0;}).length;sk.alerte=st.filter(function(s){return s.qte>0&&s.qte<=s.qte_min;}).length;sk.tauxRupture=Math.round((sk.rupture+sk.alerte)/tot*100);sk.valeur=st.reduce(function(a,s){return a+s.qte*s.prix;},0);var pc={};var ai=(D.interventions||[]).concat(D.historique||[]);ai.forEach(function(i){(i.pieces||[]).forEach(function(p){var k=p.toLowerCase().trim();pc[k]=(pc[k]||0)+1;});if(i.devis&&i.devis.lignes_pieces)i.devis.lignes_pieces.forEach(function(l){var k=(l.desc||'').toLowerCase().trim();if(k)pc[k]=(pc[k]||0)+(l.qte||1);});});sk.top5=Object.keys(pc).map(function(k){return{nom:k,count:pc[k]};}).sort(function(a,b){return b.count-a.count;}).slice(0,5);var wd=st.filter(function(s){return s.delai_reappro>0;});sk.avgDelai=wd.length?Math.round(wd.reduce(function(a,s){return a+(s.delai_reappro||7);},0)/wd.length):7;sk.nbCmds=st.reduce(function(a,s){return a+(s.nb_commandes||0);},0);sk.interBloquees=(D.interventions||[]).filter(function(i){return i.statut==='En attente'&&(!i.pieces||!i.pieces.length)&&(!i.devis||!i.devis.lignes_pieces||!i.devis.lignes_pieces.length);}).length;var iwp=ai.filter(function(i){return(i.pieces&&i.pieces.length)||(i.devis&&i.devis.lignes_pieces&&i.devis.lignes_pieces.length);}).length;sk.tauxDispo=ai.length?Math.round(iwp/ai.length*100):100;return sk;}
+function calcKPIs(period){
+  period=period||'all';
+  var hist=D.historique||[];
+  var allInter=D.interventions.concat(hist);
+  /* Filter by period for analytics */
+  var histP=period==='all'?hist:filterByPeriod(hist,period,'date_cloture');
+  /* MTTR */
+  var done=histP.filter(function(i){return i.statut==='Terminé'&&i.date_debut&&i.date_fin;});
+  /* MTTR: from date_debut to date_cloture (actual closure) */
+  var mttr=done.length?Math.round(done.reduce(function(a,i){return a+calBetween(i.date_debut,i.date_cloture||i.date_fin);},0)/done.length*10)/10:0;
+  /* Avg intervention time in calendar days */
+  /* avgTime: from date_debut to date_cloture (actual closure date) */
+  var avgTime=done.length?Math.round(done.reduce(function(a,i){return a+calBetween(i.date_debut,i.date_cloture||i.date_fin);},0)/done.length):0;
+  /* Overdue */
+  var overdue=D.interventions.filter(function(i){var p=getPrio(i);return p.wd!==null&&p.wd<=0;}).length;
+  /* Top machines (series) en panne in historique */
+  var serieCnt={};
+  hist.filter(function(i){return i.statut==='Terminé';}).forEach(function(i){if(i.serie)serieCnt[i.serie]=(serieCnt[i.serie]||0)+1;});
+  var topMachines=Object.entries(serieCnt).sort(function(a,b){return b[1]-a[1];}).slice(0,5).map(function(e){
+    var mat=D.materiels.find(function(m){return m.serie===e[0];})||{};
+    return{serie:e[0],article:mat.article||e[0],count:e[1]};
+  });
+  /* CA - only accepted, not annulé */
+  var totalCA=histP.reduce(function(a,i){return a+dvCA(i);},0);
+  /* Devis acceptance */
+  var avecDv=allInter.filter(function(i){return i.devis&&i.devis.statut;});
+  var acc=avecDv.filter(function(i){return i.devis.statut==='Accepté';});
+  var tauxA=avecDv.length?Math.round(acc.length/avecDv.length*100):0;
+  /* By tech */
+  var byTech={};D.interventions.forEach(function(i){if(i.technicien)byTech[i.technicien]=(byTech[i.technicien]||0)+1;});
+  /* By statut */
+  var byStat={'En cours':0,'En attente':0,'Devis fait':0};
+  D.interventions.forEach(function(i){byStat[i.statut]=(byStat[i.statut]||0)+1;});
+  /* Monthly closures (last 6 months) */
+  var monthly=[];
+  var now=new Date();
+  for(var m=5;m>=0;m--){
+    var dt=new Date(now.getFullYear(),now.getMonth()-m,1);
+    var ks=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');
+    var cnt=hist.filter(function(i){return i.statut==='Terminé'&&i.date_cloture&&i.date_cloture.startsWith(ks);}).length;
+    var ca=hist.filter(function(i){return i.date_cloture&&i.date_cloture.startsWith(ks);}).reduce(function(a,i){return a+dvCA(i);},0);
+    monthly.push({label:String(dt.getMonth()+1)+'/'+String(dt.getFullYear()).slice(2),cnt:cnt,ca:Math.round(ca)});
+  }
+  return{mttr:mttr,avgTime:avgTime,overdue:overdue,topMachines:topMachines,totalCA:Math.round(totalCA),tauxA:tauxA,byTech:byTech,byStat:byStat,monthly:monthly,totalHist:hist.length,totalInter:D.interventions.length,histP:histP,done:done};
+}
+
+/* ================================================================
+   CHARTS helpers
+================================================================ */
+function donutSVG(slices,cx,cy,R,ring,centerTxt,centerSub){
+  /* slices: [{pct, color}] */
+  var total=slices.reduce(function(a,s){return a+s.pct;},0);
+  if(!total)return'<svg width="130" height="130" viewBox="0 0 130 130"><circle cx="65" cy="65" r="'+(R-ring/2)+'" fill="none" stroke="#eee" stroke-width="'+ring+'"/><text x="65" y="60" text-anchor="middle" style="font-size:16px;font-weight:800;fill:var(--txt)">'+escH(centerTxt)+'</text><text x="65" y="76" text-anchor="middle" style="font-size:10px;fill:var(--txt2)">'+escH(centerSub)+'</text></svg>';
+  var paths='',cum=0;
+  slices.forEach(function(s){
+    var pct=s.pct/total;
+    var start=cum*2*Math.PI-Math.PI/2,end=(cum+pct)*2*Math.PI-Math.PI/2;
+    var r=R-ring/2;
+    var x1=cx+r*Math.cos(start),y1=cy+r*Math.sin(start);
+    var x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end);
+    var large=pct>0.5?1:0;
+    if(pct>0.999)paths+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+s.color+'" stroke-width="'+ring+'"/>';
+    else if(pct>0)paths+='<path d="M '+x1+' '+y1+' A '+r+' '+r+' 0 '+large+' 1 '+x2+' '+y2+'" fill="none" stroke="'+s.color+'" stroke-width="'+ring+'"/>';
+    cum+=pct;
+  });
+  return'<svg width="130" height="130" viewBox="0 0 130 130">'+paths+'<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" style="font-size:17px;font-weight:800;fill:var(--txt)">'+escH(centerTxt)+'</text><text x="'+cx+'" y="'+(cy+10)+'" text-anchor="middle" style="font-size:10px;fill:var(--txt2)">'+escH(centerSub)+'</text></svg>';
+}
+function barChartH(items,maxVal,colors){
+  /* items: [{label,value,color?}] */
+  return items.map(function(it,i){
+    var pct=maxVal?Math.round(it.value/maxVal*100):0;
+    var col=it.color||colors[i%colors.length]||'#2563eb';
+    return'<div class="bc-row"><div class="bc-lbl" title="'+escH(it.label)+'">'+escH(it.label)+'</div>'+
+      '<div class="bc-track"><div class="bc-fill" style="width:'+pct+'%;background:'+col+'"><span class="bc-val">'+it.value+'</span></div></div></div>';
+  }).join('');
+}
+function sparkBars(vals){
+  var mx=Math.max.apply(null,[1].concat(vals));
+  return'<div class="sparkbar">'+vals.map(function(v){var h=Math.max(4,Math.round(v/mx*34));return'<div class="sbar" style="height:'+h+'px"></div>';}).join('')+'</div>';
+}
+
+/* ================================================================
+   NAV & DRAW
+================================================================ */
+function goPage(p,el){
+  PAGE=p;CP=1;LS='';
+  document.querySelectorAll('.ni').forEach(function(i){i.classList.remove('on');});
+  var ni=document.getElementById('ni-'+p);if(ni)ni.classList.add('on');
+  var titles={dashboard:'Tableau de bord',interventions:'Interventions',historique:'Historique',planning:'Planning',analytics:'Analytique KPIs',materiels:'Matériels',clients:'Clients',techniciens:'Techniciens',stock:'Pièces détachées',settings:'Réglages'};
+  document.getElementById('ptitle').textContent=titles[p]||p;
+  document.getElementById('gsrc').value='';
+  var noAdd=['dashboard','historique','planning','analytics','settings'];
+  document.getElementById('btn-add').style.display=noAdd.indexOf(p)>=0?'none':'';
+  draw(p,'');
+}
+function doSearch(v){CP=1;LS=v.toLowerCase();draw(PAGE,LS);}
+function draw(p,f){
+  var c=document.getElementById('ct');
+  if(p==='dashboard')c.innerHTML=rDash();
+  else if(p==='interventions')c.innerHTML=rInter(f);
+  else if(p==='historique')c.innerHTML=rHist(f);
+  else if(p==='planning')c.innerHTML=rPlanning();
+  else if(p==='analytics')c.innerHTML=rAnalytics();
+  else if(p==='materiels')c.innerHTML=rMat(f);
+  else if(p==='clients')c.innerHTML=rCli(f);
+  else if(p==='techniciens')c.innerHTML=rTech(f);
+  else if(p==='stock')c.innerHTML=rStock(f);
+  else if(p==='settings')c.innerHTML=rSettings();
+}
+function pag(arr){var t=arr.length,pg=Math.ceil(t/PS)||1;if(CP>pg)CP=pg;return{slice:arr.slice((CP-1)*PS,CP*PS),total:t,pages:pg};}
+function pagerH(t,pg){
+  if(pg<=1)return'';
+  var b='';for(var i=1;i<=pg;i++)b+='<button class="pg'+(i===CP?' on':'')+'" onclick="CP='+i+';draw(PAGE,LS)">'+i+'</button>';
+  var s=(CP-1)*PS+1,e=Math.min(CP*PS,t);
+  return'<div class="pager"><button class="pg" onclick="if(CP>1){CP--;draw(PAGE,LS);}">‹</button>'+b+'<button class="pg" onclick="if(CP<'+pg+'){CP++;draw(PAGE,LS);}">›</button><span class="pg-info">'+s+'–'+e+' / '+t+'</span></div>';
+}
+
+/* ================================================================
+   DASHBOARD
+================================================================ */
+function rDash(){
+  var k=calcKPIs();
+  var vgpR=getVGPRelances();
+  var al=D.stock.filter(function(s){return s.qte<=s.qte_min;}).length;
+  /* Statut chips for parc */
+  var sColor={'En cours':'#2563eb',"En attentes d'acceptation":'#d97706','Devis fait':'#7c3aed','Finis':'#16a34a','':"#aaa"};
+  var sLabel={'En cours':'En cours',"En attentes d'acceptation":"Att. accept.",'Devis fait':'Devis fait','Finis':'Terminé','':"Sans statut"};
+  var chips=['En cours',"En attentes d'acceptation",'Devis fait','Finis',''].map(function(s){
+    var n=D.materiels.filter(function(m){return m.statut===s;}).length;if(!n)return'';
+    var col=sColor[s];
+    return'<div class="chip" style="background:'+col+'18;color:'+col+';border-color:'+col+'44"><span style="width:7px;height:7px;border-radius:50%;background:'+col+';display:inline-block"></span>'+escH(sLabel[s])+' : <strong>'+n+'</strong></div>';
+  }).join('');
+  /* Donut interventions */
+  var statSlices=[
+    {pct:k.byStat['En cours']||0,color:'#2563eb'},
+    {pct:k.byStat['En attente']||0,color:'#d97706'},
+    {pct:k.byStat['Devis fait']||0,color:'#7c3aed'},
+  ];
+  var donut1=donutSVG(statSlices,65,65,52,18,String(k.totalInter),'actives');
+  var donut1Legend='<div class="dl-item"><div class="dl-dot" style="background:#2563eb"></div>En cours ('+(k.byStat['En cours']||0)+')</div>'+
+    '<div class="dl-item"><div class="dl-dot" style="background:#d97706"></div>En attente ('+(k.byStat['En attente']||0)+')</div>'+
+    '<div class="dl-item"><div class="dl-dot" style="background:#7c3aed"></div>Devis fait ('+(k.byStat['Devis fait']||0)+')</div>';
+  /* Donut devis */
+  var donut2=donutSVG([{pct:k.tauxA,color:'#16a34a'},{pct:100-k.tauxA,color:'#e4e3db'}],65,65,52,18,k.tauxA+'%','acceptés');
+  /* Tech bars */
+  var techItems=Object.entries(k.byTech).sort(function(a,b){return b[1]-a[1];}).slice(0,5).map(function(e){return{label:e[0].split(' ')[0],value:e[1]};});
+  var maxT=Math.max.apply(null,[1].concat(techItems.map(function(x){return x.value;})));
+  var techBars=barChartH(techItems,maxT,['#2563eb']);
+  /* Spark monthly */
+  var spark=sparkBars(k.monthly.map(function(m){return m.cnt;}));
+  var monthLabels='<div style="display:flex;gap:3px;margin-top:3px">'+k.monthly.map(function(m){return'<div style="flex:1;font-size:9px;color:var(--txt3);text-align:center">'+m.label+'</div>';}).join('')+'</div>';
+  /* Recent inter rows */
+  var rows5=D.interventions.slice(0,6).map(function(i){
+    var tot=dvTotal(i.devis);
+    return'<tr><td style="font-size:10px;color:var(--txt2);font-family:monospace">INT-'+String(i.id).padStart(4,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(i.article)+'</td>'+
+      '<td style="color:var(--txt2);font-size:10px">'+escH(i.serie)+'</td>'+
+      '<td>'+bstat(i.statut)+'</td><td>'+prioBdg(i)+'</td>'+
+      '<td>'+(i.devis?bdvs(i.devis.statut):'—')+'</td>'+
+      '<td>'+(i.technicien?escH(i.technicien):'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td style="font-size:11px">'+(dvCA(i)?eur(dvCA(i)):'—')+'</td></tr>';
+  }).join('');
+  /* VGP */
+  var vgpHtml=vgpR.slice(0,4).map(function(v){
+    var cls=v.calDays<=0?'b-red':v.calDays<=10?'b-orange':'b-amber';
+    var lbl=v.calDays<=0?'VGP dépassée':'Dans '+v.calDays+' j.';
+    return'<div class="vgp-alert"><div><div style="font-size:11px;font-weight:700">'+escH(v.inter.article)+' ('+escH(v.inter.serie)+')</div><div style="font-size:10px;color:var(--txt2)">'+escH(v.inter.client)+' — VGP prévue le '+fmtDate(v.relanceDate)+'</div></div><span class="bdg '+cls+'">'+lbl+'</span></div>';
+  }).join('')||'<div style="padding:10px 12px;font-size:11px;color:var(--txt2)">Aucune relance VGP dans les 30 jours</div>';
+
+  return'<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr))">'+
+    '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Interventions actives</div><div class="kp-v">'+k.totalInter+'</div><div class="kp-s">'+k.totalHist+' archivées</div></div>'+
+    '<div class="kp" style="border-left-color:var(--red);cursor:pointer" onclick="showOverdue()" title="Cliquer pour voir les interventions en retard"><div class="kp-l">En retard ↗</div><div class="kp-v">'+k.overdue+'</div><div class="kp-s">cliquer pour voir</div></div>'+
+    '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Temps moy. interv.</div><div class="kp-v">'+(k.avgTime||'—')+(k.avgTime?' j.':'')+'</div><div class="kp-s">jours calendaires</div></div>'+
+    '<div class="kp" style="border-left-color:var(--green)"><div class="kp-l">CA archivé</div><div class="kp-v">'+eur(k.totalCA)+'</div><div class="kp-s">devis acceptés uniquement</div></div>'+
+  '</div>'+
+  '<div class="chart-grid-2">'+
+    '<div class="chart-box"><div class="chart-title">Statut des interventions actives</div><div class="donut-wrap">'+donut1+'<div class="donut-legend">'+donut1Legend+'</div></div></div>'+
+    '<div class="chart-box"><div class="chart-title">Taux acceptation devis</div><div class="donut-wrap">'+donut2+'<div class="donut-legend"><div class="dl-item"><div class="dl-dot" style="background:#16a34a"></div>Acceptés ('+k.tauxA+'%)</div><div class="dl-item"><div class="dl-dot" style="background:#e4e3db"></div>Autres ('+(100-k.tauxA)+'%)</div></div></div></div>'+
+  '</div>'+
+  '<div class="chart-grid-2">'+
+    '<div class="chart-box"><div class="chart-title">Charge techniciens (actif)</div>'+techBars+'</div>'+
+    '<div class="chart-box"><div class="chart-title">Clôtures / 6 derniers mois</div>'+spark+monthLabels+'</div>'+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:12px">'+
+    '<div class="card"><div class="ch"><span class="ct2">Interventions récentes</span></div>'+
+    '<div class="tw"><table class="tbl"><thead><tr><th>ID</th><th>Article</th><th>Série</th><th>Statut</th><th>Délai</th><th>Devis</th><th>Technicien</th><th>Montant</th></tr></thead><tbody>'+rows5+'</tbody></table></div></div>'+
+    '<div>'+
+    '<div class="card" style="margin-bottom:12px"><div class="ch"><span class="ct2">Relances VGP (&lt; 30 jours)</span></div><div style="padding:6px 0">'+vgpHtml+'</div></div>'+
+    '<div class="card"><div class="ch"><span class="ct2">Parc SAV — '+D.materiels.length+' matériels</span><span class="cc">Statut des fiches matériels</span></div><div class="chips">'+chips+'</div></div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ================================================================
+   INTERVENTIONS
+================================================================ */
+function rInter(f){
+  var filtered=D.interventions.filter(function(i){
+    return!f||i.article.toLowerCase().indexOf(f)>=0||i.serie.toLowerCase().indexOf(f)>=0||
+      (i.technicien||'').toLowerCase().indexOf(f)>=0||String(i.id).indexOf(f)>=0||(i.client||'').toLowerCase().indexOf(f)>=0;
+  });
+  filtered.sort(function(a,b){var pa=getPrio(a),pb=getPrio(b);if(pa.wd===null)return 1;if(pb.wd===null)return -1;return pa.wd-pb.wd;});
+  var pg=pag(filtered);
+  /* Filter selects */
+  var clients=uniq(D.interventions.map(function(i){return i.client;}).filter(Boolean));
+  var techs=uniq(D.interventions.map(function(i){return i.technicien;}).filter(Boolean));
+  var filterBar='<div class="filter-bar">'+
+    '<span class="filter-label">Filtres :</span>'+
+    '<select id="fi-stat" onchange="applyInterFilters()"><option value="">Tous statuts</option>'+SI.map(function(s){return'<option>'+s+'</option>';}).join('')+'</select>'+
+    '<select id="fi-cli" onchange="applyInterFilters()"><option value="">Tous clients</option>'+clients.map(function(c){return'<option>'+escH(c)+'</option>';}).join('')+'</select>'+
+    '<select id="fi-tech" onchange="applyInterFilters()"><option value="">Tous techniciens</option>'+techs.map(function(t){return'<option>'+escH(t)+'</option>';}).join('')+'</select>'+
+    '<select id="fi-dv" onchange="applyInterFilters()"><option value="">Tous devis</option>'+DV_STATS.map(function(s){return'<option>'+s+'</option>';}).join('')+'</select>'+
+    '<button class="bs" onclick="resetInterFilters()" style="font-size:10px">Réinitialiser</button>'+
+  '</div>';
+  var rows=pg.slice.map(function(i){
+    var tot=dvCA(i);
+    var vgpTag=i.devis&&i.devis.vgp?bdg('b-cyan','VGP'):'';
+    var closeOk=canClose(i);
+    var closeTitle=!i.technicien?'Technicien non assigné':(!i.devis||i.devis.statut!=='Accepté')?'Devis non accepté':'Clore et archiver';
+    return'<tr>'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">INT-'+String(i.id).padStart(4,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(i.article)+'</td>'+
+      '<td style="color:var(--txt2);font-size:10px">'+escH(i.serie)+'</td>'+
+      '<td>'+escH(i.client)+'</td>'+
+      '<td>'+bstat(i.statut)+'</td>'+
+      '<td>'+prioBdg(i)+'</td>'+
+      '<td>'+(i.devis?bdvs(i.devis.statut)+' '+vgpTag:'—')+'</td>'+
+      '<td>'+(i.technicien?escH(i.technicien):'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td style="font-size:11px">'+(tot?eur(tot):'—')+'</td>'+
+      '<td style="white-space:nowrap">'+
+        '<button class="bs" style="font-size:10px;padding:3px 7px;margin-right:3px" onclick="editInter('+i.id+')">Modifier</button>'+
+        '<button class="bg-btn" style="font-size:10px;padding:3px 7px;margin-right:3px" onclick="cloreInter('+i.id+')" '+(closeOk?'':'disabled title="'+closeTitle+'"')+'>✓ Clore</button>'+
+        '<button style="font-size:10px;padding:3px 7px;background:var(--redbg);color:var(--redtxt);border:1px solid #fca5a5;border-radius:var(--r);cursor:pointer" onclick="delInter('+i.id+')" title="Supprimer">✕</button>'+
+      '</td></tr>';
+  }).join('');
+  return filterBar+'<div class="card"><div class="ch"><span class="ct2">Interventions actives</span><span class="cc">'+pg.total+'</span></div>'+
+    '<div class="tw"><table class="tbl"><thead><tr><th>ID</th><th>Article</th><th>N° Série</th><th>Client</th><th>Statut</th><th>Dans les temps</th><th>Devis</th><th>Technicien</th><th>Montant</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    pagerH(pg.total,pg.pages)+'</div>';
+}
+function applyInterFilters(){
+  var s=gv('fi-stat'),c=gv('fi-cli'),t=gv('fi-tech'),d=gv('fi-dv');
+  var filtered=D.interventions.filter(function(i){
+    if(s&&i.statut!==s)return false;
+    if(c&&i.client!==c)return false;
+    if(t&&i.technicien!==t)return false;
+    if(d&&(!i.devis||i.devis.statut!==d))return false;
+    return true;
+  });
+  filtered.sort(function(a,b){var pa=getPrio(a),pb=getPrio(b);if(pa.wd===null)return 1;if(pb.wd===null)return -1;return pa.wd-pb.wd;});
+  var pg=pag(filtered);
+  var rows=pg.slice.map(function(i){
+    var tot=dvCA(i);var vgpTag=i.devis&&i.devis.vgp?bdg('b-cyan','VGP'):'';
+    var closeOk=canClose(i);
+    return'<tr>'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">INT-'+String(i.id).padStart(4,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(i.article)+'</td><td style="color:var(--txt2);font-size:10px">'+escH(i.serie)+'</td>'+
+      '<td>'+escH(i.client)+'</td><td>'+bstat(i.statut)+'</td><td>'+prioBdg(i)+'</td>'+
+      '<td>'+(i.devis?bdvs(i.devis.statut)+' '+vgpTag:'—')+'</td>'+
+      '<td>'+(i.technicien?escH(i.technicien):'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td style="font-size:11px">'+(tot?eur(tot):'—')+'</td>'+
+      '<td style="white-space:nowrap"><button class="bs" style="font-size:10px;padding:3px 7px;margin-right:3px" onclick="editInter('+i.id+')">Modifier</button>'+
+      '<button class="bg-btn" style="font-size:10px;padding:3px 7px" onclick="cloreInter('+i.id+')" '+(closeOk?'':'disabled')+'>✓ Clore</button></td></tr>';
+  }).join('');
+  var tbody=document.querySelector('.tbl tbody');if(tbody)tbody.innerHTML=rows;
+  var pg_div=document.querySelector('.pager');if(pg_div)pg_div.outerHTML=pagerH(pg.total,pg.pages);
+}
+function resetInterFilters(){['fi-stat','fi-cli','fi-tech','fi-dv'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});applyInterFilters();}
+
+/* Clore: move to historique, only if canClose */
+function cloreInter(id){
+  var idx=D.interventions.findIndex(function(x){return x.id===id;});if(idx<0)return;
+  var i=D.interventions[idx];
+  var reason=closeBlockReason(i);
+  if(reason){alert('Impossible de clore : '+reason);return;}
+  i.statut='Terminé';i.date_cloture=todayStr();
+  syncMatStatut();
+  D.historique.unshift(i);D.interventions.splice(idx,1);
+  (async function(){
+    await sbInsert('historique',i);
+    await sbDelete('interventions',i.id);
+    save();draw(PAGE,LS);
+  })();
+}
+
+/* ================================================================
+   HISTORIQUE
+================================================================ */
+function rHist(f){
+  var filtered=(D.historique||[]).filter(function(i){
+    return!f||i.article.toLowerCase().indexOf(f)>=0||i.serie.toLowerCase().indexOf(f)>=0||
+      (i.technicien||'').toLowerCase().indexOf(f)>=0||String(i.id).indexOf(f)>=0||(i.client||'').toLowerCase().indexOf(f)>=0;
+  });
+  /* Filters */
+  var clients=uniq((D.historique||[]).map(function(i){return i.client;}).filter(Boolean));
+  var techs=uniq((D.historique||[]).map(function(i){return i.technicien;}).filter(Boolean));
+  var filterBar='<div class="filter-bar">'+
+    '<span class="filter-label">Filtres :</span>'+
+    '<select id="fh-stat" onchange="applyHistFilters()"><option value="">Tous statuts</option><option>Terminé</option><option>Annulé</option></select>'+
+    '<select id="fh-cli" onchange="applyHistFilters()"><option value="">Tous clients</option>'+clients.map(function(c){return'<option>'+escH(c)+'</option>';}).join('')+'</select>'+
+    '<select id="fh-tech" onchange="applyHistFilters()"><option value="">Tous techniciens</option>'+techs.map(function(t){return'<option>'+escH(t)+'</option>';}).join('')+'</select>'+
+    '<select id="fh-dv" onchange="applyHistFilters()"><option value="">Tous devis</option>'+DV_STATS.map(function(s){return'<option>'+s+'</option>';}).join('')+'</select>'+
+    '<button class="bs" onclick="resetHistFilters()" style="font-size:10px">Réinitialiser</button>'+
+  '</div>';
+  var pg=pag(filtered);
+  /* CA only accepted */
+  var totalCA=filtered.reduce(function(a,i){return a+dvCA(i);},0);
+  var nbTermine=filtered.filter(function(i){return i.statut==='Terminé';}).length;
+  var nbAnnule=filtered.filter(function(i){return i.statut==='Annulé';}).length;
+  var rows=pg.slice.map(function(i){
+    var ca=dvCA(i);
+    var dur=i.date_debut&&i.date_cloture?calBetween(i.date_debut,i.date_cloture)+' j. cal.':'';
+    var vgpTag=i.devis&&i.devis.vgp?bdg('b-cyan','VGP'):'';
+    return'<tr style="'+(i.statut==='Annulé'?'opacity:.7':'')+'">'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">INT-'+String(i.id).padStart(4,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(i.article)+'</td>'+
+      '<td style="color:var(--txt2);font-size:10px">'+escH(i.serie)+'</td>'+
+      '<td>'+escH(i.client)+'</td>'+
+      '<td>'+(i.technicien?escH(i.technicien):'—')+'</td>'+
+      '<td>'+fmtDate(i.date_cloture)+'</td>'+
+      '<td style="color:var(--txt2)">'+dur+'</td>'+
+      '<td>'+bstat(i.statut)+'</td>'+
+      '<td>'+(i.devis?bdvs(i.devis.statut)+' '+vgpTag:'—')+'</td>'+
+      '<td style="font-weight:700;color:'+(ca?'var(--greentxt)':'var(--txt3)')+'">'+(ca?eur(ca):'—')+'</td>'+
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="viewHist('+i.id+')">Voir</button></td></tr>';
+  }).join('');
+  return'<div class="kg" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+
+    '<div class="kp" style="border-left-color:var(--green)"><div class="kp-l">Terminées</div><div class="kp-v">'+nbTermine+'</div><div class="kp-s">'+nbAnnule+' annulée(s)</div></div>'+
+    '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Total archivées</div><div class="kp-v">'+(D.historique||[]).length+'</div></div>'+
+    '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">CA (devis acceptés)</div><div class="kp-v">'+eur(totalCA)+'</div><div class="kp-s">annulés exclus</div></div></div>'+
+    filterBar+
+    '<div class="card"><div class="ch"><span class="ct2">Historique des interventions</span><span class="cc">'+pg.total+'</span></div>'+
+    '<div class="tw"><table class="tbl"><thead><tr><th>ID</th><th>Article</th><th>N° Série</th><th>Client</th><th>Technicien</th><th>Clôture</th><th>Durée</th><th>Statut</th><th>Devis</th><th>CA TTC</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    pagerH(pg.total,pg.pages)+'</div>';
+}
+function applyHistFilters(){
+  var s=gv('fh-stat'),c=gv('fh-cli'),t=gv('fh-tech'),d=gv('fh-dv');
+  var filtered=(D.historique||[]).filter(function(i){
+    if(s&&i.statut!==s)return false;
+    if(c&&i.client!==c)return false;
+    if(t&&i.technicien!==t)return false;
+    if(d&&(!i.devis||i.devis.statut!==d))return false;
+    return true;
+  });
+  var pg=pag(filtered);
+  var rows=filtered.slice((CP-1)*PS,CP*PS).map(function(i){
+    var ca=dvCA(i);var dur=i.date_debut&&i.date_cloture?calBetween(i.date_debut,i.date_cloture)+' j. cal.':'';
+    var vgpTag=i.devis&&i.devis.vgp?bdg('b-cyan','VGP'):'';
+    return'<tr style="'+(i.statut==='Annulé'?'opacity:.7':'')+'">'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">INT-'+String(i.id).padStart(4,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(i.article)+'</td><td style="color:var(--txt2);font-size:10px">'+escH(i.serie)+'</td>'+
+      '<td>'+escH(i.client)+'</td><td>'+(i.technicien?escH(i.technicien):'—')+'</td>'+
+      '<td>'+fmtDate(i.date_cloture)+'</td><td style="color:var(--txt2)">'+dur+'</td>'+
+      '<td>'+bstat(i.statut)+'</td>'+
+      '<td>'+(i.devis?bdvs(i.devis.statut)+' '+vgpTag:'—')+'</td>'+
+      '<td style="font-weight:700;color:'+(ca?'var(--greentxt)':'var(--txt3)')+'">'+(ca?eur(ca):'—')+'</td>'+
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="viewHist('+i.id+')">Voir</button></td></tr>';
+  }).join('');
+  var tbody=document.querySelector('#ct .tbl tbody');if(tbody)tbody.innerHTML=rows;
+}
+function resetHistFilters(){['fh-stat','fh-cli','fh-tech','fh-dv'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});draw('historique',LS);}
+
+function viewHist(id){
+  var i=(D.historique||[]).find(function(x){return x.id===id;});if(!i)return;
+  var tot=dvTotal(i.devis);var ca=dvCA(i);
+  var lp=(i.devis&&i.devis.lignes_pieces||[]).map(function(l){return'<tr><td>'+escH(l.desc)+'</td><td>'+l.qte+'</td><td>'+eur(l.pu)+'</td><td style="font-weight:700">'+eur(l.qte*l.pu)+'</td></tr>';}).join('');
+  var lm=(i.devis&&i.devis.mo||[]).map(function(l){return'<tr><td>'+escH(l.desc)+'</td><td>'+escH(l.technicien||'')+'</td><td>'+l.heures+'h</td><td>'+eur(l.taux)+'/h</td><td style="font-weight:700">'+eur(l.heures*l.taux)+'</td></tr>';}).join('');
+  var caNote=i.statut==='Annulé'?'<span style="color:var(--redtxt);font-size:11px">⚠ Annulée — non comptabilisée dans le CA</span>':(!i.devis||i.devis.statut==='Refusé'?'<span style="color:var(--redtxt);font-size:11px">⚠ Devis refusé — non comptabilisée dans le CA</span>':'');
+  var body='<div class="fg2" style="margin-bottom:12px">'+
+    '<div><div class="fl">Article</div><div style="font-weight:700">'+escH(i.article)+'</div></div>'+
+    '<div><div class="fl">N° Série</div><div>'+escH(i.serie)+'</div></div>'+
+    '<div><div class="fl">Client</div><div>'+escH(i.client)+'</div></div>'+
+    '<div><div class="fl">Technicien</div><div>'+escH(i.technicien||'—')+'</div></div>'+
+    '<div><div class="fl">Durée</div><div>'+(i.date_debut&&i.date_cloture?calBetween(i.date_debut,i.date_cloture)+' j. calendaires':'—')+'</div></div>'+
+    '<div><div class="fl">Clôture</div><div>'+fmtDate(i.date_cloture)+'</div></div>'+
+  '</div>'+caNote+
+  '<div class="fg" style="margin-bottom:12px"><div class="fl">Description</div><div style="font-size:12px;color:var(--txt2)">'+escH(i.description||'—')+'</div></div>';
+  if(i.devis){
+    body+='<div style="background:var(--bg2);border-radius:var(--r);padding:12px">'+
+      '<div class="dv-sec-title">Devis '+bdvs(i.devis.statut)+(i.devis.vgp?' '+bdg('b-cyan','VGP'):'')+'</div>'+
+      (lp?'<div style="font-size:11px;font-weight:700;margin-bottom:5px">Pièces</div><table style="width:100%;font-size:11px;margin-bottom:9px"><thead><tr><th style="text-align:left">Description</th><th>Qté</th><th>P.U.</th><th>Total</th></tr></thead><tbody>'+lp+'</tbody></table>':'')+
+      (lm?'<div style="font-size:11px;font-weight:700;margin-bottom:5px">M.O.</div><table style="width:100%;font-size:11px;margin-bottom:9px"><thead><tr><th style="text-align:left">Description</th><th>Technicien</th><th>Heures</th><th>Taux</th><th>Total</th></tr></thead><tbody>'+lm+'</tbody></table>':'')+
+      '<div style="border-top:1px solid var(--bdr);padding-top:9px;text-align:right">'+
+        '<div style="font-size:12px;color:var(--txt2)">HT : '+eur(tot.ht)+' — TVA '+i.devis.tva+'% : '+eur(tot.tva)+'</div>'+
+        '<div style="font-size:18px;font-weight:800;color:'+(ca?'var(--blue)':'var(--txt3)')+'">TTC : '+eur(tot.ttc)+(ca?'':' <span style="font-size:11px">(non comptabilisé)</span>')+'</div>'+
+      '</div>'+
+    '</div>';
+  }
+  MODE='view';EID=id;
+  document.getElementById('mtitle').textContent='Intervention archivée INT-'+String(id).padStart(4,'0');
+  document.getElementById('mbody').innerHTML=body;
+  document.getElementById('mfl').innerHTML='';
+  document.getElementById('msave').style.display='none';
+  document.getElementById('ov').classList.add('show');
+}
+
+/* ================================================================
+   PLANNING VISUEL
+================================================================ */
+function rPlanning(){
+  var today=new Date();today.setHours(0,0,0,0);
+  /* Get week start (Monday) + offset */
+  var weekStart=new Date(today);
+  var dow=weekStart.getDay();var diff=dow===0?-6:1-dow;
+  weekStart.setDate(weekStart.getDate()+diff+PLAN_WEEK_OFFSET*7);
+  var days=[];for(var d=0;d<7;d++){var dd=new Date(weekStart);dd.setDate(dd.getDate()+d);days.push(dd);}
+  var dayNames=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  var eventColors={'En cours':'#2563eb','En attente':'#d97706','Devis fait':'#7c3aed','Terminé':'#16a34a','Annulé':'#dc2626'};
+  /* Build header */
+  var headerCells=days.map(function(d,i){
+    var isToday=d.getTime()===today.getTime();
+    var lbl=dayNames[i]+' '+fmtDateShort(d.toISOString().split('T')[0]);
+    return'<div class="plan-day'+(isToday?' today':'')+'">'+lbl+'</div>';
+  }).join('');
+  /* Build rows per technicien */
+  var rows=D.techniciens.filter(function(t){return t.statut==='Actif';}).map(function(tech){
+    var cells=days.map(function(d){
+      var ds=d.toISOString().split('T')[0];
+      /* Find interventions for this tech on this day */
+      var interv=D.interventions.filter(function(i){
+        return i.technicien===tech.nom&&i.date_debut&&i.date_fin&&i.date_debut<=ds&&i.date_fin>=ds;
+      });
+      var evts=interv.map(function(i){
+        var col=eventColors[i.statut]||'#888';
+        return'<div class="plan-event" style="background:'+col+'18;border-left:3px solid '+col+';color:'+col+'" onclick="editInter('+i.id+')" title="'+escH(i.article)+' ('+escH(i.serie)+')">'+
+          '<div>'+escH(i.article)+'</div>'+
+          '<div style="font-size:9px;opacity:.8">'+escH(i.serie)+'</div>'+
+        '</div>';
+      }).join('');
+      return'<div class="plan-cell">'+evts+'</div>';
+    }).join('');
+    return'<div class="plan-row"><div class="plan-tech">'+escH(tech.nom.split(' ')[0])+'</div>'+cells+'</div>';
+  }).join('');
+  var weekLabel=fmtDate(weekStart.toISOString().split('T')[0])+' — '+fmtDate(days[6].toISOString().split('T')[0]);
+  return'<div class="card"><div class="ch">'+
+    '<span class="ct2">Planning semaine du '+weekLabel+'</span>'+
+    '<div class="plan-week-nav">'+
+      '<button class="bs" onclick="PLAN_WEEK_OFFSET--;draw(\'planning\',\'\')">← Préc.</button>'+
+      '<button class="bs" onclick="PLAN_WEEK_OFFSET=0;draw(\'planning\',\'\')">Aujourd\'hui</button>'+
+      '<button class="bs" onclick="PLAN_WEEK_OFFSET++;draw(\'planning\',\'\')">Suiv. →</button>'+
+    '</div>'+
+  '</div>'+
+  '<div style="overflow-x:auto">'+
+  '<div class="plan-grid" style="min-width:700px">'+
+    '<div class="plan-header"><div class="plan-tech-col">Technicien</div>'+headerCells+'</div>'+rows+
+  '</div></div>'+
+  '<div style="padding:10px 14px;border-top:1px solid var(--bdr);display:flex;gap:12px;flex-wrap:wrap">'+
+    Object.entries(eventColors).map(function(e){return'<div style="display:flex;align-items:center;gap:5px;font-size:11px"><div style="width:12px;height:12px;border-radius:2px;background:'+e[1]+'30;border-left:3px solid '+e[1]+'"></div>'+e[0]+'</div>';}).join('')+
+  '</div></div>';
+}
+
+/* ================================================================
+   ANALYTICS KPIs
+================================================================ */
+function rAnalytics(){
+  var p=ANALYTICS_PERIOD;
+  var k=calcKPIs(p);
+  var pTabs='<div class="period-tabs">'+
+    ['month','quarter','year','all'].map(function(x){var l={month:'Ce mois',quarter:'Ce trimestre',year:'Cette année',all:'Tout'};return'<div class="ptab'+(p===x?' on':'')+'" onclick="ANALYTICS_PERIOD=\''+x+'\';draw(\'analytics\',\'\')">'+l[x]+'</div>';}).join('')+
+  '</div>';
+  /* Top machines */
+  var topMachHTML=k.topMachines.length?k.topMachines.map(function(m,i){
+    return'<tr><td style="font-weight:700;font-size:11px">'+(i+1)+'.</td><td style="font-weight:700">'+escH(m.article)+'</td><td style="color:var(--txt2);font-size:10px">'+escH(m.serie)+'</td><td>'+bdg('b-red',m.count+' interv.')+'</td></tr>';
+  }).join(''):'<tr><td colspan="4" style="color:var(--txt2);text-align:center;padding:14px">Aucune donnée</td></tr>';
+  /* CA bars monthly */
+  var maxCA=Math.max.apply(null,[1].concat(k.monthly.map(function(m){return m.ca;})));
+  var caBars=barChartH(k.monthly.map(function(m){return{label:m.label,value:m.ca};}),maxCA,['#16a34a']);
+  /* Closures bars monthly */
+  var maxC=Math.max.apply(null,[1].concat(k.monthly.map(function(m){return m.cnt;})));
+  var closureBars=barChartH(k.monthly.map(function(m){return{label:m.label,value:m.cnt};}),maxC,['#2563eb']);
+  /* Devis donut */
+  var donutDv=donutSVG([{pct:k.tauxA,color:'#16a34a'},{pct:100-k.tauxA,color:'#e4e3db'}],65,65,52,18,k.tauxA+'%','acceptés');
+  /* Interventions by statut donut */
+  var statSlices2=[{pct:k.byStat['En cours']||0,color:'#2563eb'},{pct:k.byStat['En attente']||0,color:'#d97706'},{pct:k.byStat['Devis fait']||0,color:'#7c3aed'}];
+  var donutStat=donutSVG(statSlices2,65,65,52,18,String(k.totalInter),'actives');
+  /* Tech perf table */
+  var techRows=D.techniciens.filter(function(t){return t.statut==='Actif';}).map(function(t){
+    var actives=D.interventions.filter(function(i){return i.technicien===t.nom;}).length;
+    var done=(D.historique||[]).filter(function(i){return i.technicien===t.nom&&i.statut==='Terminé';}).length;
+    var ca=(D.historique||[]).filter(function(i){return i.technicien===t.nom;}).reduce(function(a,i){return a+dvCA(i);},0);
+    var avgD=(D.historique||[]).filter(function(i){return i.technicien===t.nom&&i.statut==='Terminé'&&i.date_debut&&i.date_cloture;});
+    var mtt=avgD.length?Math.round(avgD.reduce(function(a,i){return a+calBetween(i.date_debut,i.date_cloture);},0)/avgD.length*10)/10:0;
+    return'<tr><td style="font-weight:700">'+escH(t.nom)+'</td><td>'+escH(t.fonction||t.specialite||'—')+'</td>'+
+      '<td style="text-align:center">'+actives+'</td>'+
+      '<td style="text-align:center">'+done+'</td>'+
+      '<td style="text-align:center">'+(mtt?mtt+'j':'—')+'</td>'+
+      '<td style="text-align:right;font-weight:700">'+(ca?eur(ca):'—')+'</td></tr>';
+  }).join('');
+  return pTabs+
+  '<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr))">'+
+    '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Interventions actives</div><div class="kp-v">'+k.totalInter+'</div></div>'+
+    '<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">En retard</div><div class="kp-v">'+k.overdue+'</div><div class="kp-s">échéance dépassée</div></div>'+
+    '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Temps moy. interv.</div><div class="kp-v">'+(k.avgTime||'—')+(k.avgTime?' j.':'')+'</div><div class="kp-s">jours calendaires</div></div>'+
+    '<div class="kp" style="border-left-color:var(--green)"><div class="kp-l">CA période</div><div class="kp-v">'+eur(k.totalCA)+'</div></div>'+
+  '</div>'+
+  '<div class="chart-grid-2">'+
+    '<div class="chart-box"><div class="chart-title">CA mensuel (€ TTC)</div>'+caBars+'</div>'+
+    '<div class="chart-box"><div class="chart-title">Clôtures mensuelles</div>'+closureBars+'</div>'+
+  '</div>'+
+  '<div class="chart-grid-2">'+
+    '<div class="chart-box"><div class="chart-title">Statuts interventions actives</div><div class="donut-wrap">'+donutStat+'<div class="donut-legend">'+
+      '<div class="dl-item"><div class="dl-dot" style="background:#2563eb"></div>En cours ('+(k.byStat['En cours']||0)+')</div>'+
+      '<div class="dl-item"><div class="dl-dot" style="background:#d97706"></div>En attente ('+(k.byStat['En attente']||0)+')</div>'+
+      '<div class="dl-item"><div class="dl-dot" style="background:#7c3aed"></div>Devis fait ('+(k.byStat['Devis fait']||0)+')</div>'+
+    '</div></div></div>'+
+    '<div class="chart-box"><div class="chart-title">Taux acceptation devis</div><div class="donut-wrap">'+donutDv+'<div class="donut-legend"><div class="dl-item"><div class="dl-dot" style="background:#16a34a"></div>Acceptés ('+k.tauxA+'%)</div><div class="dl-item"><div class="dl-dot" style="background:#e4e3db"></div>Autres ('+(100-k.tauxA)+'%)</div></div></div></div>'+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">'+
+    '<div class="card"><div class="ch"><span class="ct2">Top machines en panne (historique)</span></div>'+
+      '<table class="tbl"><thead><tr><th>#</th><th>Article</th><th>N° Série</th><th>Interventions</th></tr></thead><tbody>'+topMachHTML+'</tbody></table>'+
+    '</div>'+
+    '<div class="card"><div class="ch"><span class="ct2">Performance techniciens</span></div>'+
+      '<div class="tw"><table class="tbl"><thead><tr><th>Nom</th><th>Fonction</th><th style="text-align:center">Actives</th><th style="text-align:center">Terminées</th><th style="text-align:center">Moy. durée</th><th style="text-align:right">CA généré</th></tr></thead><tbody>'+techRows+'</tbody></table></div>'+
+    '</div>'+
++(function(){
+  var sk=calcStockKPIs();var st=D.stock||[];if(!st.length)return '';
+  var nOk2=st.filter(function(s){return s.qte>s.qte_min;}).length;
+  var gP=sk.tauxDispo/100;var gCol2=gP>=0.8?'#16A34A':gP>=0.6?'#D97706':'#DC2626';
+  var cr2=sk.rupture>0?'var(--red)':'var(--greentxt)';var tot2=st.length||1;
+  var deg2=0,arcs2='';
+  [{n:nOk2,c:'#16A34A'},{n:sk.alerte,c:'#D97706'},{n:sk.rupture,c:'#DC2626'}].forEach(function(sl){
+    if(!sl.n)return;var d=sl.n/tot2*360;if(d>=360)d=359.99;
+    var s2=deg2*Math.PI/180,e2=(deg2+d)*Math.PI/180;
+    var x1=40+34*Math.cos(s2-Math.PI/2),y1=40+34*Math.sin(s2-Math.PI/2);
+    var x2=40+34*Math.cos(e2-Math.PI/2),y2=40+34*Math.sin(e2-Math.PI/2);
+    arcs2+='<path d="M40,40 L'+x1+','+y1+' A34,34 0 '+(d>180?1:0)+',1 '+x2+','+y2+' Z" fill="'+sl.c+'"/>';
+    deg2+=d;
+  });
+  var donutA='<svg viewBox="0 0 80 80" width="68" height="68" style="display:block;flex-shrink:0">'+arcs2+'<circle cx="40" cy="40" r="20" fill="var(--bg)"/><text x="40" y="44" font-size="11" font-weight="bold" fill="var(--txt)" text-anchor="middle">'+tot2+'</text></svg>';
+  var gR2=32,gCx2=46,gCy2=40,gAng2=180*gP,gFull2=180-gAng2;
+  var gpx2=gCx2+gR2*Math.cos(gFull2*Math.PI/180),gpy2=gCy2-gR2*Math.sin(gFull2*Math.PI/180);
+  var jaugeA='<svg viewBox="0 0 92 52" width="88" height="52" style="display:block;margin:0 auto">'+
+    '<path d="M'+(gCx2-gR2)+','+gCy2+' A'+gR2+','+gR2+' 0 0,1 '+(gCx2+gR2)+','+gCy2+'" fill="none" stroke="#E5E7EB" stroke-width="8" stroke-linecap="round"/>'+
+    '<path d="M'+(gCx2-gR2)+','+gCy2+' A'+gR2+','+gR2+' 0 '+(gAng2>90?1:0)+',1 '+gpx2+','+gpy2+'" fill="none" stroke="'+gCol2+'" stroke-width="8" stroke-linecap="round"/>'+
+    '<text x="'+gCx2+'" y="'+(gCy2-2)+'" font-size="13" font-weight="bold" fill="'+gCol2+'" text-anchor="middle">'+sk.tauxDispo+'%</text>'+
+    '<text x="'+gCx2+'" y="'+(gCy2+12)+'" font-size="7" fill="var(--txt2)" text-anchor="middle">disponibilité</text></svg>';
+  var barsA=sk.top5.length?sk.top5.map(function(p,i){
+    var w=Math.max(6,Math.round(p.count/(sk.top5[0].count||1)*100));
+    var cols=['#2563EB','#7C3AED','#0891B2','#16A34A','#D97706'];
+    return'<div style="margin-bottom:5px"><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--txt2);margin-bottom:2px"><span>'+escH(p.nom.length>18?p.nom.substring(0,18)+'…':p.nom)+'</span><span style="font-weight:700;color:var(--blue)">'+p.count+'×</span></div>'+
+      '<div style="background:var(--bg2);border-radius:3px;height:6px"><div style="background:'+cols[i%5]+';height:6px;border-radius:3px;width:'+w+'%"></div></div></div>';
+  }).join(''):'<div style="color:var(--txt3);font-size:11px">Aucune pièce utilisée.</div>';
+  return '<div class="card" style="margin-top:16px">'+
+    '<div class="ch"><span class="ct2">Pièces Détachées — Analytique</span></div>'+
+    '<div class="kg" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">'+
+      '<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Taux rupture</div><div class="kp-v" style="color:'+cr2+'">'+sk.tauxRupture+'%</div><div class="kp-s">'+sk.rupture+' rupture — '+sk.alerte+' alerte</div></div>'+
+      '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Valeur stock</div><div class="kp-v">'+eur(sk.valeur)+'</div><div class="kp-s">'+tot2+' réf.</div></div>'+
+      '<div class="kp" style="border-left-color:var(--amber)"><div class="kp-l">Délai réappro.</div><div class="kp-v">'+sk.avgDelai+' j.</div><div class="kp-s">'+sk.nbCmds+' cmd.</div></div>'+
+      '<div class="kp" style="border-left-color:var(--greentxt)"><div class="kp-l">Dispo. pièces</div><div class="kp-v" style="color:'+gCol2+'">'+sk.tauxDispo+'%</div><div class="kp-s">'+(sk.interBloquees?sk.interBloquees+' bloquée(s)':'Toutes dispo.')+'</div></div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+
+      '<div class="card" style="padding:12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">État stock</div>'+
+        '<div style="display:flex;align-items:center;gap:8px">'+donutA+
+          '<div style="font-size:10px;line-height:1.8"><div><span style="color:#16A34A;font-weight:700">●</span> OK : '+nOk2+'</div>'+
+          (sk.alerte?'<div><span style="color:#D97706;font-weight:700">●</span> Alerte : '+sk.alerte+'</div>':'')+
+          (sk.rupture?'<div><span style="color:#DC2626;font-weight:700">●</span> Rupture : '+sk.rupture+'</div>':'')+
+          '</div></div></div>'+
+      '<div class="card" style="padding:12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:4px">Taux disponibilité</div>'+
+        jaugeA+'</div>'+
+      '<div class="card" style="padding:12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--txt2);margin-bottom:8px">Top pièces</div>'+
+        barsA+'</div>'+
+    '</div></div>';
+})()+'</div>';
+}
+
+/* ================================================================
+   MATERIELS
+================================================================ */
+function rMat(f){
+  var vgpR=getVGPRelances();var vrMap={};vgpR.forEach(function(v){vrMap[v.inter.serie]={daysLeft:v.daysLeft,calDays:v.calDays,date:v.relanceDate};});
+  var clients=uniq(D.materiels.map(function(m){return m.client;}).filter(Boolean));
+  var marques=uniq(D.materiels.map(function(m){return m.marque;}).filter(Boolean));
+  var filterBar='<div class="filter-bar">'+
+    '<span class="filter-label">Filtres :</span>'+
+    '<select id="fm-stat" onchange="applyMatFilters()"><option value="">Tous statuts</option>'+SM.map(function(s){return s?'<option>'+s+'</option>':'';}).join('')+'</select>'+
+    '<select id="fm-cli" onchange="applyMatFilters()"><option value="">Tous clients</option>'+clients.map(function(c){return'<option>'+escH(c)+'</option>';}).join('')+'</select>'+
+    '<select id="fm-marq" onchange="applyMatFilters()"><option value="">Toutes marques</option>'+marques.map(function(m){return'<option>'+escH(m)+'</option>';}).join('')+'</select>'+
+    '<button class="bs" onclick="resetMatFilters()" style="font-size:10px">Réinitialiser</button>'+
+  '</div>';
+  var sColor={'En cours':'#2563eb',"En attentes d'acceptation":'#d97706','Devis fait':'#7c3aed','Finis':'#16a34a','':"#aaa"};
+  var sLabel={'En cours':'En cours',"En attentes d'acceptation":"Att. accept.",'Devis fait':'Devis fait','Finis':'Terminé','':"Sans statut"};
+  var chips=['En cours',"En attentes d'acceptation",'Devis fait','Finis',''].map(function(s){
+    var n=D.materiels.filter(function(m){return m.statut===s;}).length;if(!n)return'';
+    var col=sColor[s];
+    return'<div class="chip" style="background:'+col+'18;color:'+col+';border-color:'+col+'44"><span style="width:7px;height:7px;border-radius:50%;background:'+col+';display:inline-block"></span>'+escH(sLabel[s])+' : <strong>'+n+'</strong></div>';
+  }).join('');
+  var all=D.materiels.filter(function(m){return!f||m.article.toLowerCase().indexOf(f)>=0||m.serie.toLowerCase().indexOf(f)>=0||m.marque.toLowerCase().indexOf(f)>=0||(m.client||'').toLowerCase().indexOf(f)>=0||(m.localisation||'').toLowerCase().indexOf(f)>=0;});
+  var pg=pag(all);
+  var rows=pg.slice.map(function(m){
+    var vgp=vrMap[m.serie];
+    var relTag='';
+    if(vgp){var cl=vgp.calDays<=0?'b-red':vgp.calDays<=10?'b-orange':'b-amber';relTag='<span class="bdg '+cl+'">'+(vgp.calDays<=0?'VGP dépassée':'VGP '+fmtDate(vgp.date))+'</span>';}
+    return'<tr>'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">MAT-'+String(m.id).padStart(4,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(m.article)+'</td>'+
+      '<td style="color:var(--txt2);font-size:10px">'+escH(m.serie)+'</td>'+
+      '<td>'+escH(m.client)+'</td><td>'+escH(m.marque)+'</td>'+
+      '<td>'+(m.technicien?escH(m.technicien):'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td>'+bmat(m.statut)+'</td>'+
+      '<td style="font-size:10px;color:var(--txt2)">'+(m.localisation?escH(m.localisation):'—')+'</td>'+
+      '<td>'+relTag+'</td>'+
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editMat('+m.id+')">Modifier</button></td></tr>';
+  }).join('');
+  return'<div class="card" style="margin-bottom:12px"><div class="ch"><span class="ct2">Répartition statuts</span></div><div class="chips">'+chips+'</div></div>'+
+    filterBar+
+    '<div class="card"><div class="ch"><span class="ct2">Parc matériels</span><span class="cc">'+pg.total+' / '+D.materiels.length+'</span></div>'+
+    '<div class="tw"><table class="tbl"><thead><tr><th>ID</th><th>Article</th><th>N° Série</th><th>Client</th><th>Marque</th><th>Technicien</th><th>Statut</th><th>Localisation</th><th>VGP</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    pagerH(pg.total,pg.pages)+'</div>';
+}
+function applyMatFilters(){
+  var s=gv('fm-stat'),c=gv('fm-cli'),m=gv('fm-marq');
+  var filtered=D.materiels.filter(function(x){
+    if(s&&x.statut!==s)return false;
+    if(c&&x.client!==c)return false;
+    if(m&&x.marque!==m)return false;
+    return true;
+  });
+  var pg=pag(filtered);
+  var vgpR=getVGPRelances();var vrMap={};vgpR.forEach(function(v){vrMap[v.inter.serie]={calDays:v.calDays,date:v.relanceDate};});
+  var rows=pg.slice.map(function(m){
+    var vgp=vrMap[m.serie];var relTag='';
+    if(vgp){var cl=vgp.calDays<=0?'b-red':vgp.calDays<=10?'b-orange':'b-amber';relTag='<span class="bdg '+cl+'">'+(vgp.calDays<=0?'VGP dépassée':'VGP '+fmtDate(vgp.date))+'</span>';}
+    return'<tr>'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">MAT-'+String(m.id).padStart(4,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(m.article)+'</td><td style="color:var(--txt2);font-size:10px">'+escH(m.serie)+'</td>'+
+      '<td>'+escH(m.client)+'</td><td>'+escH(m.marque)+'</td>'+
+      '<td>'+(m.technicien?escH(m.technicien):'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td>'+bmat(m.statut)+'</td><td style="font-size:10px;color:var(--txt2)">'+(m.localisation?escH(m.localisation):'—')+'</td>'+
+      '<td>'+relTag+'</td>'+
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editMat('+m.id+')">Modifier</button></td></tr>';
+  }).join('');
+  var tbody=document.querySelector('#ct .tbl tbody');if(tbody)tbody.innerHTML=rows;
+}
+function resetMatFilters(){['fm-stat','fm-cli','fm-marq'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});draw('materiels',LS);}
+
+/* ================================================================
+   CLIENTS
+================================================================ */
+function rCli(f){
+  var all=D.clients.filter(function(c){return!f||c.nom.toLowerCase().indexOf(f)>=0;});
+  var rows=all.map(function(c){
+    var nm=D.materiels.filter(function(m){return m.client===c.nom;}).length;
+    var ni=D.interventions.filter(function(i){return i.client===c.nom;}).length;
+    return'<tr>'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">CLI-'+String(c.id).padStart(3,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(c.nom)+'</td><td>'+escH(c.contact)+'</td>'+
+      '<td style="color:var(--txt2)">'+escH(c.tel)+'</td><td style="color:var(--txt2)">'+escH(c.email)+'</td>'+
+      '<td style="color:var(--txt2)">'+escH(c.adresse)+'</td>'+
+      '<td>'+bdg('b-blue',nm+' mat.')+'</td><td>'+bdg(ni?'b-amber':'b-gray',ni+' act.')+'</td>'+
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editCli('+c.id+')">Modifier</button></td></tr>';
+  }).join('');
+  return'<div class="card"><div class="ch"><span class="ct2">Clients</span><span class="cc">'+all.length+'</span></div>'+
+    '<table class="tbl"><thead><tr><th>ID</th><th>Nom</th><th>Contact</th><th>Tél.</th><th>Email</th><th>Adresse</th><th>Matériels</th><th>Interv.</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+/* ================================================================
+   TECHNICIENS
+================================================================ */
+function rTech(f){
+  var filteredList=D.techniciens.filter(function(t){return!f||t.nom.toLowerCase().indexOf(f)>=0;});
+  var fonctions=[...new Set(D.techniciens.map(function(t){return t.fonction||t.specialite;}).filter(Boolean))];
+  var zones=uniq(D.techniciens.map(function(t){return t.zone;}).filter(Boolean));
+  var filterBar='<div class="filter-bar">'+
+    '<span class="filter-label">Filtres :</span>'+
+    '<select id="ft-fonc" onchange="applyTechFilters()"><option value="">Toutes fonctions</option>'+fonctions.map(function(x){return'<option>'+escH(x)+'</option>';}).join('')+'</select>'+
+    '<select id="ft-zone" onchange="applyTechFilters()"><option value="">Toutes zones</option>'+zones.map(function(z){return'<option>'+escH(z)+'</option>';}).join('')+'</select>'+
+    '<select id="ft-stat" onchange="applyTechFilters()"><option value="">Tous statuts</option><option>Actif</option><option>Inactif</option></select>'+
+    '<button class="bs" onclick="resetTechFilters()" style="font-size:10px">Réinitialiser</button>'+
+  '</div>';
+  var rows=filteredList.map(function(t){
+    var n=D.interventions.filter(function(i){return i.technicien===t.nom;}).length;
+    return'<tr>'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">TECH-'+String(t.id).padStart(3,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(t.nom)+'</td>'+
+      '<td>'+escH(t.fonction||t.specialite||'—')+'</td>'+
+      '<td style="color:var(--txt2)">'+escH(t.zone)+'</td>'+
+      '<td style="color:var(--txt2)">'+escH(t.tel)+'</td>'+
+      '<td style="color:var(--txt2)">'+escH(t.email)+'</td>'+
+      '<td>'+(t.statut==='Actif'?bdg('b-green','Actif'):bdg('b-gray','Inactif'))+'</td>'+
+      '<td>'+bdg('b-blue',n)+'</td>'+
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editTech('+t.id+')">Modifier</button></td></tr>';
+  }).join('');
+  return filterBar+'<div class="card"><div class="ch"><span class="ct2">Techniciens</span><span class="cc">'+filteredList.length+'</span></div>'+
+    '<table class="tbl"><thead><tr><th>ID</th><th>Nom</th><th>Fonction</th><th>Zone</th><th>Tél.</th><th>Email</th><th>Statut</th><th>Actives</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function applyTechFilters(){
+  var f=gv('ft-fonc'),z=gv('ft-zone'),s=gv('ft-stat');
+  var filtered=D.techniciens.filter(function(t){
+    if(f&&(t.fonction||t.specialite)!==f)return false;
+    if(z&&t.zone!==z)return false;
+    if(s&&t.statut!==s)return false;
+    return true;
+  });
+  var rows=filtered.map(function(t){
+    var n=D.interventions.filter(function(i){return i.technicien===t.nom;}).length;
+    return'<tr>'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">TECH-'+String(t.id).padStart(3,'0')+'</td>'+
+      '<td style="font-weight:700">'+escH(t.nom)+'</td><td>'+escH(t.fonction||t.specialite||'—')+'</td>'+
+      '<td style="color:var(--txt2)">'+escH(t.zone)+'</td><td style="color:var(--txt2)">'+escH(t.tel)+'</td><td style="color:var(--txt2)">'+escH(t.email)+'</td>'+
+      '<td>'+(t.statut==='Actif'?bdg('b-green','Actif'):bdg('b-gray','Inactif'))+'</td><td>'+bdg('b-blue',n)+'</td>'+
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editTech('+t.id+')">Modifier</button></td></tr>';
+  }).join('');
+  var tbody=document.querySelector('#ct .tbl tbody');if(tbody)tbody.innerHTML=rows;
+}
+function resetTechFilters(){['ft-fonc','ft-zone','ft-stat'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});draw('techniciens',LS);}
+
+/* ================================================================
+   STOCK
+================================================================ */
+function rStock(f){
+  var all=D.stock.filter(function(s){return!f||s.ref.toLowerCase().indexOf(f)>=0||s.designation.toLowerCase().indexOf(f)>=0||s.categorie.toLowerCase().indexOf(f)>=0;});
+  var val=D.stock.reduce(function(a,s){return a+s.qte*s.prix;},0);
+  var rows=all.map(function(s){
+    var e,c;if(s.qte===0){e='Rupture';c='b-red';}else if(s.qte<=s.qte_min){e='Alerte';c='b-amber';}else{e='OK';c='b-green';}
+    return'<tr>'+
+      '<td style="font-size:10px;color:var(--txt2);font-family:monospace">STK-'+String(s.id).padStart(3,'0')+'</td>'+
+      '<td style="font-weight:700;font-size:11px">'+escH(s.ref)+'</td>'+
+      '<td>'+escH(s.designation)+'</td><td>'+bdg('b-gray',escH(s.categorie))+'</td>'+
+      '<td style="font-weight:700">'+s.qte+'</td><td style="color:var(--txt2)">'+s.qte_min+'</td>'+
+      '<td style="font-weight:700">'+eur(s.prix)+'</td><td style="color:var(--txt2)">'+escH(s.fournisseur)+'</td>'+
+      '<td>'+bdg(c,e)+'</td>'+
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editStock('+s.id+')">Modifier</button></td></tr>';
+  }).join('');
+  return kpiPanel+'<div class="kg" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+
+    '<div class="kp" style="border-left-color:var(--blue)"><div class="kp-l">Références</div><div class="kp-v">'+D.stock.length+'</div></div>'+
+    '<div class="kp" style="border-left-color:var(--red)"><div class="kp-l">Alertes</div><div class="kp-v">'+D.stock.filter(function(s){return s.qte<=s.qte_min;}).length+'</div></div>'+
+    '<div class="kp" style="border-left-color:var(--green)"><div class="kp-l">Valeur totale</div><div class="kp-v">'+eur(val)+'</div></div></div>'+
+    '<div class="card"><div class="ch"><span class="ct2">Pièces détachées</span><span class="cc">'+all.length+'</span></div>'+
+    '<div class="tw"><table class="tbl"><thead><tr><th>ID</th><th>Réf.</th><th>Désignation</th><th>Catégorie</th><th>Qté</th><th>Seuil</th><th>Prix</th><th>Fournisseur</th><th>État</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ================================================================
+   SETTINGS
+================================================================ */
+function rSettings(){
+  var userRows=USERS.map(function(u){
+    var isAdmin=u.role==='admin';
+    return'<tr>'+
+      '<td style="font-weight:700">'+escH(u.nom)+'</td>'+
+      '<td style="font-family:monospace;font-size:11px">'+escH(u.username)+'</td>'+
+      '<td style="color:var(--txt2);font-size:11px">'+(u.email?escH(u.email):'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td>'+bdg(isAdmin?'b-red':'b-blue',isAdmin?'Admin':'Technicien')+'</td>'+
+      '<td>'+(isAdmin?'Tous':u.perms.length+'/'+ALL_PERMS.length+' droits')+'</td>'+
+      '<td><button class="bs" style="font-size:10px;padding:3px 7px" onclick="editUser('+u.id+')">Modifier</button></td></tr>';
+  }).join('');
+  var myEmail=CURRENT_USER&&CURRENT_USER.email?CURRENT_USER.email:'';
+  return'<div class="card" style="margin-bottom:12px"><div class="ch"><span class="ct2">Utilisateurs &amp; accès</span><button class="bp" style="font-size:11px;padding:5px 11px" onclick="newUser()">+ Nouvel utilisateur</button></div>'+
+    '<table class="tbl"><thead><tr><th>Nom</th><th>Identifiant</th><th>Email</th><th>Rôle</th><th>Droits</th><th></th></tr></thead><tbody>'+userRows+'</tbody></table></div>'+
+    '<div class="card"><div class="ch"><span class="ct2">Mon compte</span></div>'+
+    '<div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:18px">'+
+      '<div><div class="fl" style="margin-bottom:7px">Email (connexion alternative)</div>'+
+        '<input class="fi" id="my-email" placeholder="prenom@email.com" value="'+escH(myEmail)+'" style="margin-bottom:7px">'+
+        '<button class="bp" onclick="saveMyEmail()" style="font-size:11px;padding:6px 12px">Enregistrer</button>'+
+        '<div id="email-msg" style="margin-top:5px;font-size:11px"></div></div>'+
+      '<div><div class="fl" style="margin-bottom:7px">Changer mon mot de passe</div>'+
+        '<div style="position:relative;margin-bottom:7px"><input class="fi" type="password" id="my-p1" placeholder="Nouveau mot de passe" style="padding-right:36px"><button onclick="tvp(\'my-p1\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px">&#128065;</button></div>'+
+        '<div style="position:relative;margin-bottom:7px"><input class="fi" type="password" id="my-p2" placeholder="Confirmer" style="padding-right:36px"><button onclick="tvp(\'my-p2\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px">&#128065;</button></div>'+
+        '<button class="bp" onclick="saveMyPass()" style="font-size:11px;padding:6px 12px">Changer</button>'+
+        '<div id="pass-msg" style="margin-top:5px;font-size:11px"></div></div>'+
+    '</div></div>';
+}
+function delHist(id){
+  if(!confirm('Supprimer définitivement cette intervention de l\'historique ?'))return;
+  var inter=D.historique.find(function(x){return x.id===id;});
+  D.historique=D.historique.filter(function(x){return x.id!==id;});
+  /* If no other hist intervention for this serie, reset materiel */
+  if(inter&&inter.serie){
+    var stillInHist=D.historique.find(function(x){return x.serie===inter.serie;});
+    var stillActive=D.interventions.find(function(x){return x.serie===inter.serie;});
+    if(!stillInHist&&!stillActive){
+      var mat=D.materiels.find(function(m){return m.serie===inter.serie;});
+      if(mat)mat.statut='';
+    }
+  }
+  save();draw('historique',LS);
+}
+function delInter(id){
+  if(!confirm('Supprimer définitivement cette intervention ?'))return;
+  var inter=D.interventions.find(function(x){return x.id===id;});
+  D.interventions=D.interventions.filter(function(x){return x.id!==id;});
+  /* Reset materiel statut if no other active intervention for this serie */
+  if(inter&&inter.serie){
+    var stillActive=D.interventions.find(function(x){return x.serie===inter.serie;});
+    if(!stillActive){
+      var mat=D.materiels.find(function(m){return m.serie===inter.serie;});
+      if(mat)mat.statut='';
+    }
+  }
+  save();draw(PAGE,LS);
+}
+function showOverdue(){
+  var ov=D.interventions.filter(function(i){var p=getPrio(i);return p.wd!==null&&p.wd<=0;});
+  if(!ov.length){alert('Aucune intervention en retard.');return;}
+  var th='<th style="text-align:left;padding:7px 10px;background:var(--bg2);border-bottom:1px solid var(--bdr);font-size:9px;text-transform:uppercase;color:var(--txt2)">';
+  var rows=ov.map(function(i){
+    var wd=wdUntil(i.date_fin);
+    var ret=Math.abs(wd||0)+' j. ouv. de retard';
+    return'<tr style="border-bottom:1px solid var(--bg2)">'+
+      '<td style="padding:7px 10px;font-size:10px;color:var(--txt2);font-family:monospace">INT-'+String(i.id).padStart(4,'0')+'</td>'+
+      '<td style="padding:7px 10px;font-weight:700">'+escH(i.article)+'</td>'+
+      '<td style="padding:7px 10px;color:var(--txt2);font-size:10px">'+escH(i.serie)+'</td>'+
+      '<td style="padding:7px 10px">'+escH(i.client)+'</td>'+
+      '<td style="padding:7px 10px">'+(i.technicien?escH(i.technicien):'—')+'</td>'+
+      '<td style="padding:7px 10px">'+fmtDate(i.date_fin)+'</td>'+
+      '<td style="padding:7px 10px;font-weight:700;color:var(--red)">'+ret+'</td>'+
+      '<td style="padding:7px 10px"><button class="bs" style="font-size:10px;padding:3px 7px" onclick="closeModal();setTimeout(function(){editInter('+i.id+');},100)">Ouvrir</button></td>'+
+    '</tr>';
+  }).join('');
+  var body='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">'+
+    '<thead><tr>'+th+'ID</th>'+th+'Article</th>'+th+'Série</th>'+th+'Client</th>'+th+'Technicien</th>'+th+'Échéance</th>'+th+'Retard</th><th></th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table></div>';
+  document.getElementById('mtitle').textContent='Interventions en retard ('+ov.length+')';
+  document.getElementById('mbody').innerHTML=body;
+  document.getElementById('mfl').innerHTML='';
+  document.getElementById('msave').style.display='none';
+  document.getElementById('ov').classList.add('show');
+}
+function tvp(id){var e=document.getElementById(id);if(e)e.type=e.type==='password'?'text':'password';}
+function saveMyEmail(){var v=(document.getElementById('my-email')||{}).value||'';v=v.trim();CURRENT_USER.email=v;var u=USERS.find(function(x){return x.id===CURRENT_USER.id;});if(u)u.email=v;save();var m=document.getElementById('email-msg');if(m){m.style.color='var(--green)';m.textContent='Email enregistré.';}}
+function saveMyPass(){var n1=(document.getElementById('my-p1')||{}).value||'';var n2=(document.getElementById('my-p2')||{}).value||'';var msg=document.getElementById('pass-msg');if(!n1){if(msg){msg.style.color='var(--red)';msg.textContent='Mot de passe vide.';}return;}if(n1!==n2){if(msg){msg.style.color='var(--red)';msg.textContent='Les mots de passe ne correspondent pas.';}return;}CURRENT_USER.password=n1;var u=USERS.find(function(x){return x.id===CURRENT_USER.id;});if(u)u.password=n1;save();if(msg){msg.style.color='var(--green)';msg.textContent='Mot de passe changé.';} ['my-p1','my-p2'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});}
+
+/* ================================================================
+   AUTOCOMPLETE
+================================================================ */
+function makeAC(inpId,dropId,items,onSel){
+  var inp=document.getElementById(inpId),drop=document.getElementById(dropId);
+  if(!inp||!drop)return;
+  inp.addEventListener('input',function(){
+    var v=inp.value.toLowerCase();drop.innerHTML='';
+    if(!v){drop.classList.remove('show');return;}
+    var hits=items.filter(function(x){return x&&x.toLowerCase().indexOf(v)>=0;}).slice(0,15);
+    if(!hits.length){drop.classList.remove('show');return;}
+    hits.forEach(function(h){var d=document.createElement('div');d.className='aci';d.textContent=h;d.onclick=function(){inp.value=h;drop.classList.remove('show');if(onSel)onSel(h);};drop.appendChild(d);});
+    drop.classList.add('show');
+  });
+  document.addEventListener('click',function(e){if(e.target!==inp&&!drop.contains(e.target))drop.classList.remove('show');});
+}
+
+/* ================================================================
+   MODAL
+================================================================ */
+function openModal(title,body,showDel){
+  document.getElementById('mtitle').textContent=title;
+  document.getElementById('mbody').innerHTML=body;
+  document.getElementById('mfl').innerHTML=showDel?'<button class="bd" onclick="confirmDel()">Supprimer</button>':'';
+  document.getElementById('msave').style.display='';
+  document.getElementById('ov').classList.add('show');
+}
+function closeModal(){document.getElementById('ov').classList.remove('show');MODE='';EID=null;TMP_PIECES=[];DV_P=[];DV_MO=[];}
+function bgClose(e){if(e.target===document.getElementById('ov'))closeModal();}
+function confirmDel(){if(document.getElementById('dc'))return;var div=document.createElement('div');div.id='dc';div.className='conf';div.innerHTML='<strong>Confirmer la suppression ?</strong><br><br><button class="bd" onclick="doDel()">Oui</button> <button class="bs" onclick="this.parentElement.remove()" style="margin-left:5px">Annuler</button>';document.getElementById('mbody').appendChild(div);}
+function doDel(){
+  var tables={inter:'interventions',mat:'materiels',cli:'clients',tech:'techniciens',stock:'stock'};
+  var tbl=tables[MODE];
+  if(tbl){D[tbl]=D[tbl].filter(function(x){return x.id!==EID;});
+    (async function(){await sbDelete(tbl,EID);save();closeModal();draw(PAGE,LS);})();}
+}
+function switchTab(t){document.querySelectorAll('.mtab').forEach(function(el){el.classList.toggle('on',el.dataset.tab===t);});document.querySelectorAll('.tab-pane').forEach(function(el){el.classList.toggle('show',el.id==='tab-'+t);});}
+function openAdd(){var m={interventions:'inter',materiels:'mat',clients:'cli',techniciens:'tech',stock:'stock'};var t=m[PAGE];if(t==='inter')mInter();else if(t==='mat')mMat();else if(t==='cli')mCli();else if(t==='tech')mTech();else if(t==='stock')mStock();}
+
+/* ================================================================
+   PIECES TAGS
+================================================================ */
+function renderPTags(){return TMP_PIECES.map(function(p,i){return'<span class="ptag">'+escH(p)+'<span class="ptag-rm" onclick="rmP('+i+')">×</span></span>';}).join('');}
+function rmP(i){TMP_PIECES.splice(i,1);document.getElementById('ptags').innerHTML=renderPTags();syncPiecesToDevis();}
+function addPieceInput(){var inp=document.getElementById('fpiece-in');if(!inp)return;var v=inp.value.trim();if(v&&TMP_PIECES.indexOf(v)<0){TMP_PIECES.push(v);document.getElementById('ptags').innerHTML=renderPTags();inp.value='';var d=document.getElementById('fpiece-drop');if(d)d.classList.remove('show');syncPiecesToDevis();}}
+function syncPiecesToDevis(){var ex={};DV_P.forEach(function(l){ex[l.desc]=l;});DV_P=TMP_PIECES.map(function(p){if(ex[p])return ex[p];var stk=D.stock.find(function(s){return(s.ref+' — '+s.designation)===p||s.designation===p;});return{desc:p,qte:1,pu:stk?stk.prix:0};});refreshDvP();}
+
+/* ================================================================
+   DEVIS BUILDER
+================================================================ */
+function renderDvP(){
+  if(!DV_P.length)return'<div style="color:var(--txt3);font-size:11px;margin-bottom:7px">Aucune pièce</div>';
+  return DV_P.map(function(l,i){return'<div class="dv-line"><input class="dv-desc" placeholder="Description" value="'+escH(l.desc||'')+'" oninput="DV_P['+i+'].desc=this.value;updateDvTot()"><input class="dv-qty" type="number" min="0" step="1" placeholder="Qté" value="'+Number(l.qte||0)+'" oninput="DV_P['+i+'].qte=parseFloat(this.value)||0;updateDvTot()"><input class="dv-pu" type="number" min="0" step="0.01" placeholder="P.U. €" value="'+Number(l.pu||0)+'" oninput="DV_P['+i+'].pu=parseFloat(this.value)||0;updateDvTot()"><div class="dv-tot">'+eur(Number(l.qte||0)*Number(l.pu||0))+'</div><button class="dv-rm" onclick="DV_P.splice('+i+',1);refreshDvP()">×</button></div>';}).join('');
+}
+function renderDvMO(){
+  if(!DV_MO.length)return'<div style="color:var(--txt3);font-size:11px;margin-bottom:7px">Aucune ligne M.O.</div>';
+  return DV_MO.map(function(l,i){return'<div class="dv-line"><input class="dv-desc" placeholder="Description M.O." value="'+escH(l.desc||'')+'" oninput="DV_MO['+i+'].desc=this.value;updateDvTot()"><select class="dv-tech-sel" onchange="DV_MO['+i+'].technicien=this.value"><option value="">— Technicien —</option>'+D.techniciens.map(function(t){return'<option value="'+escH(t.nom)+'"'+(l.technicien===t.nom?' selected':'')+'>'+escH(t.nom)+'</option>';}).join('')+'</select><input class="dv-hours" type="number" min="0" step="0.5" placeholder="h" value="'+Number(l.heures||0)+'" oninput="DV_MO['+i+'].heures=parseFloat(this.value)||0;updateDvTot()"><input class="dv-rate" type="number" min="0" step="0.01" placeholder="€/h" value="'+Number(l.taux||0)+'" oninput="DV_MO['+i+'].taux=parseFloat(this.value)||0;updateDvTot()"><div class="dv-tot">'+eur(Number(l.heures||0)*Number(l.taux||0))+'</div><button class="dv-rm" onclick="DV_MO.splice('+i+',1);refreshDvMO()">×</button></div>';}).join('');
+}
+function renderDvTot(){
+  var ht=0;DV_P.forEach(function(l){ht+=Number(l.qte||0)*Number(l.pu||0);});DV_MO.forEach(function(l){ht+=Number(l.heures||0)*Number(l.taux||0);});
+  var tvaEl=document.getElementById('dv-tva');var tvaR=tvaEl?parseFloat(tvaEl.value)||20:20;
+  var tva=ht*(tvaR/100),ttc=ht+tva;
+  return'<div style="display:flex;justify-content:flex-end;padding:9px 0 0;border-top:1px solid var(--bdr)"><div style="text-align:right"><div style="font-size:12px;color:var(--txt2)">HT : '+eur(Math.round(ht*100)/100)+'</div><div style="font-size:11px;color:var(--txt3)">TVA '+tvaR+'% : '+eur(Math.round(tva*100)/100)+'</div><div style="font-size:18px;font-weight:800;color:var(--blue)">TTC : '+eur(Math.round(ttc*100)/100)+'</div></div></div>';
+}
+function refreshDvP(){var z=document.getElementById('dvp-list');if(z)z.innerHTML=renderDvP();updateDvTot();}
+function refreshDvMO(){var z=document.getElementById('dvm-list');if(z)z.innerHTML=renderDvMO();updateDvTot();}
+function updateDvTot(){var z=document.getElementById('dv-tot-zone');if(z)z.innerHTML=renderDvTot();}
+function collectDevis(){return{statut:gv('dv-stat'),date_devis:gv('dv-date'),vgp:gb('dv-vgp'),tva:gn('dv-tva')||20,lignes_pieces:DV_P.slice(),mo:DV_MO.slice(),notes:gv('dv-notes')};}
+
+/* ================================================================
+   INTERVENTION MODAL
+================================================================ */
+function mInter(id){
+  MODE='inter';EID=id||null;
+  var d=id?D.interventions.find(function(x){return x.id===id;}):{};
+  TMP_PIECES=d.pieces?d.pieces.slice():[];
+  DV_P=d.devis&&d.devis.lignes_pieces?JSON.parse(JSON.stringify(d.devis.lignes_pieces)):[];
+  DV_MO=d.devis&&d.devis.mo?JSON.parse(JSON.stringify(d.devis.mo)):[];
+  var articles=uniq(D.materiels.map(function(m){return m.article;}).filter(Boolean)).sort();
+  var series=D.materiels.map(function(m){return m.serie;}).filter(Boolean);
+  var cliO=D.clients.map(function(c){return'<option'+(d.client===c.nom?' selected':'')+' value="'+escH(c.nom)+'">'+escH(c.nom)+'</option>';}).join('');
+  var techO=D.techniciens.filter(function(t){return t.statut==='Actif';}).map(function(t){return'<option'+(d.technicien===t.nom?' selected':'')+' value="'+escH(t.nom)+'">'+escH(t.nom)+'</option>';}).join('');
+  var stk=D.stock.map(function(s){return s.ref+' — '+s.designation;});
+  var today=todayStr();
+  var dflt_fin=d.date_debut?addWorkdays(d.date_debut,10):addWorkdays(today,10);
+  var idBadge=id?'<span class="id-bdg">INT-'+String(id).padStart(4,'0')+'</span>':'';
+  var dvS=d.devis&&d.devis.statut?d.devis.statut:'En attente';
+  var dvD=d.devis&&d.devis.date_devis?d.devis.date_devis:'';
+  var dvT=d.devis&&d.devis.tva!=null?d.devis.tva:20;
+  var dvV=d.devis&&d.devis.vgp?'checked':'';
+  var dvN=d.devis&&d.devis.notes?d.devis.notes:'';
+
+  var tab1='<div class="fg2">'+
+    '<div class="fg"><label class="fl">Article</label><div class="acw"><input class="fi" id="fart-in" placeholder="Rechercher…" value="'+escH(d.article||'')+'"><div class="acd" id="fart-drop"></div></div></div>'+
+    '<div class="fg"><label class="fl">N° de série</label><div class="acw"><input class="fi" id="fserie-in" placeholder="Rechercher…" value="'+escH(d.serie||'')+'"><div class="acd" id="fserie-drop"></div></div></div>'+
+  '</div>'+
+  '<div class="fg2">'+
+    '<div class="fg"><label class="fl">Client</label><select class="fi" id="fcli">'+cliO+'</select></div>'+
+    '<div class="fg"><label class="fl">Technicien</label><select class="fi" id="ftech"><option value="">Non assigné</option>'+techO+'</select></div>'+
+  '</div>'+
+  '<div class="fg2">'+
+    '<div class="fg"><label class="fl">Date de début</label><input class="fi" type="date" id="fdeb" value="'+(d.date_debut||today)+'" onchange="autoFin()"></div>'+
+    '<div class="fg"><label class="fl">Échéance (+10j ouv. auto)</label><input class="fi" type="date" id="dfin" value="'+(d.date_fin||dflt_fin)+'"></div>'+
+  '</div>'+
+  '<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat">'+opts(SI,d.statut)+'</select></div>'+
+  '<div class="fg"><label class="fl">Description / diagnostic</label><textarea class="fi" id="fdesc" rows="3">'+(d.description||'')+'</textarea></div>'+
+  '<div class="fg"><label class="fl">Pièces remplacées</label>'+
+    '<div class="ptags" id="ptags">'+renderPTags()+'</div>'+
+    '<div style="display:flex;gap:6px">'+
+      '<div class="acw" style="flex:1"><input class="fi" id="fpiece-in" placeholder="Saisir ou choisir…"><div class="acd" id="fpiece-drop"></div></div>'+
+      '<button class="bp" onclick="addPieceInput()" style="padding:7px 11px;font-size:11px">+ Ajouter</button>'+
+    '</div></div>';
+
+  var tab2='<div class="fg2">'+
+    '<div class="fg"><label class="fl">Statut devis</label><select class="fi" id="dv-stat">'+opts(DV_STATS,dvS)+'</select></div>'+
+    '<div class="fg"><label class="fl">Date devis</label><input class="fi" type="date" id="dv-date" value="'+dvD+'"></div>'+
+  '</div>'+
+  '<div class="vgp-box"><input type="checkbox" id="dv-vgp" style="width:16px;height:16px;cursor:pointer" '+dvV+'> <label for="dv-vgp" style="font-size:12px;font-weight:600;color:var(--cyantxt);cursor:pointer">VGP effectuée — relance automatique à 6 mois</label></div>'+
+  '<div class="dv-sec"><div class="dv-sec-title">Pièces</div><div id="dvp-list">'+renderDvP()+'</div>'+
+    '<button class="bs" onclick="DV_P.push({desc:\'\',qte:1,pu:0});refreshDvP()" style="font-size:11px;margin-top:5px">+ Ajouter pièce</button></div>'+
+  '<div class="dv-sec"><div class="dv-sec-title">Main d\'œuvre</div><div id="dvm-list">'+renderDvMO()+'</div>'+
+    '<button class="bs" onclick="DV_MO.push({desc:\'M.O.\',technicien:\'\',heures:1,taux:65});refreshDvMO()" style="font-size:11px;margin-top:5px">+ Ajouter ligne M.O.</button></div>'+
+  '<div class="fg2" style="margin-top:5px"><div class="fg"><label class="fl">TVA (%)</label><input class="fi" type="number" id="dv-tva" value="'+dvT+'" step="0.1" style="width:90px" oninput="updateDvTot()"></div></div>'+
+  '<div id="dv-tot-zone">'+renderDvTot()+'</div>'+
+  '<div class="fg" style="margin-top:10px"><label class="fl">Notes</label><textarea class="fi" id="dv-notes" rows="2">'+escH(dvN)+'</textarea></div>';
+
+  var body='<div class="mtabs"><div class="mtab on" data-tab="info" onclick="switchTab(\'info\')">Intervention'+idBadge+'</div><div class="mtab" data-tab="devis" onclick="switchTab(\'devis\')">Devis</div></div>'+
+    '<div id="tab-info" class="tab-pane show">'+tab1+'</div>'+
+    '<div id="tab-devis" class="tab-pane">'+tab2+'</div>';
+
+  openModal(id?'Modifier INT-'+String(id).padStart(4,'0'):'Nouvelle intervention',body,!!id);
+  makeAC('fart-in','fart-drop',articles,null);
+  makeAC('fserie-in','fserie-drop',series,function(s){var m=D.materiels.find(function(x){return x.serie===s;});if(m){var a=document.getElementById('fart-in');if(a)a.value=m.article;}});
+  makeAC('fpiece-in','fpiece-drop',stk,null);
+  document.getElementById('fpiece-in').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addPieceInput();}});
+}
+function editInter(id){mInter(id);}
+function autoFin(){var deb=document.getElementById('fdeb');var fin=document.getElementById('dfin');if(deb&&fin&&deb.value)fin.value=addWorkdays(deb.value,10);}
+
+/* ================================================================
+   OTHER MODALS
+================================================================ */
+function mMat(id){
+  MODE='mat';EID=id||null;var d=id?D.materiels.find(function(x){return x.id===id;}):{};
+  var cO=D.clients.map(function(c){return'<option'+(d.client===c.nom?' selected':'')+' value="'+escH(c.nom)+'">'+escH(c.nom)+'</option>';}).join('');
+  var tO=D.techniciens.map(function(t){return'<option'+(d.technicien===t.nom?' selected':'')+' value="'+escH(t.nom)+'">'+escH(t.nom)+'</option>';}).join('');
+  var idB=id?'<span class="id-bdg">MAT-'+String(id).padStart(4,'0')+'</span>':'';
+  openModal((id?'Modifier matériel':'Nouveau matériel')+idB,
+    '<div class="fg2"><div class="fg"><label class="fl">Article</label><input class="fi" id="fart" value="'+escH(d.article||'')+'"></div>'+
+    '<div class="fg"><label class="fl">N° de série</label><input class="fi" id="fserie" value="'+escH(d.serie||'')+'"></div></div>'+
+    '<div class="fg2"><div class="fg"><label class="fl">Client</label><select class="fi" id="fcli">'+cO+'</select></div>'+
+    '<div class="fg"><label class="fl">Marque</label><select class="fi" id="fmarq">'+opts(MARQUES,d.marque)+'</select></div></div>'+
+    '<div class="fg"><label class="fl">Technicien</label><select class="fi" id="ftech"><option value="">Non assigné</option>'+tO+'</select></div>'+
+    '<div class="fg"><label class="fl">Localisation</label><select class="fi" id="floc">'+opts(ZONES,d.localisation)+'</select></div>',!!id);
+}
+function editMat(id){mMat(id);}
+
+function mCli(id){
+  MODE='cli';EID=id||null;var d=id?D.clients.find(function(x){return x.id===id;}):{};
+  openModal(id?'Modifier client':'Nouveau client',
+    '<div class="fg"><label class="fl">Nom</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>'+
+    '<div class="fg"><label class="fl">Contact</label><input class="fi" id="fcontact" value="'+escH(d.contact||'')+'"></div>'+
+    '<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>'+
+    '<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>'+
+    '<div class="fg"><label class="fl">Adresse</label><input class="fi" id="fadr" value="'+escH(d.adresse||'')+'"></div>'+
+    '<div class="fg"><label class="fl">Notes</label><textarea class="fi" id="fnotes" rows="2">'+(d.notes||'')+'</textarea></div>',!!id);
+}
+function editCli(id){mCli(id);}
+
+function mTech(id){
+  MODE='tech';EID=id||null;var d=id?D.techniciens.find(function(x){return x.id===id;}):{};
+  var curFonc=d.fonction||d.specialite||'';
+  openModal(id?'Modifier technicien':'Nouveau technicien',
+    '<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="fnom" value="'+escH(d.nom||'')+'"></div>'+
+    '<div class="fg2">'+
+      '<div class="fg"><label class="fl">Fonction</label><select class="fi" id="ffonc">'+opts(FONCTIONS,curFonc)+'</select></div>'+
+      '<div class="fg"><label class="fl">Zone d\'intervention</label><select class="fi" id="fzone">'+opts(ZONES,d.zone)+'</select></div>'+
+    '</div>'+
+    '<div class="fg2"><div class="fg"><label class="fl">Téléphone</label><input class="fi" id="ftel" value="'+escH(d.tel||'')+'"></div>'+
+    '<div class="fg"><label class="fl">Email</label><input class="fi" id="femail" type="email" value="'+escH(d.email||'')+'"></div></div>'+
+    '<div class="fg"><label class="fl">Statut</label><select class="fi" id="fstat"><option'+(d.statut==='Actif'?' selected':'')+' value="Actif">Actif</option><option'+(d.statut==='Inactif'?' selected':'')+' value="Inactif">Inactif</option></select></div>',!!id);
+}
+function editTech(id){mTech(id);}
+
+function mStock(id){
+  MODE='stock';EID=id||null;var d=id?D.stock.find(function(x){return x.id===id;}):{};
+  openModal(id?'Modifier pièce — '+escH(d.ref):'Nouvelle pièce',
+    '<div class="fg2"><div class="fg"><label class="fl">Référence</label><input class="fi" id="fref" value="'+escH(d.ref||'')+'"></div>'+
+    '<div class="fg"><label class="fl">Catégorie</label><input class="fi" id="fcat" value="'+escH(d.categorie||'')+'"></div></div>'+
+    '<div class="fg"><label class="fl">Désignation</label><input class="fi" id="fdes" value="'+escH(d.designation||'')+'"></div>'+
+    '<div class="fg2"><div class="fg"><label class="fl">Quantité</label><input class="fi" type="number" id="fqte" value="'+(d.qte!=null?d.qte:0)+'" min="0" step="1"></div>'+
+    '<div class="fg"><label class="fl">Seuil min.</label><input class="fi" type="number" id="fmin" value="'+(d.qte_min!=null?d.qte_min:1)+'" min="0" step="1"></div></div>'+
+    '<div class="fg2"><div class="fg"><label class="fl">Prix unitaire (€)</label><input class="fi" type="number" step="0.01" id="fprix" value="'+(d.prix||0)+'"></div>'+
+    '<div class="fg"><label class="fl">Fournisseur</label><input class="fi" id="ffour" value="'+escH(d.fournisseur||'')+'"></div></div>',!!id);
+}
+function editStock(id){mStock(Number(id));}
+function cmdStock(id){id=Number(id);var s=D.stock.find(function(x){return x.id===id;});if(!s)return;var q=prompt('Quantité reçue pour '+s.ref+' ?','');if(!q||isNaN(Number(q))||Number(q)<=0)return;s.qte=s.qte+Number(q);s.derniere_commande=todayStr();s.nb_commandes=(s.nb_commandes||0)+1;(async function(){await sbUpdate('stock',s.id,s);save();draw(PAGE,LS);})();}
+
+/* USERS */
+function newUser(){editUser(null);}
+function editUser(id){
+  var u=id?USERS.find(function(x){return x.id===id;}):{perms:[]};
+  var permCBs=ALL_PERMS.map(function(p){var chk=u.role==='admin'||(u.perms&&u.perms.indexOf(p)>=0);var lbl=p.replace('view_','Voir ').replace('edit_','Modifier ');return'<label class="perm-item"><input type="checkbox" value="'+p+'" '+(chk?'checked':'')+' class="perm-chk"> '+escH(lbl)+'</label>';}).join('');
+  var body='<div class="fg"><label class="fl">Nom complet</label><input class="fi" id="u-nom" value="'+escH(u.nom||'')+'"></div>'+
+    '<div class="fg2"><div class="fg"><label class="fl">Identifiant</label><input class="fi" id="u-user" value="'+escH(u.username||'')+'"></div>'+
+    '<div class="fg"><label class="fl">Email (connexion alternative)</label><input class="fi" id="u-email" type="email" value="'+escH(u.email||'')+'"></div></div>'+
+    '<div class="fg"><label class="fl">Mot de passe</label><div style="position:relative"><input class="fi" type="password" id="u-pass" placeholder="'+(id?'Laisser vide = inchangé':'Définir un mot de passe')+'" value="" style="padding-right:36px"><button onclick="tvp(\'u-pass\')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px">&#128065;</button></div></div>'+
+    '<div class="fg"><label class="fl">Rôle</label><select class="fi" id="u-role" onchange="toggleAdminPerms(this.value)"><option'+(u.role==='tech'?' selected':'')+' value="tech">Technicien</option><option'+(u.role==='admin'?' selected':'')+' value="admin">Administrateur</option></select></div>'+
+    '<div class="fg" id="perm-block" style="'+(u.role==='admin'?'opacity:.5;pointer-events:none':'')+'"><label class="fl">Droits d\'accès</label><div class="perm-grid">'+permCBs+'</div></div>';
+  MODE='user';EID=id||null;
+  openModal(id?'Modifier utilisateur':'Nouvel utilisateur',body,id&&u.id!==1);
+}
+function toggleAdminPerms(v){var b=document.getElementById('perm-block');if(b)b.style=v==='admin'?'opacity:.5;pointer-events:none':'';}
+function saveUser(){
+  var nom=gv('u-nom'),uname=gv('u-user'),pass=gv('u-pass'),role=gv('u-role'),email=gv('u-email');
+  var perms=[];document.querySelectorAll('.perm-chk:checked').forEach(function(el){perms.push(el.value);});
+  if(!nom||!uname){alert('Nom et identifiant requis.');return;}
+  if(EID){var u=USERS.find(function(x){return x.id===EID;});u.nom=nom;u.username=uname;u.role=role;u.perms=perms;u.email=email;if(pass)u.password=pass;}
+  else USERS.push({id:nextId('user'),nom:nom,username:uname,password:pass,role:role,perms:perms,email:email});
+  save();closeModal();draw('settings','');
+}
+
+/* ================================================================
+   SAVE MODAL
+================================================================ */
+function saveModal(){
+  if(MODE==='view'){closeModal();return;}
+  if(MODE==='user'){saveUser();return;}
+  if(MODE==='inter'){
+    var o={id:EID||(nextId('inter')),article:gv('fart-in'),serie:gv('fserie-in'),client:gv('fcli'),statut:gv('fstat'),technicien:gv('ftech'),date_debut:gv('fdeb'),date_fin:gv('dfin'),description:gv('fdesc'),pieces:TMP_PIECES.slice(),devis:collectDevis()};
+    if(EID){var i=D.interventions.findIndex(function(x){return x.id===EID;});if(i>=0)D.interventions[i]=o;}else D.interventions.unshift(o);
+    syncMatStatut();
+    /* → historique only if (Terminé or Annulé) AND devis Accepté or Refusé */
+    var dvSettled=o.devis&&(o.devis.statut==='Accepté'||o.devis.statut==='Refusé');
+    if((o.statut==='Terminé'||o.statut==='Annulé')&&dvSettled){
+      o.date_cloture=o.date_cloture||todayStr();
+      if(!D.historique.find(function(h){return h.id===o.id;}))D.historique.unshift(o);
+      D.interventions=D.interventions.filter(function(x){return x.id!==o.id;});
+    }
+  }else if(MODE==='mat'){
+    var dmat=EID?D.materiels.find(function(x){return x.id===EID;}):{}; var o={id:EID||(nextId('mat')),article:gv('fart'),serie:gv('fserie'),client:gv('fcli'),marque:gv('fmarq'),technicien:gv('ftech'),statut:(dmat&&dmat.statut)||'',localisation:gv('floc')};
+    if(EID){var i=D.materiels.findIndex(function(x){return x.id===EID;});if(i>=0)D.materiels[i]=o;}else D.materiels.push(o);
+  }else if(MODE==='cli'){
+    var o={id:EID||(nextId('cli')),nom:gv('fnom'),contact:gv('fcontact'),tel:gv('ftel'),email:gv('femail'),adresse:gv('fadr'),notes:gv('fnotes')};
+    if(EID){var i=D.clients.findIndex(function(x){return x.id===EID;});if(i>=0)D.clients[i]=o;}else D.clients.push(o);
+  }else if(MODE==='tech'){
+    var o={id:EID||(nextId('tech')),nom:gv('fnom'),fonction:gv('ffonc'),zone:gv('fzone'),tel:gv('ftel'),email:gv('femail'),statut:gv('fstat')};
+    if(EID){var i=D.techniciens.findIndex(function(x){return x.id===EID;});if(i>=0)D.techniciens[i]=o;}else D.techniciens.push(o);
+  }else if(MODE==='stock'){
+    var o={id:EID||(nextId('stock')),ref:gv('fref'),designation:gv('fdes'),categorie:gv('fcat'),qte:gn('fqte'),qte_min:gn('fmin'),prix:gn('fprix'),fournisseur:gv('ffour'),delai_reappro:gn('fdelai')||7,derniere_commande:gv('fdcmd'),nb_commandes:(EID?((D.stock.find(function(x){return x.id===EID;})||{}).nb_commandes||0):0)};
+    if(EID){var i=D.stock.findIndex(function(x){return x.id===EID;});if(i>=0)D.stock[i]=o;}else D.stock.push(o);
+  }
+  (async function(){
+    var tables={inter:'interventions',mat:'materiels',cli:'clients',tech:'techniciens',stock:'stock'};
+    var tbl=tables[MODE];
+    if(tbl&&o){await saveToSupa(tbl,o);}
+    save();closeModal();draw(PAGE,LS);
+  })();
+}
+
+/* ================================================================
+   BOOT
+================================================================ */
+load();
+(async function(){
+  var s=await supa.auth.getSession();
+  if(s.data&&s.data.session){
+    await loadFromSupabase();
+    hideLoginOverlay();
+    draw(PAGE,'');
+  } else {
+    showLoginOverlay();
+    draw(PAGE,'');
+  }
+  supa.auth.onAuthStateChange(function(event){
+    if(event==='SIGNED_OUT'){showLoginOverlay();}
+  });
+})();
+</script>
+<div style="position:fixed;bottom:0;left:0;width:220px;padding:10px 14px;background:var(--bg1);border-top:1px solid var(--bdr);border-right:1px solid var(--bdr);z-index:100;box-sizing:border-box">
+  <button onclick="doLogout()" style="width:100%;padding:8px 12px;background:var(--redbg);color:var(--redtxt);border:1px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><span>⏻</span>Se déconnecter</button>
+</div>
+</body>
+</html>
